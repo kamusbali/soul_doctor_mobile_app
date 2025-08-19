@@ -6,23 +6,21 @@ import 'package:soul_doctor/app/utils/theme/spacing_theme.dart';
 import 'package:soul_doctor/app/utils/theme/text_style_theme.dart';
 
 class CardAccountAuthentication extends StatelessWidget {
-  const CardAccountAuthentication({
-    super.key,
-  });
+  const CardAccountAuthentication({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: Get.width,
-      padding: EdgeInsets.symmetric(
-        horizontal: SpacingTheme.SPACING_8,
-        vertical: SpacingTheme.SPACING_11,
+      padding: EdgeInsets.only(
+        left: SpacingTheme.SPACING_8,
+        right: SpacingTheme.SPACING_8,
+        bottom: SpacingTheme.SPACING_11,
+        top: 80,
       ),
       decoration: BoxDecoration(
         image: DecorationImage(
-          image: AssetImage(
-            ConstPath.BACKGROUND_AUTHENTICATION_PROFILE_PATH,
-          ),
+          image: AssetImage(ConstPath.BACKGROUND_AUTHENTICATION_PROFILE_PATH),
           fit: BoxFit.fill,
         ),
       ),
@@ -56,9 +54,7 @@ class CardAccountAuthentication extends StatelessWidget {
                     borderRadius: BorderRadius.circular(10000),
                   ),
                   backgroundColor: ColorTheme.NEUTRAL_100,
-                  foregroundColor: Theme.of(
-                    context,
-                  ).colorScheme.primary,
+                  foregroundColor: Theme.of(context).colorScheme.primary,
                   side: BorderSide(
                     width: 2,
                     color: ColorTheme.CRIMSON_500,

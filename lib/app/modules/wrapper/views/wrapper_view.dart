@@ -11,18 +11,16 @@ class WrapperView extends GetView<WrapperController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: GetBuilder(
-          init: controller,
-          builder: (_) {
-            return IndexedStack(
-              index: controller.activeIndex,
-              children: controller.tabList
-                  .map((element) => element.view)
-                  .toList(),
-            );
-          },
-        ),
+      body: GetBuilder(
+        init: controller,
+        builder: (_) {
+          return IndexedStack(
+            index: controller.activeIndex,
+            children: controller.tabList
+                .map((element) => element.view)
+                .toList(),
+          );
+        },
       ),
       bottomNavigationBar: GetBuilder(
         init: controller,

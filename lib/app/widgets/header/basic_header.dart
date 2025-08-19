@@ -27,7 +27,7 @@ class BasicHeader extends StatelessWidget implements PreferredSizeWidget {
           padding: const EdgeInsets.only(
             left: SpacingTheme.SPACING_8,
             right: SpacingTheme.SPACING_8,
-            top: SpacingTheme.SPACING_8,
+            top: 80,
           ),
           child: Column(
             children: [

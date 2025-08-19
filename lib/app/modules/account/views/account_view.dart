@@ -22,7 +22,11 @@ class AccountView extends GetView<AccountController> {
             !controller.isAuth
                 ? CardAccountAuthentication()
                 : Container(
-                    padding: EdgeInsets.all(SpacingTheme.SPACING_8),
+                    padding: EdgeInsets.only(
+                      left: SpacingTheme.SPACING_8,
+                      right: SpacingTheme.SPACING_8,
+                      top: 80,
+                    ),
                     decoration: BoxDecoration(color: ColorTheme.NEUTRAL_100),
                     child: Column(
                       children: [
