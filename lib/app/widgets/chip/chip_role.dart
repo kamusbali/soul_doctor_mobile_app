@@ -1,0 +1,32 @@
+import 'package:flutter/material.dart';
+import 'package:soul_doctor/app/utils/theme/color_theme.dart';
+import 'package:soul_doctor/app/utils/theme/spacing_theme.dart';
+import 'package:soul_doctor/app/utils/theme/text_style_theme.dart';
+
+class ChipRole extends StatelessWidget {
+  const ChipRole({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: SpacingTheme.SPACING_6,
+        vertical: SpacingTheme.SPACING_2,
+      ),
+      decoration: BoxDecoration(
+        color: ColorTheme.CRIMSON_500,
+        borderRadius: BorderRadius.circular(
+          SpacingTheme.SPACING_11,
+        ),
+      ),
+      child: Text(
+        "Pasien",
+        style: TextStyleTheme.LABEL_4.copyWith(
+          color: ColorTheme.NEUTRAL_100,
+        ),
+      ),
+    );
+  }
+}
