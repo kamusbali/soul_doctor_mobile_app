@@ -60,7 +60,9 @@ class _AccordionAccountLinkedState extends State<AccordionAccountLinked>
           onTap: _toggle,
           borderRadius: BorderRadius.circular(8),
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
+            padding: const EdgeInsets.symmetric(
+              vertical: SpacingTheme.SPACING_8,
+            ),
             child: Row(
               children: [
                 Expanded(
@@ -98,7 +100,6 @@ class _AccordionAccountLinkedState extends State<AccordionAccountLinked>
             },
             child: Column(
               children: [
-                SizedBox(height: SpacingTheme.SPACING_8),
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: SizedBox(
@@ -113,6 +114,7 @@ class _AccordionAccountLinkedState extends State<AccordionAccountLinked>
                     ),
                   ),
                 ),
+                SizedBox(height: SpacingTheme.SPACING_8),
               ],
             ),
           ),

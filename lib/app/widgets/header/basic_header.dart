@@ -48,7 +48,7 @@ class BasicHeader extends StatelessWidget implements PreferredSizeWidget {
               ),
 
               user != null
-                  ? ListUserData()
+                  ? ListUserData(user: user!)
                   : Column(
                       children: [
                         SizedBox(height: SpacingTheme.SPACING_8),

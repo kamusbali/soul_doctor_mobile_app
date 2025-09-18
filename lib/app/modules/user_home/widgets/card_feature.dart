@@ -26,7 +26,7 @@ class CardFeature extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Container(
-        height: 320,
+        height: 250,
         width: 250,
         decoration: BoxDecoration(
           color: backgroundColor,

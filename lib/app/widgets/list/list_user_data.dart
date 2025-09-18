@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:soul_doctor/app/common/constant/dummy.dart';
+import 'package:soul_doctor/app/domain/model/user_data.dart';
 import 'package:soul_doctor/app/utils/theme/color_theme.dart';
 import 'package:soul_doctor/app/utils/theme/spacing_theme.dart';
 import 'package:soul_doctor/app/utils/theme/text_style_theme.dart';
@@ -7,7 +7,9 @@ import 'package:soul_doctor/app/widgets/avatar/circle_photo_profile.dart';
 import 'package:soul_doctor/app/widgets/chip/chip_role.dart';
 
 class ListUserData extends StatelessWidget {
-  const ListUserData({super.key});
+  const ListUserData({super.key, required this.user});
+
+  final UserData user;
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +19,7 @@ class ListUserData extends StatelessWidget {
         Row(
           children: [
             CirclePhotoProfile(
-              image: NetworkImage(Dummy.photoProfile()),
+              image: NetworkImage(user.image),
               height: 64,
               width: 64,
             ),
@@ -27,7 +29,7 @@ class ListUserData extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Hai, Anak Agung Ngurah Putra Tole Armstrong",
+                    "Hai, ${user.name}",
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyleTheme.BODY_2.copyWith(
@@ -35,12 +37,13 @@ class ListUserData extends StatelessWidget {
                     ),
                   ),
                   SizedBox(height: SpacingTheme.SPACING_3),
-                  ChipRole(),
+                  ChipRole(role: user.role),
                 ],
               ),
             ),
           ],
         ),
+        SizedBox(height: SpacingTheme.SPACING_4),
       ],
     );
   }

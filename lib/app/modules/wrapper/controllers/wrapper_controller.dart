@@ -14,7 +14,7 @@ import 'package:soul_doctor/app/modules/volunteer_home/views/volunteer_home_view
 class WrapperController extends GetxController {
   var autoSizeGroup = AutoSizeGroup();
 
-  Role role = Role.guest;
+  Role role = Role.caregiver;
 
   List<AnimatedBottomNavigationBarItem> get tabList {
     switch (role) {

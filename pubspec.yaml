@@ -44,6 +44,8 @@ dependencies:
   amicons: ^1.0.1
   google_fonts: ^6.3.0
   package_info_plus: ^8.3.1
+  flutter_local_notifications: ^19.4.1
+  get_storage: ^2.1.1
 
 dev_dependencies:
   flutter_test:

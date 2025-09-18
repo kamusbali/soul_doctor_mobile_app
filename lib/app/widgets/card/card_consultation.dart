@@ -4,6 +4,7 @@ import 'package:soul_doctor/app/utils/theme/color_theme.dart';
 import 'package:soul_doctor/app/utils/theme/spacing_theme.dart';
 import 'package:soul_doctor/app/utils/theme/text_style_theme.dart';
 import 'package:soul_doctor/app/widgets/chip/chip_tag_consultation.dart';
+import 'package:soul_doctor/app/widgets/chip/chip_tag_consultation_item.dart';
 
 class CardConsultation extends StatelessWidget {
   const CardConsultation({
@@ -13,12 +14,16 @@ class CardConsultation extends StatelessWidget {
     required this.color,
     this.chips,
     this.onTap,
+    this.subTitle,
+    this.overline,
   });
 
   final String? title;
+  final String? subTitle;
+  final String? overline;
   final String body;
   final Color color;
-  final List<String>? chips;
+  final List<ChipTagConsultationItem>? chips;
   final void Function()? onTap;
 
   @override
@@ -50,6 +55,20 @@ class CardConsultation extends StatelessWidget {
                         color: ColorTheme.TEXT_100,
                       ),
                     ),
+                  if (subTitle != null)
+                    Text(
+                      subTitle!,
+                      style: TextStyleTheme.PARAGRAPH_4.copyWith(
+                        color: ColorTheme.TEXT_100,
+                      ),
+                    ),
+                  if (overline != null)
+                    Text(
+                      overline!,
+                      style: TextStyleTheme.PARAGRAPH_6.copyWith(
+                        color: ColorTheme.TEXT_PLACEHOLDER,
+                      ),
+                    ),
                   Text(
                     body,
                     style: TextStyleTheme.PARAGRAPH_5.copyWith(
@@ -60,7 +79,7 @@ class CardConsultation extends StatelessWidget {
                     Row(
                       spacing: SpacingTheme.SPACING_4,
                       children: chips!
-                          .map((element) => ChipTagConsultation(title: element))
+                          .map((element) => ChipTagConsultation(data: element))
                           .toList(),
                     ),
                 ],

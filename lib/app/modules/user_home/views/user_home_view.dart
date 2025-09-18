@@ -44,23 +44,10 @@ class UserHomeView extends GetView<UserHomeController> {
                 ),
               ),
               SizedBox(height: SpacingTheme.SPACING_8),
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    CardFeature(
-                      title: 'Periksa Kondisi Mental',
-                      body:
-                          'Deteksi tanda-tanda gangguan mental hanya dengan menjawab beberapa pertanyaan.',
-                      imageAssetPath: ConstPath
-                          .CARD_ILLUSTRATION_CHECK_MENTAL_CONDITION_PATH,
-                      backgroundColor: ColorTheme.COBALT_400,
-                      onTap: () {
-                        Get.toNamed(Routes.ASSESSMENT_QUESTION);
-                      },
-                    ),
-                    SizedBox(width: SpacingTheme.SPACING_4),
-                    CardFeature(
+              Row(
+                children: [
+                  Expanded(
+                    child: CardFeature(
                       title: 'Ajukan Konsultasi',
                       body:
                           'Minta bantuan tenaga medis  jika Anda memiliki keluhan lebih lanjut.',
@@ -71,8 +58,23 @@ class UserHomeView extends GetView<UserHomeController> {
                         Get.dialog(UnauthorizedDialog());
                       },
                     ),
-                  ],
-                ),
+                  ),
+                  SizedBox(width: SpacingTheme.SPACING_4),
+
+                  Expanded(
+                    child: CardFeature(
+                      title: 'Periksa Mental',
+                      body:
+                          'Deteksi gangguan mental hanya dengan menjawab beberapa pertanyaan.',
+                      imageAssetPath: ConstPath
+                          .CARD_ILLUSTRATION_CHECK_MENTAL_CONDITION_PATH,
+                      backgroundColor: ColorTheme.COBALT_400,
+                      onTap: () {
+                        Get.toNamed(Routes.ASSESSMENT_QUESTION);
+                      },
+                    ),
+                  ),
+                ],
               ),
               SizedBox(height: SpacingTheme.SPACING_11),
               SizedBox(

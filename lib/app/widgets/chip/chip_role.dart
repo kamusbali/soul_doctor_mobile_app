@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:soul_doctor/app/domain/model/role.dart';
 import 'package:soul_doctor/app/utils/theme/color_theme.dart';
 import 'package:soul_doctor/app/utils/theme/spacing_theme.dart';
 import 'package:soul_doctor/app/utils/theme/text_style_theme.dart';
 
 class ChipRole extends StatelessWidget {
-  const ChipRole({
-    super.key,
-  });
+  const ChipRole({super.key, required this.role});
+
+  final Role role;
 
   @override
   Widget build(BuildContext context) {
@@ -17,15 +18,11 @@ class ChipRole extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         color: ColorTheme.CRIMSON_500,
-        borderRadius: BorderRadius.circular(
-          SpacingTheme.SPACING_11,
-        ),
+        borderRadius: BorderRadius.circular(SpacingTheme.SPACING_11),
       ),
       child: Text(
-        "Pasien",
-        style: TextStyleTheme.LABEL_4.copyWith(
-          color: ColorTheme.NEUTRAL_100,
-        ),
+        role.name,
+        style: TextStyleTheme.LABEL_4.copyWith(color: ColorTheme.NEUTRAL_100),
       ),
     );
   }

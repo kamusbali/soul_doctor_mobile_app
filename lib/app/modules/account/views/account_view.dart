@@ -9,6 +9,7 @@ import 'package:soul_doctor/app/utils/theme/color_theme.dart';
 import 'package:soul_doctor/app/utils/theme/spacing_theme.dart';
 import 'package:soul_doctor/app/widgets/list/list_user_data.dart';
 
+import '../../../domain/model/role.dart';
 import '../controllers/account_controller.dart';
 
 class AccountView extends GetView<AccountController> {
@@ -19,7 +20,7 @@ class AccountView extends GetView<AccountController> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            !controller.isAuth
+            !controller.isAuth && controller.user == null
                 ? CardAccountAuthentication()
                 : Container(
                     padding: EdgeInsets.only(
@@ -30,9 +31,11 @@ class AccountView extends GetView<AccountController> {
                     decoration: BoxDecoration(color: ColorTheme.NEUTRAL_100),
                     child: Column(
                       children: [
-                        ListUserData(),
-                        SizedBox(height: SpacingTheme.SPACING_11),
-                        AccordionAccountLinked(),
+                        ListUserData(user: controller.user!),
+                        if (controller.user!.role != Role.doctor &&
+                            controller.user!.role != Role.volunteer) ...[
+                          AccordionAccountLinked(),
+                        ],
                       ],
                     ),
                   ),

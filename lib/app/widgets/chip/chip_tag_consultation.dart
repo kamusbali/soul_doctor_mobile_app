@@ -3,11 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:soul_doctor/app/utils/theme/color_theme.dart';
 import 'package:soul_doctor/app/utils/theme/spacing_theme.dart';
 import 'package:soul_doctor/app/utils/theme/text_style_theme.dart';
+import 'package:soul_doctor/app/widgets/chip/chip_tag_consultation_item.dart';
 
 class ChipTagConsultation extends StatelessWidget {
-  const ChipTagConsultation({super.key, required this.title});
+  const ChipTagConsultation({super.key, required this.data});
 
-  final String title;
+  final ChipTagConsultationItem data;
 
   @override
   Widget build(BuildContext context) {
@@ -28,16 +29,17 @@ class ChipTagConsultation extends StatelessWidget {
         spacing: SpacingTheme.SPACING_2,
         children: [
           Text(
-            title,
+            data.title,
             style: TextStyleTheme.LABEL_5.copyWith(
               color: ColorTheme.TEXT_PLACEHOLDER,
             ),
           ),
-          Icon(
-            Amicons.flaticon_check_rounded,
-            size: 16,
-            color: ColorTheme.NEUTRAL_700,
-          ),
+          if (data.isChecked)
+            Icon(
+              Amicons.flaticon_check_rounded,
+              size: 16,
+              color: ColorTheme.NEUTRAL_700,
+            ),
         ],
       ),
     );

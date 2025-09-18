@@ -7,6 +7,7 @@ import 'package:soul_doctor/app/utils/theme/color_theme.dart';
 import 'package:soul_doctor/app/utils/theme/spacing_theme.dart';
 import 'package:soul_doctor/app/utils/theme/text_style_theme.dart';
 import 'package:soul_doctor/app/widgets/card/card_consultation.dart';
+import 'package:soul_doctor/app/widgets/chip/chip_tag_consultation_item.dart';
 
 import '../controllers/user_history_controller.dart';
 
@@ -252,7 +253,11 @@ class UserHistoryView extends GetView<UserHistoryController> {
                     body:
                         "Cemas berlebihan / Kesulitan tidur / Stres  karena pekerjaan",
                     color: ColorTheme.EUCALYPTUS_200,
-                    chips: ["Obat", "Terapi", "Visit"],
+                    chips: [
+                      ChipTagConsultationItem(title: "Obat", isChecked: true),
+                      ChipTagConsultationItem(title: "Terapi", isChecked: true),
+                      ChipTagConsultationItem(title: "Visit", isChecked: true),
+                    ],
                   ),
                 ],
               ),
