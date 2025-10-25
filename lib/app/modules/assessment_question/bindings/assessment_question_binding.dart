@@ -6,7 +6,7 @@ class AssessmentQuestionBinding extends Bindings {
   @override
   void dependencies() {
     Get.lazyPut<AssessmentQuestionController>(
-      () => AssessmentQuestionController(),
+      () => AssessmentQuestionController(Get.find()),
     );
   }
 }

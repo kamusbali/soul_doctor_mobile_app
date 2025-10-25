@@ -2,16 +2,16 @@ import 'package:amicons/amicons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:soul_doctor/app/common/constant/const_path.dart';
-import 'package:soul_doctor/app/domain/model/user_data.dart';
-import 'package:soul_doctor/app/utils/theme/color_theme.dart';
-import 'package:soul_doctor/app/utils/theme/spacing_theme.dart';
-import 'package:soul_doctor/app/utils/theme/text_style_theme.dart';
+import 'package:soul_doctor/app/domain/model/compact_user.dart';
+import 'package:soul_doctor/app/core/theme/color_theme.dart';
+import 'package:soul_doctor/app/core/theme/spacing_theme.dart';
+import 'package:soul_doctor/app/core/theme/text_style_theme.dart';
 import 'package:soul_doctor/app/widgets/list/list_user_data.dart';
 
-class BasicHeader extends StatelessWidget implements PreferredSizeWidget {
+class BasicHeader extends StatelessWidget {
   const BasicHeader({super.key, required this.onTapNotification, this.user});
 
-  final UserData? user;
+  final CompactUser? user;
   final void Function() onTapNotification;
 
   @override
@@ -79,7 +79,4 @@ class BasicHeader extends StatelessWidget implements PreferredSizeWidget {
       ],
     );
   }
-
-  @override
-  Size get preferredSize => Size.fromHeight(150);
 }

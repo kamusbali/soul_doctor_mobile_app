@@ -1,9 +1,9 @@
 import 'package:amicons/amicons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:soul_doctor/app/utils/theme/color_theme.dart';
-import 'package:soul_doctor/app/utils/theme/spacing_theme.dart';
-import 'package:soul_doctor/app/utils/theme/text_style_theme.dart';
+import 'package:soul_doctor/app/core/theme/color_theme.dart';
+import 'package:soul_doctor/app/core/theme/spacing_theme.dart';
+import 'package:soul_doctor/app/core/theme/text_style_theme.dart';
 
 class ListAnswer extends StatelessWidget {
   const ListAnswer({
@@ -35,10 +35,32 @@ class ListAnswer extends StatelessWidget {
           ),
         ),
         child: Row(
+          spacing: 16,
           children: [
+            Container(
+              width: 15,
+              height: 15,
+              padding: EdgeInsets.all(3),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: BoxBorder.all(
+                  color: isSelected
+                      ? ColorTheme.CRIMSON_500
+                      : ColorTheme.NEUTRAL_700,
+                ),
+              ),
+              child: isSelected
+                  ? Container(
+                      decoration: BoxDecoration(
+                        color: ColorTheme.CRIMSON_500,
+                        shape: BoxShape.circle,
+                      ),
+                    )
+                  : null,
+            ),
             Expanded(
               child: Text(
-                "Kadang-kadang",
+                answer,
                 style: TextStyleTheme.LABEL_3.copyWith(
                   color: isSelected
                       ? ColorTheme.CRIMSON_500

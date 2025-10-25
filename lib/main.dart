@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:soul_doctor/app/utils/theme/color_theme.dart';
+import 'package:soul_doctor/app/core/theme/color_theme.dart';
 
 import 'app/routes/app_pages.dart';
 

@@ -46,6 +46,19 @@ dependencies:
   package_info_plus: ^8.3.1
   flutter_local_notifications: ^19.4.1
   get_storage: ^2.1.1
+  async_dropdown:
+    git:
+      url: git@github.com:AgusDharmaUDEL93/async_dropdown.git
+  dio: ^5.9.0
+  flutter_secure_storage: ^9.2.4
+  pinput: ^5.0.2
+  hive: ^2.2.3
+  internet_connection_checker_plus: ^2.9.0
+  image_picker: ^1.2.0
+  workmanager: ^0.9.0+3
+  path_provider: ^2.1.5
+  infinite_scroll_pagination: ^5.1.1
+  intl: ^0.20.2
 
 dev_dependencies:
   flutter_test:

@@ -47,24 +47,24 @@ android {
             dimension = "app"
             applicationIdSuffix = ".dev"
             versionNameSuffix = "-dev"
-            manifestPlaceholders["app_name"] = "[DEV] Soul Doctor"
-            resValue("string", "app_name", "[DEV] Soul Doctor")
+            manifestPlaceholders["app_name"] = "[DEV] Harmoni Jiwa"
+            resValue("string", "app_name", "[DEV] Harmoni Jiwa")
         }
 
         create("stagging") {
             dimension = "app"
             applicationIdSuffix = ".stage"
             versionNameSuffix = "-stage"
-            manifestPlaceholders["app_name"] = "[STAGE] Soul Doctor"
-            resValue("string", "app_name", "[STAGE] Soul Doctor")
+            manifestPlaceholders["app_name"] = "[STAGE] Harmoni Jiwa"
+            resValue("string", "app_name", "[STAGE] Harmoni Jiwa")
         }
 
         create("production") {
             dimension = "app"
             applicationIdSuffix = ".production"
             versionNameSuffix = "-production"
-            manifestPlaceholders["app_name"] = "Soul Doctor"
-            resValue("string", "app_name", "Soul Doctor")
+            manifestPlaceholders["app_name"] = "Harmoni Jiwa"
+            resValue("string", "app_name", "Harmoni Jiwa")
         }
     }
 }

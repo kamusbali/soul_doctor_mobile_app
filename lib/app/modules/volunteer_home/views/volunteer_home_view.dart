@@ -1,36 +1,63 @@
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
+import 'package:soul_doctor/app/routes/app_pages.dart';
+import 'package:soul_doctor/app/widgets/card/card_add_consultation.dart';
 import 'package:soul_doctor/app/widgets/card/card_consultation.dart';
 import 'package:soul_doctor/app/widgets/chip/chip_tag_consultation_item.dart';
 
-import '../../../common/constant/dummy.dart';
-import '../../../domain/model/role.dart';
-import '../../../domain/model/user_data.dart';
-import '../../../utils/theme/color_theme.dart';
-import '../../../utils/theme/spacing_theme.dart';
-import '../../../utils/theme/text_style_theme.dart';
+import '../../../core/theme/color_theme.dart';
+import '../../../core/theme/spacing_theme.dart';
+import '../../../core/theme/text_style_theme.dart';
 import '../../../widgets/header/basic_header.dart';
+import '../../wrapper/controllers/wrapper_controller.dart';
 import '../controllers/volunteer_home_controller.dart';
 
 class VolunteerHomeView extends GetView<VolunteerHomeController> {
-  const VolunteerHomeView({super.key});
+  final WrapperController _wrapperController = Get.find();
+
+  VolunteerHomeView({super.key});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: BasicHeader(
-        user: UserData(
-          name: "Anak Agung Ngurah Putra Tole Armstrong",
-          role: Role.volunteer,
-          image: Dummy.photoProfile(),
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(150),
+        child: GetBuilder<WrapperController>(
+          init: _wrapperController,
+          initState: (_) {},
+          builder: (_) {
+            return BasicHeader(
+              user: _wrapperController.user,
+              onTapNotification: () {},
+            );
+          },
         ),
-        onTapNotification: () {},
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+          padding: EdgeInsets.symmetric(
+            horizontal: SpacingTheme.SPACING_8,
+            vertical: SpacingTheme.SPACING_11,
+          ),
           child: Column(
             children: [
+              SizedBox(
+                width: Get.width,
+                child: Text(
+                  "Fitur Unggulan",
+                  style: TextStyleTheme.BODY_2.copyWith(
+                    color: ColorTheme.TEXT_100,
+                  ),
+                ),
+              ),
+              SizedBox(height: SpacingTheme.SPACING_4),
+              CardAddConsultation(
+                onTap: () {
+                  Get.toNamed(Routes.ADD_VISIT_REQUEST);
+                },
+              ),
+              SizedBox(height: SpacingTheme.SPACING_11),
+
               SizedBox(
                 width: Get.width,
                 child: Text(
@@ -49,10 +76,18 @@ class VolunteerHomeView extends GetView<VolunteerHomeController> {
                     "Cemas berlebihan / Kesulitan tidur / Stres  karena pekerjaan",
                 color: ColorTheme.COBALT_200,
                 chips: [
-                  ChipTagConsultationItem(title: "69 Tahun", isChecked: false),
-                  ChipTagConsultationItem(title: "Laki-Laki", isChecked: false),
-                  ChipTagConsultationItem(title: "Diasuh", isChecked: false),
+                  ChipTagItem(title: "69 Tahun", isChecked: false),
+                  ChipTagItem(title: "Laki-Laki", isChecked: false),
+                  ChipTagItem(title: "Diasuh", isChecked: false),
                 ],
+              ),
+              SizedBox(height: SpacingTheme.SPACING_4),
+              OutlinedButton(
+                onPressed: () {},
+                style: OutlinedButton.styleFrom(side: BorderSide.none),
+                child: Center(
+                  child: Text("Lihat Semua", style: TextStyleTheme.LABEL_1),
+                ),
               ),
               SizedBox(height: SpacingTheme.SPACING_11),
               SizedBox(
@@ -73,10 +108,18 @@ class VolunteerHomeView extends GetView<VolunteerHomeController> {
                     "Cemas berlebihan / Kesulitan tidur / Stres  karena pekerjaan",
                 color: ColorTheme.GAMBOGE_200,
                 chips: [
-                  ChipTagConsultationItem(title: "27 Tahun", isChecked: false),
-                  ChipTagConsultationItem(title: "Laki-Laki", isChecked: false),
-                  ChipTagConsultationItem(title: "Diasuh", isChecked: false),
+                  ChipTagItem(title: "27 Tahun", isChecked: false),
+                  ChipTagItem(title: "Laki-Laki", isChecked: false),
+                  ChipTagItem(title: "Diasuh", isChecked: false),
                 ],
+              ),
+              SizedBox(height: SpacingTheme.SPACING_4),
+              OutlinedButton(
+                onPressed: () {},
+                style: OutlinedButton.styleFrom(side: BorderSide.none),
+                child: Center(
+                  child: Text("Lihat Semua", style: TextStyleTheme.LABEL_1),
+                ),
               ),
             ],
           ),

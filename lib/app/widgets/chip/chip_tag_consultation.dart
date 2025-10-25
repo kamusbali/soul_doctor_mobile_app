@@ -1,14 +1,14 @@
 import 'package:amicons/amicons.dart';
 import 'package:flutter/material.dart';
-import 'package:soul_doctor/app/utils/theme/color_theme.dart';
-import 'package:soul_doctor/app/utils/theme/spacing_theme.dart';
-import 'package:soul_doctor/app/utils/theme/text_style_theme.dart';
+import 'package:soul_doctor/app/core/theme/color_theme.dart';
+import 'package:soul_doctor/app/core/theme/spacing_theme.dart';
+import 'package:soul_doctor/app/core/theme/text_style_theme.dart';
 import 'package:soul_doctor/app/widgets/chip/chip_tag_consultation_item.dart';
 
-class ChipTagConsultation extends StatelessWidget {
-  const ChipTagConsultation({super.key, required this.data});
+class ChipTag extends StatelessWidget {
+  const ChipTag({super.key, required this.data});
 
-  final ChipTagConsultationItem data;
+  final ChipTagItem data;
 
   @override
   Widget build(BuildContext context) {

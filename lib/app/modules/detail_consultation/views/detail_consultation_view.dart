@@ -2,10 +2,11 @@ import 'package:amicons/amicons.dart';
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
+import 'package:soul_doctor/app/common/resource.dart';
 import 'package:soul_doctor/app/modules/detail_consultation/widgets/list_consultation_data.dart';
-import 'package:soul_doctor/app/utils/theme/color_theme.dart';
-import 'package:soul_doctor/app/utils/theme/spacing_theme.dart';
-import 'package:soul_doctor/app/utils/theme/text_style_theme.dart';
+import 'package:soul_doctor/app/core/theme/color_theme.dart';
+import 'package:soul_doctor/app/core/theme/spacing_theme.dart';
+import 'package:soul_doctor/app/core/theme/text_style_theme.dart';
 
 import '../controllers/detail_consultation_controller.dart';
 
@@ -16,7 +17,7 @@ class DetailConsultationView extends GetView<DetailConsultationController> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Konsultasi 26 April 2025',
+          'Detail Konsultasi',
           style: TextStyleTheme.BODY_2.copyWith(color: ColorTheme.TEXT_100),
         ),
         backgroundColor: Colors.white,
@@ -35,50 +36,90 @@ class DetailConsultationView extends GetView<DetailConsultationController> {
         child: SingleChildScrollView(
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-            child: Column(
-              spacing: SpacingTheme.SPACING_6,
-              children: [
-                ListConsultationData(
-                  title: 'Keluhan',
-                  body:
-                      'Cemas berlebihan / Kesulitan tidur / Stres  karena pekerjaan',
-                  icon: Amicons.flaticon_comment_rounded,
-                ),
-                ListConsultationData(
-                  title: 'Diagnosa Dokter',
-                  body: 'Depresi',
-                  icon: Amicons.flaticon_stethoscope_rounded,
-                ),
-                ListConsultationData(
-                  title: 'Diagnosa Dokter',
-                  bodyList: [
-                    "Clonazepam 0.5 mg (1 x sehari sampai habis)",
-                    "Amoxicillin 500 mg (3 x sehari sampai habis)",
-                  ],
-                  icon: Amicons.lucide_pill,
-                ),
-                ListConsultationData(
-                  title: 'Terapi',
-                  bodyList: [
-                    "Istirahat cukup, kurangi penggunaan gadget sebelum tidur",
-                    "Kurangi makanan pedas dan berkafein",
-                    "Olahraga ringan dan rutin",
-                    "Konsultasi ulang jika keluhan tidak membaik dalam 1 minggu",
-                  ],
-                  icon: Amicons.flaticon_hand_holding_heart_rounded,
-                ),
-                ListConsultationData(
-                  title: 'Catatan Dokter',
-                  body: 'Jangan malas',
-                  icon: Amicons.flaticon_notebook_rounded,
-                ),
-                ListConsultationData(
-                  title: 'Visitor',
-                  body: 'I Made Balik',
-                  icon: Amicons.flaticon_user_rounded,
-                ),
-              ],
-            ),
+            child: Obx(() {
+              switch (controller.consultationDetail.value.status) {
+                case Status.loading:
+                  return Center(child: CircularProgressIndicator());
+                case Status.success:
+                  var data = controller.consultationDetail.value.data!;
+                  return Column(
+                    spacing: SpacingTheme.SPACING_6,
+                    children: [
+                      // ListConsultationData(
+                      //   title: 'Keluhan',
+                      //   body: data.state.getName(controller.sessionData?.role),
+                      //   icon: Amicons.flaticon_comment_rounded,
+                      // ),
+                      ListConsultationData(
+                        title: 'Keluhan',
+                        body: data.symptom,
+                        icon: Amicons.flaticon_comment_rounded,
+                      ),
+                      ListConsultationData(
+                        title: 'Diagnosa Dokter',
+                        body: data.diagnosis,
+                        icon: Amicons.flaticon_stethoscope_rounded,
+                      ),
+                      ListConsultationData(
+                        title: 'Obat',
+                        body: data.medication,
+                        icon: Amicons.lucide_pill,
+                      ),
+                      ListConsultationData(
+                        title: 'Terapi',
+                        body: data.therapy,
+                        icon: Amicons.flaticon_hand_holding_heart_rounded,
+                      ),
+                      ListConsultationData(
+                        title: 'Catatan Dokter',
+                        body: 'Jangan malas',
+                        icon: Amicons.flaticon_notebook_rounded,
+                      ),
+                      ListConsultationData(
+                        title: 'Visitor',
+                        body: data.visitor,
+                        icon: Amicons.flaticon_user_rounded,
+                      ),
+                    ],
+                  );
+                default:
+                  return Column(
+                    spacing: SpacingTheme.SPACING_6,
+                    children: [
+                      ListConsultationData(
+                        title: 'Keluhan',
+                        body: '-',
+                        icon: Amicons.flaticon_comment_rounded,
+                      ),
+                      ListConsultationData(
+                        title: 'Diagnosa Dokter',
+                        body: '-',
+                        icon: Amicons.flaticon_stethoscope_rounded,
+                      ),
+                      ListConsultationData(
+                        title: 'Obat',
+                        body: "-",
+                        icon: Amicons.lucide_pill,
+                      ),
+                      ListConsultationData(
+                        title: 'Terapi',
+                        body: "-",
+                        icon: Amicons.flaticon_hand_holding_heart_rounded,
+                      ),
+                      ListConsultationData(
+                        title: 'Catatan Dokter',
+                        body: '-',
+                        icon: Amicons.flaticon_notebook_rounded,
+                      ),
+                      ListConsultationData(
+                        title: 'Visitor',
+                        body: '-',
+                        icon: Amicons.flaticon_user_rounded,
+                      ),
+                    ],
+                  );
+              }
+            }),
           ),
         ),
       ),

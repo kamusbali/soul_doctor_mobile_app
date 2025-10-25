@@ -1,8 +1,8 @@
 import 'package:amicons/amicons.dart';
 import 'package:flutter/material.dart';
-import 'package:soul_doctor/app/utils/theme/color_theme.dart';
-import 'package:soul_doctor/app/utils/theme/spacing_theme.dart';
-import 'package:soul_doctor/app/utils/theme/text_style_theme.dart';
+import 'package:soul_doctor/app/core/theme/color_theme.dart';
+import 'package:soul_doctor/app/core/theme/spacing_theme.dart';
+import 'package:soul_doctor/app/core/theme/text_style_theme.dart';
 import 'package:soul_doctor/app/widgets/chip/chip_tag_consultation.dart';
 import 'package:soul_doctor/app/widgets/chip/chip_tag_consultation_item.dart';
 
@@ -23,7 +23,7 @@ class CardConsultation extends StatelessWidget {
   final String? overline;
   final String body;
   final Color color;
-  final List<ChipTagConsultationItem>? chips;
+  final List<ChipTagItem>? chips;
   final void Function()? onTap;
 
   @override
@@ -74,12 +74,14 @@ class CardConsultation extends StatelessWidget {
                     style: TextStyleTheme.PARAGRAPH_5.copyWith(
                       color: ColorTheme.TEXT_200,
                     ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   if (chips != null && chips!.isNotEmpty)
-                    Row(
+                    Wrap(
                       spacing: SpacingTheme.SPACING_4,
                       children: chips!
-                          .map((element) => ChipTagConsultation(data: element))
+                          .map((element) => ChipTag(data: element))
                           .toList(),
                     ),
                 ],

@@ -1,24 +1,31 @@
 import 'package:amicons/amicons.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:get/get.dart';
-import 'package:soul_doctor/app/domain/model/helpers/animated_bottom_navigation_bar_item.dart';
+import 'package:soul_doctor/app/domain/model/compact_user.dart';
+import 'package:soul_doctor/app/widgets/bottom_navigation_bar/animated_bottom_navigation_bar_item.dart';
 import 'package:soul_doctor/app/domain/model/role.dart';
+import 'package:soul_doctor/app/domain/use_case/profile_use_cases/profile_use_cases.dart';
 import 'package:soul_doctor/app/modules/account/views/account_view.dart';
-import 'package:soul_doctor/app/modules/doctor_history/views/doctor_history_view.dart';
+import 'package:soul_doctor/app/modules/consultation/views/consultation_view.dart';
 import 'package:soul_doctor/app/modules/doctor_home/views/doctor_home_view.dart';
-import 'package:soul_doctor/app/modules/user_history/views/user_history_view.dart';
+import 'package:soul_doctor/app/modules/patient_history/views/patient_history_view.dart';
+import 'package:soul_doctor/app/modules/patient/views/patient_view.dart';
 import 'package:soul_doctor/app/modules/user_home/views/user_home_view.dart';
-import 'package:soul_doctor/app/modules/volunteer_history/views/volunteer_history_view.dart';
+import 'package:soul_doctor/app/modules/visit/views/visit_view.dart';
 import 'package:soul_doctor/app/modules/volunteer_home/views/volunteer_home_view.dart';
 
 class WrapperController extends GetxController {
+  final ProfileUseCases _profileUseCases;
+
+  WrapperController(this._profileUseCases);
+
   var autoSizeGroup = AutoSizeGroup();
 
-  Role role = Role.caregiver;
+  CompactUser? user;
 
   List<AnimatedBottomNavigationBarItem> get tabList {
-    switch (role) {
-      case Role.patient || Role.caregiver || Role.guest:
+    switch (user?.role) {
+      case Role.patient:
         return [
           AnimatedBottomNavigationBarItem(
             view: UserHomeView(),
@@ -26,9 +33,27 @@ class WrapperController extends GetxController {
             label: "Beranda",
           ),
           AnimatedBottomNavigationBarItem(
-            view: UserHistoryView(),
+            view: PatientHistoryView(),
             icon: Amicons.flaticon_treatment_rounded_fill,
             label: "Riwayat",
+          ),
+          AnimatedBottomNavigationBarItem(
+            view: AccountView(),
+            icon: Amicons.flaticon_user_rounded_fill,
+            label: "Akun",
+          ),
+        ];
+      case Role.caregiver:
+        return [
+          AnimatedBottomNavigationBarItem(
+            view: UserHomeView(),
+            icon: Amicons.flaticon_home_rounded_fill,
+            label: "Beranda",
+          ),
+          AnimatedBottomNavigationBarItem(
+            view: PatientView(),
+            icon: Amicons.remix_user5_fill,
+            label: "Pasien",
           ),
           AnimatedBottomNavigationBarItem(
             view: AccountView(),
@@ -44,9 +69,14 @@ class WrapperController extends GetxController {
             label: "Beranda",
           ),
           AnimatedBottomNavigationBarItem(
-            view: VolunteerHistoryView(),
-            icon: Amicons.flaticon_treatment_rounded_fill,
-            label: "Riwayat",
+            view: VisitView(),
+            icon: Amicons.remix_todo_fill,
+            label: "Visit",
+          ),
+          AnimatedBottomNavigationBarItem(
+            view: PatientView(),
+            icon: Amicons.remix_user5_fill,
+            label: "Pasien",
           ),
           AnimatedBottomNavigationBarItem(
             view: AccountView(),
@@ -62,9 +92,27 @@ class WrapperController extends GetxController {
             label: "Beranda",
           ),
           AnimatedBottomNavigationBarItem(
-            view: DoctorHistoryView(),
+            view: ConsultationView(),
             icon: Amicons.flaticon_treatment_rounded_fill,
-            label: "Riwayat",
+            label: "Konsultasi",
+          ),
+          AnimatedBottomNavigationBarItem(
+            view: PatientView(),
+            icon: Amicons.remix_user5_fill,
+            label: "Pasien",
+          ),
+          AnimatedBottomNavigationBarItem(
+            view: AccountView(),
+            icon: Amicons.flaticon_user_rounded_fill,
+            label: "Akun",
+          ),
+        ];
+      default:
+        return [
+          AnimatedBottomNavigationBarItem(
+            view: UserHomeView(),
+            icon: Amicons.flaticon_home_rounded_fill,
+            label: "Beranda",
           ),
           AnimatedBottomNavigationBarItem(
             view: AccountView(),
@@ -80,6 +128,8 @@ class WrapperController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    
+    getProfile();
   }
 
   @override
@@ -102,13 +152,18 @@ class WrapperController extends GetxController {
     update();
   }
 
-  void onChangeRole() {
-    resetIndex();
-    if (role == Role.guest) {
-      role = Role.volunteer;
-    } else {
-      role = Role.guest;
-    }
-    update();
+  void getProfile() async {
+    var profileData = await _profileUseCases.getCompactProfileUseCase.execute();
+
+    profileData.fold(
+      (failure) {
+        user = null;
+        update();
+      },
+      (success) {
+        user = success;
+        update();
+      },
+    );
   }
 }

@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:soul_doctor/app/common/constant/const_path.dart';
-import 'package:soul_doctor/app/utils/theme/color_theme.dart';
-import 'package:soul_doctor/app/utils/theme/spacing_theme.dart';
-import 'package:soul_doctor/app/utils/theme/text_style_theme.dart';
+import 'package:soul_doctor/app/core/theme/color_theme.dart';
+import 'package:soul_doctor/app/core/theme/spacing_theme.dart';
+import 'package:soul_doctor/app/core/theme/text_style_theme.dart';
 
 class CardAccountAuthentication extends StatelessWidget {
-  const CardAccountAuthentication({super.key});
+  const CardAccountAuthentication({
+    super.key,
+    required this.onRegister,
+    required this.onLogin,
+  });
+
+  final void Function() onRegister;
+  final void Function() onLogin;
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +45,7 @@ class CardAccountAuthentication extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               FilledButton(
-                onPressed: () {},
+                onPressed: onLogin,
                 child: Text(
                   "Masuk",
                   style: TextStyleTheme.LABEL_1.copyWith(
@@ -48,7 +55,7 @@ class CardAccountAuthentication extends StatelessWidget {
               ),
               SizedBox(width: SpacingTheme.SPACING_4),
               OutlinedButton(
-                onPressed: () {},
+                onPressed: onRegister,
                 style: OutlinedButton.styleFrom(
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10000),

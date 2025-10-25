@@ -5,8 +5,6 @@ import '../controllers/wrapper_controller.dart';
 class WrapperBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut<WrapperController>(
-      () => WrapperController(),
-    );
+    Get.lazyPut<WrapperController>(() => WrapperController(Get.find()));
   }
 }

@@ -1,13 +1,24 @@
 import 'package:amicons/amicons.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:soul_doctor/app/modules/account/widgets/accordion_account_linked_item.dart';
 import 'package:soul_doctor/app/modules/account/widgets/card_account_linked.dart';
-import 'package:soul_doctor/app/utils/theme/color_theme.dart';
-import 'package:soul_doctor/app/utils/theme/spacing_theme.dart';
-import 'package:soul_doctor/app/utils/theme/text_style_theme.dart';
+import 'package:soul_doctor/app/core/theme/color_theme.dart';
+import 'package:soul_doctor/app/core/theme/spacing_theme.dart';
+import 'package:soul_doctor/app/core/theme/text_style_theme.dart';
 
 class AccordionAccountLinked extends StatefulWidget {
-  const AccordionAccountLinked({super.key});
+  const AccordionAccountLinked({
+    super.key,
+    this.isPatient = false,
+    this.onAddPatient,
+    required this.items,
+  });
+
+  final bool isPatient;
+
+  final void Function()? onAddPatient;
+
+  final List<AccordionAccountLinkedItem> items;
 
   @override
   State<AccordionAccountLinked> createState() => _AccordionAccountLinkedState();
@@ -18,8 +29,8 @@ class _AccordionAccountLinkedState extends State<AccordionAccountLinked>
   bool isExpanded = false;
 
   late final AnimationController _controller;
-  late final Animation<double> _arrowTurns; // rotasi ikon 0..0.5 = 0..180°
-  late final Animation<double> _expand; // progress expand 0..1
+  late final Animation<double> _arrowTurns;
+  late final Animation<double> _expand;
 
   @override
   void initState() {
@@ -67,7 +78,9 @@ class _AccordionAccountLinkedState extends State<AccordionAccountLinked>
               children: [
                 Expanded(
                   child: Text(
-                    "Pengasuh Pasien",
+                    widget.isPatient
+                        ? "Pengasuh Pasien"
+                        : "Daftar Pasien Asuhan",
                     style: TextStyleTheme.BODY_2.copyWith(
                       color: ColorTheme.TEXT_100,
                     ),
@@ -100,19 +113,34 @@ class _AccordionAccountLinkedState extends State<AccordionAccountLinked>
             },
             child: Column(
               children: [
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: SizedBox(
-                    width: Get.width,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      spacing: SpacingTheme.SPACING_4,
-                      children: const [
-                        CardAccountLinked(),
-                        // tambahkan item lain di sini
-                      ],
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  spacing: SpacingTheme.SPACING_4,
+                  children: [
+                    if (!widget.isPatient)
+                      CardAccountLinked(
+                        isAddCard: true,
+                        title: "Tambah Pasien Asuhan",
+                        onTap: widget.onAddPatient,
+                      ),
+                    Expanded(
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          spacing: SpacingTheme.SPACING_4,
+                          children: widget.items
+                              .map(
+                                (element) => CardAccountLinked(
+                                  title: element.title,
+                                  onTap: element.onTap,
+                                ),
+                              )
+                              .toList(),
+                        ),
+                      ),
                     ),
-                  ),
+                  ],
                 ),
                 SizedBox(height: SpacingTheme.SPACING_8),
               ],

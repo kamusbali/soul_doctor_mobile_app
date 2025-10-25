@@ -1,6 +1,6 @@
-class ChipTagConsultationItem {
+class ChipTagItem {
   String title;
   bool isChecked;
 
-  ChipTagConsultationItem({required this.title, required this.isChecked});
+  ChipTagItem({required this.title, required this.isChecked});
 }
