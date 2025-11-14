@@ -6,7 +6,7 @@ abstract class ApiUrl {
   static final register = "/auth/register";
   static final verifyOtp = "/auth/verify-otp";
   static final createPin = "/auth/create-pin";
-  static final login = "/auth/create-pin";
+  static final login = "/auth/login";
   static final changePin = "/auth/change-pin";
   static final forgetPassword = "/auth/change-pin";
   static final refreshToken = "/auth/refresh";
@@ -17,7 +17,8 @@ abstract class ApiUrl {
 
   static final visits = "/visits";
   static final visitsReport = '/visits/report';
-  static final visitsReject = '/visits/report';
+  static final visitsReject = '/visits/reject';
+  static final visitsAccept = "/visit/accept";
 
   static final diagnosis = "/diagnosis";
 

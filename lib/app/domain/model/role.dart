@@ -65,4 +65,17 @@ enum Role {
 
     return null;
   }
+
+  static Role? getRoleByName(String? name) {
+    if (name == "patient") {
+      return Role.patient;
+    } else if (name == "caregiver") {
+      return Role.caregiver;
+    } else if (name == "volunteer") {
+      return Role.volunteer;
+    } else if (name == "doctor") {
+      return Role.doctor;
+    }
+    return null;
+  }
 }

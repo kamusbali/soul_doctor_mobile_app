@@ -1,9 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
-import 'package:soul_doctor/app/common/constant/default.dart';
 import 'package:soul_doctor/app/core/error/error_type.dart';
 import 'package:soul_doctor/app/core/error/failure.dart';
-import 'package:soul_doctor/app/core/infrastructure/auth/role_manager.dart';
 import 'package:soul_doctor/app/data/source/remote/dto/common/response_wrapper.dart';
 import 'package:soul_doctor/app/data/source/remote/dto/request/profile_request.dart';
 import 'package:soul_doctor/app/data/source/remote/dto/response/compact_user_response_dto.dart';
@@ -11,11 +9,15 @@ import 'package:soul_doctor/app/data/source/remote/dto/response/profile_response
 import 'package:soul_doctor/app/data/source/remote/provider/profile_provider.dart';
 import 'package:soul_doctor/app/domain/repository/profile_repository.dart';
 
+import '../../domain/model/education.dart';
+import '../../domain/model/gender.dart';
+import '../../domain/model/marital.dart';
+import '../../domain/model/religion.dart';
 import '../../domain/model/role.dart';
 
 class ProfileRepositoryImpl extends ProfileRepository {
   final ProfileProvider _profileProvider;
-  final RoleManager _roleManager = RoleManager.instance;
+  // final RoleManager _roleManager = RoleManager.instance;
 
   ProfileRepositoryImpl(this._profileProvider);
 
@@ -26,7 +28,9 @@ class ProfileRepositoryImpl extends ProfileRepository {
 
       if (response.data == null) return Left(Failure("Tidak ada data profile"));
 
-      _roleManager.saveCurrentRole(response.data!.role ?? Default.defaultInt);
+      // _roleManager.saveCurrentRole(
+      //   response.data!.role ?? Default.defaultString,
+      // );
 
       return Right(response.data);
     } catch (e) {
@@ -59,11 +63,11 @@ class ProfileRepositoryImpl extends ProfileRepository {
     required String phone,
     required String email,
     required DateTime birthday,
-    required bool gender,
-    required String maritalStatusId,
-    required String lastEducationId,
+    required Gender gender,
+    required Marital maritalStatusId,
+    required Education lastEducationId,
     required String job,
-    required String religionId,
+    required Religion religionId,
     required String address,
   }) async {
     try {
@@ -75,11 +79,11 @@ class ProfileRepositoryImpl extends ProfileRepository {
           phone: phone,
           email: email,
           birthday: birthday,
-          gender: gender,
-          maritalStatusId: maritalStatusId,
-          lastEducationId: lastEducationId,
+          gender: gender.value,
+          maritalStatusId: maritalStatusId.id,
+          lastEducationId: lastEducationId.id,
           job: job,
-          religionId: religionId,
+          religionId: religionId.id,
           address: address,
         ),
       );
@@ -114,11 +118,11 @@ class ProfileRepositoryImpl extends ProfileRepository {
     required String phone,
     required String email,
     required DateTime birthday,
-    required bool gender,
-    required String maritalStatusId,
-    required String lastEducationId,
+    required Gender gender,
+    required Marital maritalStatusId,
+    required Education lastEducationId,
     required String job,
-    required String religionId,
+    required Religion religionId,
     required String address,
   }) async {
     try {
@@ -130,11 +134,11 @@ class ProfileRepositoryImpl extends ProfileRepository {
           phone: phone,
           email: email,
           birthday: birthday,
-          gender: gender,
-          maritalStatusId: maritalStatusId,
-          lastEducationId: lastEducationId,
+          gender: gender.value,
+          maritalStatusId: maritalStatusId.id,
+          lastEducationId: lastEducationId.id,
           job: job,
-          religionId: religionId,
+          religionId: religionId.id,
           address: address,
         ),
       );

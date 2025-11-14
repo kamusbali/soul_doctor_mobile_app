@@ -23,6 +23,16 @@ abstract class Routes {
   static const ACCOUNT_SETTING = _Paths.ACCOUNT_SETTING;
   static const PATIENT_DETAIL_HISTORY = _Paths.PATIENT_DETAIL_HISTORY;
   static const ACCOUNT_SETTING_FORM = _Paths.ACCOUNT_SETTING_FORM;
+  static const VISIT_DETAIL = _Paths.VISIT_DETAIL;
+  static const REPORT_VISIT = _Paths.REPORT_VISIT;
+  static const CONSULTATION_REQUEST_DETAIL = _Paths.CONSULTATION_REQUEST_DETAIL;
+  static const DIAGNOSIS_FORM = _Paths.DIAGNOSIS_FORM;
+  static const VISIT_SCHEDULE_FORM = _Paths.VISIT_SCHEDULE_FORM;
+  static const OTP_VERIFICATION = _Paths.OTP_VERIFICATION;
+  static const INPUT_PROFILE = _Paths.INPUT_PROFILE;
+  static const CREATE_PIN = _Paths.CREATE_PIN;
+  static const UPDATE_PIN = _Paths.UPDATE_PIN;
+  static const CREATE_PATIENT = _Paths.CREATE_PATIENT;
 }
 
 abstract class _Paths {
@@ -47,4 +57,14 @@ abstract class _Paths {
   static const ACCOUNT_SETTING = '/account-setting';
   static const PATIENT_DETAIL_HISTORY = '/patient-detail-history';
   static const ACCOUNT_SETTING_FORM = '/account-setting-form';
+  static const VISIT_DETAIL = '/visit-detail';
+  static const REPORT_VISIT = '/report-visit';
+  static const CONSULTATION_REQUEST_DETAIL = '/consultation-request-detail';
+  static const DIAGNOSIS_FORM = '/diagnosis-form';
+  static const VISIT_SCHEDULE_FORM = '/visit-schedule-form';
+  static const OTP_VERIFICATION = '/otp-verification';
+  static const INPUT_PROFILE = '/input-profile';
+  static const CREATE_PIN = '/create-pin';
+  static const UPDATE_PIN = '/update-pin';
+  static const CREATE_PATIENT = '/create-patient';
 }

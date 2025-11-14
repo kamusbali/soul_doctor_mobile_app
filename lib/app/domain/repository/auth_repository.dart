@@ -27,6 +27,7 @@ abstract class AuthRepository {
   });
 
   Future<Either<Failure, bool>> changePin({
+    required String oldPin,
     required String newPin,
     required String newPinRepeat,
   });
@@ -40,4 +41,9 @@ abstract class AuthRepository {
   Future<void> logout();
 
   Future<bool> getSessionStatus();
+
+  Future<void> onSaveToken({
+    required String accessToken,
+    required String refreshToken,
+  });
 }

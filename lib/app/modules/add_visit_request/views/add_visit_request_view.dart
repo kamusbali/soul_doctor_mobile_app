@@ -3,6 +3,7 @@ import 'package:async_dropdown/async_dropdown.dart';
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
+import 'package:soul_doctor/app/widgets/header/basic_app_bar.dart';
 
 import '../../../core/theme/color_theme.dart';
 import '../../../core/theme/spacing_theme.dart';
@@ -14,23 +15,7 @@ class AddVisitRequestView extends GetView<AddVisitRequestController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Formulir Pengusulan Visit',
-          style: TextStyleTheme.BODY_2.copyWith(color: ColorTheme.TEXT_100),
-        ),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        centerTitle: true,
-        leading: IconButton(
-          onPressed: () => Get.back(),
-          icon: Icon(
-            Amicons.flaticon_arrow_left_rounded,
-            color: ColorTheme.NEUTRAL_900,
-          ),
-        ),
-        automaticallyImplyLeading: false,
-      ),
+      appBar: BasicAppBar(title: 'Formulir Pengusulan Visit'),
       body: SingleChildScrollView(
         child: Padding(
           padding: EdgeInsetsGeometry.symmetric(

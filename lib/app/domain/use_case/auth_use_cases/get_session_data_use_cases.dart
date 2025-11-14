@@ -7,6 +7,10 @@ class GetSessionDataUseCases {
   GetSessionDataUseCases(this._authRepository);
 
   Future<SessionData?> execute() async {
-    return await _authRepository.getSessionData();
+    try {
+      return await _authRepository.getSessionData();
+    } catch (_) {
+      return null;
+    }
   }
 }

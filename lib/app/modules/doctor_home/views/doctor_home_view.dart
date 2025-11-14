@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
 
+import '../../../common/resource.dart';
 import '../../../routes/app_pages.dart';
 import '../../../core/theme/color_theme.dart';
 import '../../../core/theme/spacing_theme.dart';
@@ -10,28 +11,27 @@ import '../../../widgets/card/card_add_consultation.dart';
 import '../../../widgets/card/card_consultation.dart';
 import '../../../widgets/chip/chip_tag_consultation_item.dart';
 import '../../../widgets/header/basic_header.dart';
-import '../../wrapper/controllers/wrapper_controller.dart';
+import '../../../widgets/loading/loading_view.dart';
 import '../controllers/doctor_home_controller.dart';
 
 class DoctorHomeView extends GetView<DoctorHomeController> {
-  final WrapperController _wrapperController = Get.find();
-
-  DoctorHomeView({super.key});
+  const DoctorHomeView({super.key});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(150),
-        child: GetBuilder<WrapperController>(
-          init: _wrapperController,
-          initState: (_) {},
-          builder: (_) {
-            return BasicHeader(
-              user: _wrapperController.user,
-              onTapNotification: () {},
-            );
-          },
-        ),
+        child: Obx(() {
+          switch (controller.wrapperController.user.value.status) {
+            case Status.loading:
+              return LoadingView();
+            default:
+              return BasicHeader(
+                user: controller.wrapperController.user.value.data,
+                onTapNotification: () {},
+              );
+          }
+        }),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -69,8 +69,10 @@ class DoctorHomeView extends GetView<DoctorHomeController> {
               ),
               SizedBox(height: SpacingTheme.SPACING_4),
               CardConsultation(
+                onTap: () {
+                  Get.toNamed(Routes.CONSULTATION_REQUEST_DETAIL);
+                },
                 title: "I Putu",
-
                 body: "Perasaan hampa dan kehilangan semangat",
                 color: ColorTheme.COBALT_200,
                 chips: [

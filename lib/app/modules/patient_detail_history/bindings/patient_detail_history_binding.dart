@@ -6,7 +6,7 @@ class PatientDetailHistoryBinding extends Bindings {
   @override
   void dependencies() {
     Get.lazyPut<PatientDetailHistoryController>(
-      () => PatientDetailHistoryController(),
+      () => PatientDetailHistoryController(Get.find()),
     );
   }
 }

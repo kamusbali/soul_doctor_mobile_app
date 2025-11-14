@@ -1,7 +1,11 @@
 import 'package:amicons/amicons.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:get/get.dart';
+import 'package:soul_doctor/app/common/resource.dart';
 import 'package:soul_doctor/app/domain/model/compact_user.dart';
+import 'package:soul_doctor/app/domain/use_case/auth_use_cases/auth_use_cases.dart';
+import 'package:soul_doctor/app/modules/input_profile/settings/input_profile_settings.dart';
+import 'package:soul_doctor/app/routes/app_pages.dart';
 import 'package:soul_doctor/app/widgets/bottom_navigation_bar/animated_bottom_navigation_bar_item.dart';
 import 'package:soul_doctor/app/domain/model/role.dart';
 import 'package:soul_doctor/app/domain/use_case/profile_use_cases/profile_use_cases.dart';
@@ -16,119 +20,33 @@ import 'package:soul_doctor/app/modules/volunteer_home/views/volunteer_home_view
 
 class WrapperController extends GetxController {
   final ProfileUseCases _profileUseCases;
+  final AuthUseCases _authUseCases;
 
-  WrapperController(this._profileUseCases);
+  WrapperController(this._profileUseCases, this._authUseCases);
 
   var autoSizeGroup = AutoSizeGroup();
 
-  CompactUser? user;
+  var user = Resource<CompactUser>.none().obs;
 
-  List<AnimatedBottomNavigationBarItem> get tabList {
-    switch (user?.role) {
-      case Role.patient:
-        return [
-          AnimatedBottomNavigationBarItem(
-            view: UserHomeView(),
-            icon: Amicons.flaticon_home_rounded_fill,
-            label: "Beranda",
-          ),
-          AnimatedBottomNavigationBarItem(
-            view: PatientHistoryView(),
-            icon: Amicons.flaticon_treatment_rounded_fill,
-            label: "Riwayat",
-          ),
-          AnimatedBottomNavigationBarItem(
-            view: AccountView(),
-            icon: Amicons.flaticon_user_rounded_fill,
-            label: "Akun",
-          ),
-        ];
-      case Role.caregiver:
-        return [
-          AnimatedBottomNavigationBarItem(
-            view: UserHomeView(),
-            icon: Amicons.flaticon_home_rounded_fill,
-            label: "Beranda",
-          ),
-          AnimatedBottomNavigationBarItem(
-            view: PatientView(),
-            icon: Amicons.remix_user5_fill,
-            label: "Pasien",
-          ),
-          AnimatedBottomNavigationBarItem(
-            view: AccountView(),
-            icon: Amicons.flaticon_user_rounded_fill,
-            label: "Akun",
-          ),
-        ];
-      case Role.volunteer:
-        return [
-          AnimatedBottomNavigationBarItem(
-            view: VolunteerHomeView(),
-            icon: Amicons.flaticon_home_rounded_fill,
-            label: "Beranda",
-          ),
-          AnimatedBottomNavigationBarItem(
-            view: VisitView(),
-            icon: Amicons.remix_todo_fill,
-            label: "Visit",
-          ),
-          AnimatedBottomNavigationBarItem(
-            view: PatientView(),
-            icon: Amicons.remix_user5_fill,
-            label: "Pasien",
-          ),
-          AnimatedBottomNavigationBarItem(
-            view: AccountView(),
-            icon: Amicons.flaticon_user_rounded_fill,
-            label: "Akun",
-          ),
-        ];
-      case Role.doctor:
-        return [
-          AnimatedBottomNavigationBarItem(
-            view: DoctorHomeView(),
-            icon: Amicons.flaticon_home_rounded_fill,
-            label: "Beranda",
-          ),
-          AnimatedBottomNavigationBarItem(
-            view: ConsultationView(),
-            icon: Amicons.flaticon_treatment_rounded_fill,
-            label: "Konsultasi",
-          ),
-          AnimatedBottomNavigationBarItem(
-            view: PatientView(),
-            icon: Amicons.remix_user5_fill,
-            label: "Pasien",
-          ),
-          AnimatedBottomNavigationBarItem(
-            view: AccountView(),
-            icon: Amicons.flaticon_user_rounded_fill,
-            label: "Akun",
-          ),
-        ];
-      default:
-        return [
-          AnimatedBottomNavigationBarItem(
-            view: UserHomeView(),
-            icon: Amicons.flaticon_home_rounded_fill,
-            label: "Beranda",
-          ),
-          AnimatedBottomNavigationBarItem(
-            view: AccountView(),
-            icon: Amicons.flaticon_user_rounded_fill,
-            label: "Akun",
-          ),
-        ];
-    }
-  }
+  RxList<AnimatedBottomNavigationBarItem> selectedItemRole = [
+    AnimatedBottomNavigationBarItem(
+      view: UserHomeView(),
+      icon: Amicons.flaticon_home_rounded_fill,
+      label: "Beranda",
+    ),
+    AnimatedBottomNavigationBarItem(
+      view: AccountView(),
+      icon: Amicons.flaticon_user_rounded_fill,
+      label: "Akun",
+    ),
+  ].obs;
 
-  var activeIndex = 0;
+  var activeIndex = 0.obs;
 
   @override
   void onInit() {
     super.onInit();
-    
+
     getProfile();
   }
 
@@ -143,26 +61,157 @@ class WrapperController extends GetxController {
   }
 
   void onChangeTab(int index) {
-    activeIndex = index;
-    update();
+    activeIndex.value = index;
   }
 
   void resetIndex() {
-    activeIndex = 0;
-    update();
+    activeIndex.value = 0;
+  }
+
+  void onRefreshPage() {
+    getProfile();
   }
 
   void getProfile() async {
+    var data = await _authUseCases.getSessionDataUseCases.execute();
+
+    if (data == null) {
+      selectedItemRole.value = [
+        AnimatedBottomNavigationBarItem(
+          view: UserHomeView(),
+          icon: Amicons.flaticon_home_rounded_fill,
+          label: "Beranda",
+        ),
+        AnimatedBottomNavigationBarItem(
+          view: AccountView(),
+          icon: Amicons.flaticon_user_rounded_fill,
+          label: "Akun",
+        ),
+      ].obs;
+      user.value = Resource.none();
+      return;
+    }
+
+    user.value = Resource.loading();
+
     var profileData = await _profileUseCases.getCompactProfileUseCase.execute();
 
     profileData.fold(
       (failure) {
-        user = null;
-        update();
+        print(failure.message);
+        Get.snackbar("Error", failure.message);
+        user.value = Resource.error(failure.message);
       },
-      (success) {
-        user = success;
-        update();
+      (success) async {
+        if (success != null) {
+          var fullProfile = await _profileUseCases.getProfileUseCase.execute();
+
+          fullProfile.fold(
+            (failureData) {
+              Get.snackbar("Error", failureData.message);
+            },
+            (successData) {
+              if (success.role == null) {
+                Get.offNamed(
+                  Routes.INPUT_PROFILE,
+                  arguments: InputProfileSettings(),
+                );
+                return;
+              }
+              resetIndex();
+              user.value = Resource.success(success);
+              if (success.role == Role.patient) {
+                selectedItemRole.value = [
+                  AnimatedBottomNavigationBarItem(
+                    view: UserHomeView(),
+                    icon: Amicons.flaticon_home_rounded_fill,
+                    label: "Beranda",
+                  ),
+                  AnimatedBottomNavigationBarItem(
+                    view: PatientHistoryView(),
+                    icon: Amicons.flaticon_treatment_rounded_fill,
+                    label: "Riwayat",
+                  ),
+                  AnimatedBottomNavigationBarItem(
+                    view: AccountView(),
+                    icon: Amicons.flaticon_user_rounded_fill,
+                    label: "Akun",
+                  ),
+                ];
+              }
+
+              if (success.role == Role.caregiver) {
+                selectedItemRole.value = [
+                  AnimatedBottomNavigationBarItem(
+                    view: UserHomeView(),
+                    icon: Amicons.flaticon_home_rounded_fill,
+                    label: "Beranda",
+                  ),
+                  AnimatedBottomNavigationBarItem(
+                    view: PatientView(),
+                    icon: Amicons.remix_user5_fill,
+                    label: "Pasien",
+                  ),
+                  AnimatedBottomNavigationBarItem(
+                    view: AccountView(),
+                    icon: Amicons.flaticon_user_rounded_fill,
+                    label: "Akun",
+                  ),
+                ];
+              }
+
+              if (success.role == Role.volunteer) {
+                selectedItemRole.value = [
+                  AnimatedBottomNavigationBarItem(
+                    view: VolunteerHomeView(),
+                    icon: Amicons.flaticon_home_rounded_fill,
+                    label: "Beranda",
+                  ),
+                  AnimatedBottomNavigationBarItem(
+                    view: VisitView(),
+                    icon: Amicons.remix_todo_fill,
+                    label: "Visit",
+                  ),
+                  AnimatedBottomNavigationBarItem(
+                    view: PatientView(),
+                    icon: Amicons.remix_user5_fill,
+                    label: "Pasien",
+                  ),
+                  AnimatedBottomNavigationBarItem(
+                    view: AccountView(),
+                    icon: Amicons.flaticon_user_rounded_fill,
+                    label: "Akun",
+                  ),
+                ];
+              }
+
+              if (success.role == Role.doctor) {
+                selectedItemRole.value = [
+                  AnimatedBottomNavigationBarItem(
+                    view: DoctorHomeView(),
+                    icon: Amicons.flaticon_home_rounded_fill,
+                    label: "Beranda",
+                  ),
+                  AnimatedBottomNavigationBarItem(
+                    view: ConsultationView(),
+                    icon: Amicons.flaticon_treatment_rounded_fill,
+                    label: "Konsultasi",
+                  ),
+                  AnimatedBottomNavigationBarItem(
+                    view: PatientView(),
+                    icon: Amicons.remix_user5_fill,
+                    label: "Pasien",
+                  ),
+                  AnimatedBottomNavigationBarItem(
+                    view: AccountView(),
+                    icon: Amicons.flaticon_user_rounded_fill,
+                    label: "Akun",
+                  ),
+                ];
+              }
+            },
+          );
+        }
       },
     );
   }

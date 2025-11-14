@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
 import 'package:soul_doctor/app/common/resource.dart';
-import 'package:soul_doctor/app/domain/model/compact_consultation_detail.dart';
+import 'package:soul_doctor/app/domain/model/consultation_detail.dart';
 import 'package:soul_doctor/app/domain/model/session_data.dart';
 import 'package:soul_doctor/app/domain/use_case/auth_use_cases/auth_use_cases.dart';
 import 'package:soul_doctor/app/domain/use_case/consultation_use_cases/consultation_use_cases.dart';
@@ -17,7 +17,7 @@ class DetailConsultationController extends GetxController {
 
   final String id = Get.arguments;
 
-  final consultationDetail = Resource<CompactConsultationDetail>.none().obs;
+  final consultationDetail = Resource<ConsultationDetail>.none().obs;
   SessionData? sessionData;
 
   @override
@@ -38,8 +38,9 @@ class DetailConsultationController extends GetxController {
 
   void onGetDetailConsultation() async {
     consultationDetail.value = Resource.loading();
-    var data = await _consultationUseCases.getCompactConsultationDetailUseCase
-        .execute(id);
+    var data = await _consultationUseCases.getConsultationDetailUseCase.execute(
+      id,
+    );
 
     data.fold(
       (failure) {

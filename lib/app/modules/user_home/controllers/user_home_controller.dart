@@ -1,7 +1,9 @@
 import 'package:get/get.dart';
 import 'package:soul_doctor/app/core/error/error_type.dart';
+import 'package:soul_doctor/app/core/infrastructure/auth/claims_token_service.dart';
 import 'package:soul_doctor/app/domain/model/consultation.dart';
 import 'package:soul_doctor/app/domain/model/consultation_status.dart';
+import 'package:soul_doctor/app/domain/model/role.dart';
 import 'package:soul_doctor/app/domain/use_case/auth_use_cases/auth_use_cases.dart';
 import 'package:soul_doctor/app/domain/use_case/consultation_use_cases/consultation_use_cases.dart';
 import 'package:soul_doctor/app/helpers/ui_feedback_utils.dart';
@@ -13,8 +15,9 @@ import '../../wrapper/controllers/wrapper_controller.dart';
 class UserHomeController extends GetxController {
   final ConsultationUseCases _consultationUseCases;
   final AuthUseCases _authUseCases;
+  final ClaimsTokenService _claimsTokenService = ClaimsTokenService.instance;
 
-  final WrapperController wrapperController = Get.find();
+  WrapperController wrapperController = Get.find<WrapperController>();
 
   UserHomeController(this._consultationUseCases, this._authUseCases);
 
@@ -24,9 +27,15 @@ class UserHomeController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    onRefresh();
+  }
 
-    getConsultationData();
-    getSessionStatus();
+  void onRefresh() async {
+    await getSessionStatus();
+
+    if (isAuth) {
+      getConsultationData();
+    }
   }
 
   @override
@@ -40,8 +49,17 @@ class UserHomeController extends GetxController {
   }
 
   void getConsultationData() async {
+    consultation.value = Resource.loading();
+    var sessionData = await _claimsTokenService.getSessionData();
+
+    if (sessionData == null) {
+      UiFeedbackUtils.showSnackbar("Error", "Tidak ada user yang tersimpan");
+      return;
+    }
+
     var data = await _consultationUseCases.getHomeConsultation.execute(
       state: ConsultationStatus.scheduled,
+      patientId: sessionData.role == Role.patient ? sessionData.id : null,
     );
 
     data.fold(
@@ -71,13 +89,19 @@ class UserHomeController extends GetxController {
         consultation.value = Resource.error(failure.message);
       },
       (success) {
+        if (success.isEmpty) {
+          consultation.value = Resource.empty();
+          return;
+        }
         consultation.value = Resource.success(success);
       },
     );
   }
 
-  void getSessionStatus() async {
+  Future<void> getSessionStatus() async {
     var data = await _authUseCases.getSessionStatusUseCase.execute();
+
+    print(data);
 
     isAuth = data;
   }

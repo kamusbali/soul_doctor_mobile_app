@@ -32,6 +32,19 @@ class MainApp extends StatelessWidget {
           surface: ColorTheme.SURFACE,
           onSurface: ColorTheme.TEXT_100,
         ),
+        outlinedButtonTheme: OutlinedButtonThemeData(
+          style: OutlinedButton.styleFrom(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10000),
+            ),
+            foregroundColor: ColorTheme.CRIMSON_500,
+            side: BorderSide(
+              width: 2,
+              color: ColorTheme.CRIMSON_500,
+              strokeAlign: BorderSide.strokeAlignOutside,
+            ),
+          ),
+        ),
       ),
     );
   }

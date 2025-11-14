@@ -18,10 +18,10 @@ class ProfileRequest {
   String? email;
   DateTime? birthday;
   bool? gender;
-  String? maritalStatusId;
-  String? lastEducationId;
+  int? maritalStatusId;
+  int? lastEducationId;
   String? job;
-  String? religionId;
+  int? religionId;
   String? address;
 
   ProfileRequest({

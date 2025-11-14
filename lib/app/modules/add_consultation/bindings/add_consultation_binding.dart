@@ -6,7 +6,7 @@ class AddConsultationBinding extends Bindings {
   @override
   void dependencies() {
     Get.lazyPut<AddConsultationController>(
-      () => AddConsultationController(),
+      () => AddConsultationController(Get.find(), Get.find()),
     );
   }
 }

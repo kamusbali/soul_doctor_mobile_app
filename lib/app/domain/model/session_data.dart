@@ -21,13 +21,21 @@ class SessionData {
     String normalizedSource = base64Url.normalize(token.split(".")[1]);
     var data = jsonDecode(utf8.decode(base64Url.decode(normalizedSource)));
 
-    return SessionData(
+    print(data);
+
+    print("Mengubah data session : ${data["id"]}");
+
+    var sesi = SessionData(
       id: data["id"],
       fullname: data["fullname"],
       nickname: data["nickname"],
       role: Role.getRoleById(data["role"]) ?? Role.patient,
-      iat: DateTime.fromMillisecondsSinceEpoch(data["iat"] * 1000),
+      iat: DateTime.fromMillisecondsSinceEpoch((data["exp"]) * 1000),
     );
+
+    print(sesi.toJson());
+
+    return sesi;
   }
 
   factory SessionData.fromJson(Map<String, dynamic> json) {

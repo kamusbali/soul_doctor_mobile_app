@@ -7,6 +7,7 @@ import 'package:soul_doctor/app/helpers/date_time_utils.dart';
 import 'package:soul_doctor/app/helpers/ui_feedback_utils.dart';
 import 'package:soul_doctor/app/widgets/card/card_consultation.dart';
 import 'package:soul_doctor/app/widgets/chip/chip_tag_consultation_item.dart';
+import 'package:soul_doctor/app/widgets/loading/loading_view.dart';
 import 'package:soul_doctor/app/widgets/placeholder/placeholder_no_consultation.dart';
 import 'package:soul_doctor/app/routes/app_pages.dart';
 import 'package:soul_doctor/app/core/theme/color_theme.dart';
@@ -25,16 +26,17 @@ class UserHomeView extends GetView<UserHomeController> {
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(150),
-        child: GetBuilder(
-          init: controller.wrapperController,
-          initState: (_) {},
-          builder: (_) {
-            return BasicHeader(
-              user: controller.wrapperController.user,
-              onTapNotification: () {},
-            );
-          },
-        ),
+        child: Obx(() {
+          switch (controller.wrapperController.user.value.status) {
+            case Status.loading:
+              return SafeArea(child: LoadingView());
+            default:
+              return BasicHeader(
+                user: controller.wrapperController.user.value.data,
+                onTapNotification: () {},
+              );
+          }
+        }),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -74,10 +76,14 @@ class UserHomeView extends GetView<UserHomeController> {
                           imagePath:
                               ConstPath.DIALOG_ILLUSTRATION_UNAUTHORIZE_PATH,
                           onPrimaryPressed: () {
-                            Get.toNamed(Routes.LOGIN);
+                            Get.back();
+                            Get.toNamed(Routes.LOGIN)?.then((value) {
+                              controller.wrapperController.onRefreshPage();
+                            });
                           },
                           primaryButtonText: "Masuk",
                           onSecondaryPressed: () {
+                            Get.back();
                             Get.toNamed(Routes.REGISTER);
                           },
                           secondaryButtonText: "Daftar",
@@ -86,7 +92,6 @@ class UserHomeView extends GetView<UserHomeController> {
                     ),
                   ),
                   SizedBox(width: SpacingTheme.SPACING_4),
-
                   Expanded(
                     child: CardFeature(
                       title: 'Periksa Mental',
@@ -123,16 +128,32 @@ class UserHomeView extends GetView<UserHomeController> {
                       children: controller.consultation.value.data!
                           .map(
                             (e) => CardConsultation(
+                              onTap: () {
+                                Get.toNamed(
+                                  Routes.DETAIL_CONSULTATION,
+                                  arguments: e.id,
+                                );
+                              },
                               title: e.visitDate != null
                                   ? DateTimeUtils.dateToDayMonthYear(
                                       e.visitDate!,
                                     )
                                   : e.state.getName(
-                                      controller.wrapperController.user?.role,
+                                      controller
+                                          .wrapperController
+                                          .user
+                                          .value
+                                          .data
+                                          ?.role,
                                     ),
                               body: e.description,
                               color: e.state.getColor(
-                                controller.wrapperController.user?.role,
+                                controller
+                                    .wrapperController
+                                    .user
+                                    .value
+                                    .data
+                                    ?.role,
                               ),
                               chips: [
                                 if (e.medicationSummary.medication)

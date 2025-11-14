@@ -2,7 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 import 'package:soul_doctor/app/core/error/failure.dart';
 import 'package:soul_doctor/app/core/infrastructure/auth/claims_token_service.dart';
-import 'package:soul_doctor/app/core/infrastructure/auth/token_manager.dart';
+import 'package:soul_doctor/app/data/source/local/provider/token_provider.dart';
 import 'package:soul_doctor/app/data/source/remote/dto/request/change_pin_request.dart';
 import 'package:soul_doctor/app/data/source/remote/dto/request/create_pin_request.dart';
 import 'package:soul_doctor/app/data/source/remote/dto/request/login_request.dart';
@@ -19,19 +19,24 @@ import '../source/remote/dto/common/response_wrapper.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final AuthProvider _authProvider;
+  final TokenProvider _tokenManager = TokenProvider.instance;
   final ClaimsTokenService _claimsTokenService = ClaimsTokenService.instance;
-  final TokenManager _tokenManager = TokenManager.instance;
 
   AuthRepositoryImpl(this._authProvider);
 
   @override
   Future<Either<Failure, bool>> changePin({
+    required String oldPin,
     required String newPin,
     required String newPinRepeat,
   }) async {
     try {
       await _authProvider.changePin(
-        ChangePinRequest(newPin: newPin, newPinRepeat: newPinRepeat),
+        ChangePinRequest(
+          oldPin: oldPin,
+          newPin: newPin,
+          newPinRepeat: newPinRepeat,
+        ),
       );
       return Right(true);
     } catch (e) {
@@ -147,6 +152,7 @@ class AuthRepositoryImpl implements AuthRepository {
         LoginRequest(phone: phone, pin: pin),
       );
       if (response.data == null) return Left(Failure("Data kosong"));
+
       return Right(response.data!);
     } catch (e) {
       if (e is DioException) {
@@ -249,18 +255,34 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<SessionData?> getSessionData() async {
     return await _claimsTokenService.getSessionData();
+    // return SessionData(
+    //   id: "",
+    //   fullname: "Anak Agung Ngurah Putra Tole Armstrong",
+    //   nickname: "Agung",
+    //   role: Role.doctor,
+    //   iat: DateTime.now(),
+    // );
   }
 
   @override
   Future<void> logout() async {
-    _tokenManager.clearAll();
+    await _claimsTokenService.clearSessionData();
+    await _tokenManager.clearAll();
   }
 
   @override
   Future<bool> getSessionStatus() async {
     var accessToken = await _tokenManager.getAccessToken();
     var refreshToken = await _tokenManager.getRefreshToken();
-    return true;
-    // return accessToken != null && refreshToken != null;
+    // return true;
+    return accessToken != null && refreshToken != null;
+  }
+
+  Future<void> onSaveToken({
+    required String accessToken,
+    required String refreshToken,
+  }) async {
+    await _tokenManager.saveAccessToken(accessToken);
+    await _tokenManager.saveRefreshToken(refreshToken);
   }
 }

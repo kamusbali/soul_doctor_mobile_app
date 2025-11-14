@@ -5,8 +5,6 @@ import '../controllers/visit_controller.dart';
 class VisitBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut<VisitController>(
-      () => VisitController(),
-    );
+    Get.lazyPut<VisitController>(() => VisitController(Get.find(), Get.find()));
   }
 }

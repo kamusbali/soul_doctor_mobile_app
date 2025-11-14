@@ -16,12 +16,24 @@ import '../modules/assessment_result/bindings/assessment_result_binding.dart';
 import '../modules/assessment_result/views/assessment_result_view.dart';
 import '../modules/consultation/bindings/consultation_binding.dart';
 import '../modules/consultation/views/consultation_view.dart';
+import '../modules/consultation_request_detail/bindings/consultation_request_detail_binding.dart';
+import '../modules/consultation_request_detail/views/consultation_request_detail_view.dart';
+import '../modules/create_patient/bindings/create_patient_binding.dart';
+import '../modules/create_patient/views/create_patient_view.dart';
+import '../modules/create_pin/bindings/create_pin_binding.dart';
+import '../modules/create_pin/views/create_pin_view.dart';
 import '../modules/detail_consultation/bindings/detail_consultation_binding.dart';
 import '../modules/detail_consultation/views/detail_consultation_view.dart';
+import '../modules/diagnosis_form/bindings/diagnosis_form_binding.dart';
+import '../modules/diagnosis_form/views/diagnosis_form_view.dart';
 import '../modules/doctor_home/bindings/doctor_home_binding.dart';
 import '../modules/doctor_home/views/doctor_home_view.dart';
+import '../modules/input_profile/bindings/input_profile_binding.dart';
+import '../modules/input_profile/views/input_profile_view.dart';
 import '../modules/login/bindings/login_binding.dart';
 import '../modules/login/views/login_view.dart';
+import '../modules/otp_verification/bindings/otp_verification_binding.dart';
+import '../modules/otp_verification/views/otp_verification_view.dart';
 import '../modules/patient/bindings/patient_binding.dart';
 import '../modules/patient/views/patient_view.dart';
 import '../modules/patient_detail_history/bindings/patient_detail_history_binding.dart';
@@ -30,12 +42,20 @@ import '../modules/patient_history/bindings/patient_history_binding.dart';
 import '../modules/patient_history/views/patient_history_view.dart';
 import '../modules/register/bindings/register_binding.dart';
 import '../modules/register/views/register_view.dart';
+import '../modules/report_visit/bindings/report_visit_binding.dart';
+import '../modules/report_visit/views/report_visit_view.dart';
 import '../modules/splash_screen/bindings/splash_screen_binding.dart';
 import '../modules/splash_screen/views/splash_screen_view.dart';
+import '../modules/update_pin/bindings/update_pin_binding.dart';
+import '../modules/update_pin/views/update_pin_view.dart';
 import '../modules/user_home/bindings/user_home_binding.dart';
 import '../modules/user_home/views/user_home_view.dart';
 import '../modules/visit/bindings/visit_binding.dart';
 import '../modules/visit/views/visit_view.dart';
+import '../modules/visit_detail/bindings/visit_detail_binding.dart';
+import '../modules/visit_detail/views/visit_detail_view.dart';
+import '../modules/visit_schedule_form/bindings/visit_schedule_form_binding.dart';
+import '../modules/visit_schedule_form/views/visit_schedule_form_view.dart';
 import '../modules/volunteer_home/bindings/volunteer_home_binding.dart';
 import '../modules/volunteer_home/views/volunteer_home_view.dart';
 import '../modules/wrapper/bindings/wrapper_binding.dart';
@@ -158,6 +178,56 @@ class AppPages {
       name: _Paths.ACCOUNT_SETTING_FORM,
       page: () => const AccountSettingFormView(),
       binding: AccountSettingFormBinding(),
+    ),
+    GetPage(
+      name: _Paths.VISIT_DETAIL,
+      page: () => const VisitDetailView(),
+      binding: VisitDetailBinding(),
+    ),
+    GetPage(
+      name: _Paths.REPORT_VISIT,
+      page: () => const ReportVisitView(),
+      binding: ReportVisitBinding(),
+    ),
+    GetPage(
+      name: _Paths.CONSULTATION_REQUEST_DETAIL,
+      page: () => const ConsultationRequestDetailView(),
+      binding: ConsultationRequestDetailBinding(),
+    ),
+    GetPage(
+      name: _Paths.DIAGNOSIS_FORM,
+      page: () => const DiagnosisFormView(),
+      binding: DiagnosisFormBinding(),
+    ),
+    GetPage(
+      name: _Paths.VISIT_SCHEDULE_FORM,
+      page: () => const VisitScheduleFormView(),
+      binding: VisitScheduleFormBinding(),
+    ),
+    GetPage(
+      name: _Paths.OTP_VERIFICATION,
+      page: () => const OtpVerificationView(),
+      binding: OtpVerificationBinding(),
+    ),
+    GetPage(
+      name: _Paths.INPUT_PROFILE,
+      page: () => const InputProfileView(),
+      binding: InputProfileBinding(),
+    ),
+    GetPage(
+      name: _Paths.CREATE_PIN,
+      page: () => const CreatePinView(),
+      binding: CreatePinBinding(),
+    ),
+    GetPage(
+      name: _Paths.UPDATE_PIN,
+      page: () => const UpdatePinView(),
+      binding: UpdatePinBinding(),
+    ),
+    GetPage(
+      name: _Paths.CREATE_PATIENT,
+      page: () => const CreatePatientView(),
+      binding: CreatePatientBinding(),
     ),
   ];
 }

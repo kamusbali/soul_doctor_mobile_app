@@ -2,11 +2,11 @@ import 'package:dio/dio.dart';
 import 'package:soul_doctor/app/core/infrastructure/auth/refresh_api_client.dart';
 import 'package:soul_doctor/app/core/network/api_url.dart';
 
-import '../infrastructure/auth/token_manager.dart';
+import '../../data/source/local/provider/token_provider.dart';
 
 class DioClient {
   static Dio? _dio;
-  static final _tokenManager = TokenManager.instance;
+  static final _tokenManager = TokenProvider.instance;
   static final _refreshClient = RefreshApiClient();
 
   static Dio get instance {
@@ -34,6 +34,7 @@ class DioClient {
                 final refreshToken = await _tokenManager.getRefreshToken();
 
                 if (refreshToken == null) return handler.next(error);
+                print("Here");
 
                 req.extra['__ret'] = true;
 

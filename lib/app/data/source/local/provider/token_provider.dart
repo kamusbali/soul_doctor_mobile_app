@@ -2,10 +2,10 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:soul_doctor/app/core/infrastructure/auth/claims_token_service.dart';
 import 'package:soul_doctor/app/domain/model/session_data.dart';
 
-class TokenManager {
-  TokenManager._internal();
-  static final TokenManager _instance = TokenManager._internal();
-  static TokenManager get instance => _instance;
+class TokenProvider {
+  TokenProvider._internal();
+  static final TokenProvider _instance = TokenProvider._internal();
+  static TokenProvider get instance => _instance;
 
   final ClaimsTokenService _claimsTokenService = ClaimsTokenService.instance;
 

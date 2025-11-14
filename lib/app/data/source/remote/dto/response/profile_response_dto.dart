@@ -80,7 +80,7 @@ extension ProfileResponseDtoConversion on ProfileResponseDto {
       nickname: nickname!,
       email: email,
       birthday: birthday!,
-      gender: Gender.getGenderByValue(gender!),
+      gender: Gender.getGenderByValue(gender ?? false),
       maritalStatusId: maritalStatusId!,
       lastEducationId: lastEducationId!,
       job: job!,

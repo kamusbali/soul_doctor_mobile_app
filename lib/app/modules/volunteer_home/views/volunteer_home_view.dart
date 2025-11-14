@@ -6,32 +6,32 @@ import 'package:soul_doctor/app/widgets/card/card_add_consultation.dart';
 import 'package:soul_doctor/app/widgets/card/card_consultation.dart';
 import 'package:soul_doctor/app/widgets/chip/chip_tag_consultation_item.dart';
 
+import '../../../common/resource.dart';
 import '../../../core/theme/color_theme.dart';
 import '../../../core/theme/spacing_theme.dart';
 import '../../../core/theme/text_style_theme.dart';
 import '../../../widgets/header/basic_header.dart';
-import '../../wrapper/controllers/wrapper_controller.dart';
+import '../../../widgets/loading/loading_view.dart';
 import '../controllers/volunteer_home_controller.dart';
 
 class VolunteerHomeView extends GetView<VolunteerHomeController> {
-  final WrapperController _wrapperController = Get.find();
-
   VolunteerHomeView({super.key});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(150),
-        child: GetBuilder<WrapperController>(
-          init: _wrapperController,
-          initState: (_) {},
-          builder: (_) {
-            return BasicHeader(
-              user: _wrapperController.user,
-              onTapNotification: () {},
-            );
-          },
-        ),
+        child: Obx(() {
+          switch (controller.wrapperController.user.value.status) {
+            case Status.loading:
+              return LoadingView();
+            default:
+              return BasicHeader(
+                user: controller.wrapperController.user.value.data,
+                onTapNotification: () {},
+              );
+          }
+        }),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -69,6 +69,9 @@ class VolunteerHomeView extends GetView<VolunteerHomeController> {
               ),
               SizedBox(height: SpacingTheme.SPACING_4),
               CardConsultation(
+                onTap: () {
+                  Get.toNamed(Routes.VISIT_DETAIL);
+                },
                 title: "26 April 2025",
                 subTitle: "I Putu",
                 overline: "Jl. Catur No. 3",
@@ -101,6 +104,9 @@ class VolunteerHomeView extends GetView<VolunteerHomeController> {
               ),
               SizedBox(height: SpacingTheme.SPACING_4),
               CardConsultation(
+                onTap: () {
+                  Get.toNamed(Routes.VISIT_DETAIL);
+                },
                 title: "19 Mei 2025",
                 subTitle: "I Wayan",
                 overline: "Jl. Mawar No. 10",

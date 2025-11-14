@@ -7,11 +7,11 @@ import 'package:soul_doctor/app/domain/model/role.dart';
 import 'package:soul_doctor/app/core/theme/color_theme.dart';
 import 'package:soul_doctor/app/core/theme/spacing_theme.dart';
 import 'package:soul_doctor/app/core/theme/text_style_theme.dart';
-import 'package:soul_doctor/app/routes/app_pages.dart';
-import 'package:soul_doctor/app/widgets/card/card_consultation.dart';
-import 'package:soul_doctor/app/widgets/chip/chip_tag_consultation_item.dart';
 
 import '../../../helpers/date_time_utils.dart';
+import '../../../routes/app_pages.dart';
+import '../../../widgets/card/card_consultation.dart';
+import '../../../widgets/chip/chip_tag_consultation_item.dart';
 import '../../../widgets/placeholder/placeholder_no_consultation.dart';
 import '../controllers/patient_history_controller.dart';
 
@@ -234,15 +234,52 @@ class PatientHistoryView extends GetView<PatientHistoryController> {
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.only(left: 16, right: 16, top: 12),
-          child: Obx(() {
-            switch (controller.consultation.value.status) {
-              case Status.loading:
-                return Center(child: CircularProgressIndicator());
-              case Status.success:
-                return Column(
+      body: Padding(
+        padding: EdgeInsets.only(left: 16, right: 16, top: 12),
+        child: Obx(() {
+          switch (controller.consultation.value.status) {
+            case Status.loading:
+              return Center(child: CircularProgressIndicator());
+            case Status.empty:
+              return PlaceholderNoConsultation();
+            case Status.success:
+              // return PagingListener<int, Consultation>(
+              //   controller:
+              //       controller.pagingController
+              //           as PagingController<int, Consultation>,
+              //   builder: (context, state, fetchNextPage) =>
+              //       PagedListView<int, Consultation>(
+              //         state: state,
+              //         fetchNextPage: fetchNextPage,
+              //         builderDelegate: PagedChildBuilderDelegate(
+              //           itemBuilder: (context, item, index) => CardConsultation(
+              //             onTap: () {
+              //               Get.toNamed(
+              //                 Routes.DETAIL_CONSULTATION,
+              //                 arguments: item.id,
+              //               );
+              //             },
+              //             title: item.visitDate != null
+              //                 ? DateTimeUtils.dateToDayMonthYear(
+              //                     item.visitDate!,
+              //                   )
+              //                 : item.state.getName(Role.patient),
+              //             body: item.description,
+              //             color: item.state.getColor(Role.patient),
+              //             chips: [
+              //               if (item.medicationSummary.medication)
+              //                 ChipTagItem(title: "Obat", isChecked: true),
+              //               if (item.medicationSummary.therapy)
+              //                 ChipTagItem(title: "Terapi", isChecked: true),
+              //               if (item.medicationSummary.visit)
+              //                 ChipTagItem(title: "Visit", isChecked: true),
+              //             ],
+              //           ),
+              //         ),
+              //       ),
+              // );
+              return SingleChildScrollView(
+                child: Column(
                   spacing: 8,
                   children: controller.consultation.value.data!.data
                       .map(
@@ -269,13 +306,12 @@ class PatientHistoryView extends GetView<PatientHistoryController> {
                         ),
                       )
                       .toList(),
-                );
-
-              default:
-                return PlaceholderNoConsultation();
-            }
-          }),
-        ),
+                ),
+              );
+            default:
+              return PlaceholderNoConsultation();
+          }
+        }),
       ),
     );
   }

@@ -12,10 +12,13 @@ class GetHomeConsultationUseCase {
 
   Future<Either<Failure, List<Consultation>>> execute({
     required ConsultationStatus state,
+    String? patientId,
   }) async {
     var response = await _consultationRepository.getConsultation(
       state: state,
       pp: 5,
+      visit: null,
+      patientId: patientId,
     );
 
     return response.fold(

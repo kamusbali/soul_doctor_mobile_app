@@ -5,11 +5,15 @@ import 'package:get/get.dart';
 import 'package:soul_doctor/app/widgets/card/card_consultation.dart'
     show CardConsultation;
 
+import '../../../common/resource.dart';
 import '../../../core/theme/color_theme.dart';
 import '../../../core/theme/spacing_theme.dart';
 import '../../../core/theme/text_style_theme.dart';
+import '../../../domain/model/gender.dart';
 import '../../../domain/model/role.dart';
+import '../../../routes/app_pages.dart';
 import '../../../widgets/chip/chip_tag_consultation_item.dart';
+import '../../../widgets/placeholder/placeholder_no_consultation.dart';
 import '../controllers/consultation_controller.dart';
 
 class ConsultationView extends GetView<ConsultationController> {
@@ -34,7 +38,7 @@ class ConsultationView extends GetView<ConsultationController> {
                     return Obx(
                       () => InkWell(
                         onTap: () {
-                          controller.changeIndexTab(key);
+                          controller.changeIndexTab(key, value);
                         },
                         child: Container(
                           padding: EdgeInsets.symmetric(
@@ -68,6 +72,11 @@ class ConsultationView extends GetView<ConsultationController> {
                 children: [
                   Expanded(
                     child: TextFormField(
+                      controller: controller.searchController,
+                      onFieldSubmitted: (value) {
+                        controller.getConsultation();
+                        controller.onClearSearchText();
+                      },
                       decoration: InputDecoration(
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(
@@ -128,49 +137,46 @@ class ConsultationView extends GetView<ConsultationController> {
                                 ),
                               ),
                               SizedBox(height: SpacingTheme.SPACING_6),
-                              Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  CheckboxListTile(
-                                    contentPadding: EdgeInsets.all(0),
-                                    title: Text(
-                                      "Dapat Obat",
-                                      style: TextStyleTheme.LABEL_1.copyWith(
-                                        color: ColorTheme.TEXT_PLACEHOLDER,
+                              Obx(
+                                () => Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    CheckboxListTile(
+                                      contentPadding: EdgeInsets.all(0),
+                                      title: Text(
+                                        "> 50 Tahun",
+                                        style: TextStyleTheme.LABEL_1.copyWith(
+                                          color: ColorTheme.TEXT_PLACEHOLDER,
+                                        ),
                                       ),
+                                      value: controller
+                                          .isAgeGreaterThan50Temp
+                                          .value,
+                                      onChanged:
+                                          controller.onChangeIsMedicationTemp,
                                     ),
-                                    value: false,
-                                    onChanged: (value) {},
-                                  ),
-                                  CheckboxListTile(
-                                    contentPadding: EdgeInsets.all(0),
-                                    title: Text(
-                                      "Melakukan Terapi",
-                                      style: TextStyleTheme.LABEL_1.copyWith(
-                                        color: ColorTheme.TEXT_PLACEHOLDER,
+                                    CheckboxListTile(
+                                      contentPadding: EdgeInsets.all(0),
+                                      title: Text(
+                                        "Konsultasi Pertama",
+                                        style: TextStyleTheme.LABEL_1.copyWith(
+                                          color: ColorTheme.TEXT_PLACEHOLDER,
+                                        ),
                                       ),
+                                      value: controller
+                                          .isFirstConsultationTemp
+                                          .value,
+                                      onChanged:
+                                          controller.onChangeIsTherapyTemp,
                                     ),
-                                    value: false,
-                                    onChanged: (value) {},
-                                  ),
-                                  CheckboxListTile(
-                                    contentPadding: EdgeInsets.all(0),
-                                    title: Text(
-                                      "Visit",
-                                      style: TextStyleTheme.LABEL_1.copyWith(
-                                        color: ColorTheme.TEXT_PLACEHOLDER,
-                                      ),
-                                    ),
-                                    value: false,
-                                    onChanged: (value) {},
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                               SizedBox(height: SpacingTheme.SPACING_6),
                               SizedBox(
                                 width: Get.width,
                                 child: FilledButton(
-                                  onPressed: () {},
+                                  onPressed: controller.onConfirmFilter,
                                   child: Text(
                                     "Terapkan",
                                     style: TextStyleTheme.LABEL_1.copyWith(
@@ -201,21 +207,64 @@ class ConsultationView extends GetView<ConsultationController> {
             horizontal: SpacingTheme.SPACING_8,
             vertical: SpacingTheme.SPACING_11,
           ),
-          child: Column(
-            children: [
-              CardConsultation(
-                title: "I Putu",
-                body: "Perasaan hampa dan kehilangan semangat",
-                color: ColorTheme.COBALT_200,
-                chips: [
-                  ChipTagItem(title: "69 Tahun", isChecked: false),
-                  ChipTagItem(title: "Laki-Laki", isChecked: false),
-                  ChipTagItem(title: "Diasuh", isChecked: false),
-                ],
-              ),
-              SizedBox(height: SpacingTheme.SPACING_4),
-            ],
-          ),
+          child: Obx(() {
+            switch (controller.consultation.value.status) {
+              case Status.loading:
+                return Center(child: CircularProgressIndicator());
+              case Status.success:
+                return Column(
+                  spacing: 8,
+                  children: controller.consultation.value.data!.data
+                      .map(
+                        (e) => CardConsultation(
+                          onTap: () {
+                            Get.toNamed(
+                              Routes.CONSULTATION_REQUEST_DETAIL,
+                              arguments: e.id,
+                            );
+                          },
+                          title: e.name,
+                          body: e.description,
+                          color: e.state.getColor(Role.patient),
+                          chips: [
+                            ChipTagItem(
+                              title: "${e.patientSummary.age} tahun",
+                              isChecked: false,
+                            ),
+                            ChipTagItem(
+                              title: Gender.getGenderByValue(
+                                e.patientSummary.gender,
+                              ).name,
+                              isChecked: false,
+                            ),
+                            if (e.patientSummary.hasCaregiver)
+                              ChipTagItem(title: "Diasuh", isChecked: false),
+                          ],
+                        ),
+                      )
+                      .toList(),
+                );
+              default:
+                return PlaceholderNoConsultation();
+            }
+          }),
+          // child: Column(
+          //   children: [
+          //     CardConsultation(
+          //       onTap: () {
+          //       },
+          //       title: "I Putu",
+          //       body: "Perasaan hampa dan kehilangan semangat",
+          //       color: ColorTheme.COBALT_200,
+          //       chips: [
+          //         ChipTagItem(title: "69 Tahun", isChecked: false),
+          //         ChipTagItem(title: "Laki-Laki", isChecked: false),
+          //         ChipTagItem(title: "Diasuh", isChecked: false),
+          //       ],
+          //     ),
+          //     SizedBox(height: SpacingTheme.SPACING_4),
+          //   ],
+          // ),
         ),
       ),
     );

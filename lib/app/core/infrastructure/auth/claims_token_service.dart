@@ -6,15 +6,20 @@ class ClaimsTokenService {
   static final ClaimsTokenService _instance = ClaimsTokenService._internal();
   static ClaimsTokenService get instance => _instance;
 
-  final box = GetStorage();
+  final _box = GetStorage();
 
   final _claimsKey = "claims_key";
 
   Future<void> saveSessionData(SessionData data) async {
-    await box.write(_claimsKey, data.toJson());
+    await _box.write(_claimsKey, data.toJson());
   }
 
   Future<SessionData?> getSessionData() async {
-    return SessionData.fromJson(box.read(_claimsKey));
+    return SessionData.fromJson(_box.read(_claimsKey));
+  }
+
+  Future<void> clearSessionData() async {
+    await _box.remove(_claimsKey);
+    print("Done");
   }
 }

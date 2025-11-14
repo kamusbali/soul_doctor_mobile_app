@@ -4,10 +4,10 @@ import 'package:soul_doctor/app/core/theme/spacing_theme.dart';
 import 'package:soul_doctor/app/core/theme/text_style_theme.dart';
 
 class ItemInformation extends StatelessWidget {
-  const ItemInformation({super.key, required this.title, required this.value});
+  const ItemInformation({super.key, this.title, required this.value});
 
-  final String title;
-  final String value;
+  final String? title;
+  final Widget value;
 
   @override
   Widget build(BuildContext context) {
@@ -17,8 +17,8 @@ class ItemInformation extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         spacing: SpacingTheme.SPACING_4,
         children: [
-          Text(title, style: TextStyleTheme.LABEL_3),
-          Text(value, style: TextStyleTheme.PARAGRAPH_5),
+          if (title != null) Text(title!, style: TextStyleTheme.LABEL_3),
+          value,
         ],
       ),
     );

@@ -1,9 +1,11 @@
 import 'package:get/get.dart';
 
+import '../../wrapper/controllers/wrapper_controller.dart';
+
 class DoctorHomeController extends GetxController {
   //TODO: Implement DoctorHomeController
 
-  final count = 0.obs;
+  final WrapperController wrapperController = Get.find();
   @override
   void onInit() {
     super.onInit();
@@ -18,6 +20,4 @@ class DoctorHomeController extends GetxController {
   void onClose() {
     super.onClose();
   }
-
-  void increment() => count.value++;
 }

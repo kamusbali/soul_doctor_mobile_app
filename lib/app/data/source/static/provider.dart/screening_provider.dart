@@ -35,11 +35,7 @@ class ScreeningProvider {
         id: 9,
         question: "Saya merasa bahwa hidup tidak bermanfaat.",
       ),
-      ScreeningQuestion(
-        id: 10,
-        question:
-            "Saya kesulitan mengucapkan kata-kata yang ingin saya katakan",
-      ),
+      ScreeningQuestion(id: 10, question: "Saya sering bicara kacau/meracau"),
       ScreeningQuestion(
         id: 11,
         question:

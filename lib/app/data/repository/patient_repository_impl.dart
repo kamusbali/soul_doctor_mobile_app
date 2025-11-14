@@ -73,7 +73,7 @@ class PatientRepositoryImpl implements PatientRepository {
   }
 
   @override
-  Future<Either<Failure, PatientResponseDto>> getPatient({String? q}) async {
+  Future<Either<Failure, PatientResponseDto>> getPatient({String? q, }) async {
     try {
       var response = await _patientProvider.getPatient(q: q);
       if (response.data == null) return Left(Failure("Data kosong"));

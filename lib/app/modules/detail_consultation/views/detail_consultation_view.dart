@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
 import 'package:soul_doctor/app/common/resource.dart';
+import 'package:soul_doctor/app/domain/model/consultation_status.dart';
+import 'package:soul_doctor/app/helpers/date_time_utils.dart';
 import 'package:soul_doctor/app/modules/detail_consultation/widgets/list_consultation_data.dart';
 import 'package:soul_doctor/app/core/theme/color_theme.dart';
 import 'package:soul_doctor/app/core/theme/spacing_theme.dart';
@@ -45,41 +47,57 @@ class DetailConsultationView extends GetView<DetailConsultationController> {
                   return Column(
                     spacing: SpacingTheme.SPACING_6,
                     children: [
-                      // ListConsultationData(
-                      //   title: 'Keluhan',
-                      //   body: data.state.getName(controller.sessionData?.role),
-                      //   icon: Amicons.flaticon_comment_rounded,
-                      // ),
+                      ListConsultationData(
+                        title: 'Status',
+                        body: data.state.getName(controller.sessionData?.role),
+                        icon: Amicons.lucide_notebook,
+                      ),
                       ListConsultationData(
                         title: 'Keluhan',
-                        body: data.symptom,
+                        body: data.consultationRequest.symptom,
                         icon: Amicons.flaticon_comment_rounded,
                       ),
-                      ListConsultationData(
-                        title: 'Diagnosa Dokter',
-                        body: data.diagnosis,
-                        icon: Amicons.flaticon_stethoscope_rounded,
-                      ),
-                      ListConsultationData(
-                        title: 'Obat',
-                        body: data.medication,
-                        icon: Amicons.lucide_pill,
-                      ),
-                      ListConsultationData(
-                        title: 'Terapi',
-                        body: data.therapy,
-                        icon: Amicons.flaticon_hand_holding_heart_rounded,
-                      ),
-                      ListConsultationData(
-                        title: 'Catatan Dokter',
-                        body: 'Jangan malas',
-                        icon: Amicons.flaticon_notebook_rounded,
-                      ),
-                      ListConsultationData(
-                        title: 'Visitor',
-                        body: data.visitor,
-                        icon: Amicons.flaticon_user_rounded,
-                      ),
+                      if (data.state == ConsultationStatus.created)
+                        ListConsultationData(
+                          title: 'Tanggal Awal Keluhan',
+                          body: DateTimeUtils.dateToDayMonthYear(
+                            data.consultationRequest.startDate,
+                          ),
+                          icon: Amicons.remix_calendar,
+                        ),
+                      if (data.doctorDiagnosis != null)
+                        ListConsultationData(
+                          title: 'Diagnosa Dokter',
+                          body: data.doctorDiagnosis!.diagnosis,
+                          icon: Amicons.flaticon_stethoscope_rounded,
+                        ),
+                      if (data.doctorDiagnosis != null &&
+                          data.doctorDiagnosis?.medication != null)
+                        ListConsultationData(
+                          title: 'Obat',
+                          body: data.doctorDiagnosis?.medication,
+                          icon: Amicons.lucide_pill,
+                        ),
+                      if (data.doctorDiagnosis != null &&
+                          data.doctorDiagnosis?.therapy != null)
+                        ListConsultationData(
+                          title: 'Terapi',
+                          body: data.doctorDiagnosis?.therapy,
+                          icon: Amicons.flaticon_hand_holding_heart_rounded,
+                        ),
+                      if (data.doctorDiagnosis != null &&
+                          data.doctorDiagnosis?.note != null)
+                        ListConsultationData(
+                          title: 'Catatan Dokter',
+                          body: data.doctorDiagnosis?.note,
+                          icon: Amicons.flaticon_notebook_rounded,
+                        ),
+                      if (data.state == ConsultationStatus.scheduled)
+                        ListConsultationData(
+                          title: 'Visitor',
+                          body: data.currentVisit?.visitor,
+                          icon: Amicons.flaticon_user_rounded,
+                        ),
                     ],
                   );
                 default:

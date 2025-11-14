@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:soul_doctor/app/common/resource.dart';
 import 'package:soul_doctor/app/domain/model/role.dart';
+import 'package:soul_doctor/app/modules/patient_detail_history/settings/patient_detail_history_settings.dart';
 import 'package:soul_doctor/app/modules/wrapper/controllers/wrapper_controller.dart';
 import 'package:soul_doctor/app/routes/app_pages.dart';
 import 'package:soul_doctor/app/widgets/card/card_patient.dart';
@@ -24,6 +25,11 @@ class PatientView extends GetView<PatientController> {
         backgroundColor: ColorTheme.SURFACE,
         elevation: 0,
         title: TextFormField(
+          controller: controller.searchController,
+          onFieldSubmitted: (value) {
+            controller.getPatient();
+            controller.onClearSearchText();
+          },
           decoration: InputDecoration(
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(SpacingTheme.SPACING_5),
@@ -48,10 +54,10 @@ class PatientView extends GetView<PatientController> {
             ),
             child: IconButton(
               onPressed: () {
+                controller.onOpenBottomSheet();
                 Get.bottomSheet(
                   Container(
                     width: Get.width,
-                    height: 700,
                     padding: EdgeInsets.only(
                       left: SpacingTheme.SPACING_8,
                       right: SpacingTheme.SPACING_8,
@@ -82,86 +88,52 @@ class PatientView extends GetView<PatientController> {
                           ),
                         ),
                         SizedBox(height: SpacingTheme.SPACING_6),
-                        Expanded(
-                          child: SingleChildScrollView(
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                CheckboxListTile(
-                                  contentPadding: EdgeInsets.all(0),
-                                  title: Text(
-                                    "Konsultasi Terdahulu",
-                                    style: TextStyleTheme.LABEL_1.copyWith(
-                                      color: ColorTheme.CRIMSON_500,
-                                    ),
+                        Obx(
+                          () => Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              CheckboxListTile(
+                                contentPadding: EdgeInsets.all(0),
+                                title: Text(
+                                  "Laki-Laki",
+                                  style: TextStyleTheme.LABEL_1.copyWith(
+                                    color: ColorTheme.TEXT_PLACEHOLDER,
                                   ),
-                                  value: true,
-                                  onChanged: (value) {},
                                 ),
-                                CheckboxListTile(
-                                  contentPadding: EdgeInsets.all(0),
-                                  title: Text(
-                                    "Konsultasi Mendatang",
-                                    style: TextStyleTheme.LABEL_1.copyWith(
-                                      color: ColorTheme.CRIMSON_500,
-                                    ),
+                                value: controller.isMaleTemp.value,
+                                onChanged: controller.onChangeIsMaleTemp,
+                              ),
+                              CheckboxListTile(
+                                contentPadding: EdgeInsets.all(0),
+                                title: Text(
+                                  "Perempuan",
+                                  style: TextStyleTheme.LABEL_1.copyWith(
+                                    color: ColorTheme.TEXT_PLACEHOLDER,
                                   ),
-                                  value: true,
-                                  onChanged: (value) {},
                                 ),
-                                CheckboxListTile(
-                                  contentPadding: EdgeInsets.all(0),
-                                  title: Text(
-                                    "Sedang Konsultasi",
-                                    style: TextStyleTheme.LABEL_1.copyWith(
-                                      color: ColorTheme.CRIMSON_500,
-                                    ),
+                                value: controller.isFemaleTemp.value,
+                                onChanged: controller.onChangeIsFemaleTemp,
+                              ),
+                              CheckboxListTile(
+                                contentPadding: EdgeInsets.all(0),
+                                title: Text(
+                                  "Umur > 50 tahun",
+                                  style: TextStyleTheme.LABEL_1.copyWith(
+                                    color: ColorTheme.TEXT_PLACEHOLDER,
                                   ),
-                                  value: true,
-                                  onChanged: (value) {},
                                 ),
-                                CheckboxListTile(
-                                  contentPadding: EdgeInsets.all(0),
-                                  title: Text(
-                                    "Dapat Obat",
-                                    style: TextStyleTheme.LABEL_1.copyWith(
-                                      color: ColorTheme.TEXT_PLACEHOLDER,
-                                    ),
-                                  ),
-                                  value: false,
-                                  onChanged: (value) {},
-                                ),
-                                CheckboxListTile(
-                                  contentPadding: EdgeInsets.all(0),
-                                  title: Text(
-                                    "Melakukan Terapi",
-                                    style: TextStyleTheme.LABEL_1.copyWith(
-                                      color: ColorTheme.TEXT_PLACEHOLDER,
-                                    ),
-                                  ),
-                                  value: false,
-                                  onChanged: (value) {},
-                                ),
-                                CheckboxListTile(
-                                  contentPadding: EdgeInsets.all(0),
-                                  title: Text(
-                                    "Visit",
-                                    style: TextStyleTheme.LABEL_1.copyWith(
-                                      color: ColorTheme.TEXT_PLACEHOLDER,
-                                    ),
-                                  ),
-                                  value: false,
-                                  onChanged: (value) {},
-                                ),
-                              ],
-                            ),
+                                value: controller.isAgeGreaterThan50Temp.value,
+                                onChanged:
+                                    controller.onChangeIsAgeGreaterThan50Temp,
+                              ),
+                            ],
                           ),
                         ),
                         SizedBox(height: SpacingTheme.SPACING_6),
                         SizedBox(
                           width: Get.width,
                           child: FilledButton(
-                            onPressed: () {},
+                            onPressed: controller.onConfirmFilter,
                             child: Text(
                               "Terapkan",
                               style: TextStyleTheme.LABEL_1.copyWith(
@@ -200,16 +172,21 @@ class PatientView extends GetView<PatientController> {
                               name: e.name,
                               age: e.summary.age,
                               onTap: () {
-                                if (_wrapperController.user?.role ==
+                                if (_wrapperController.user.value.data?.role ==
                                     Role.caregiver) {
                                   Get.toNamed(Routes.PATIENT_HISTORY);
                                   return;
                                 }
-                                if (_wrapperController.user?.role ==
+                                if (_wrapperController.user.value.data?.role ==
                                         Role.volunteer ||
-                                    _wrapperController.user?.role ==
+                                    _wrapperController.user.value.data?.role ==
                                         Role.doctor) {
-                                  Get.toNamed(Routes.PATIENT_DETAIL_HISTORY);
+                                  Get.toNamed(
+                                    Routes.PATIENT_DETAIL_HISTORY,
+                                    arguments: PatientDetailHistorySettings(
+                                      patientId: e.id,
+                                    ),
+                                  );
                                   return;
                                 }
                               },
@@ -217,24 +194,6 @@ class PatientView extends GetView<PatientController> {
                           )
                           .toList() ??
                       [],
-                  // children: List.generate(
-                  //   10,
-                  //   (index) => CardPatient(
-                  //     name: "Anak Agung Ngurah Putra Tole Armstrong",
-                  //     age: 69,
-                  //     onTap: () {
-                  //       if (_wrapperController.user?.role == Role.caregiver) {
-                  //         Get.toNamed(Routes.PATIENT_HISTORY);
-                  //         return;
-                  //       }
-                  //       if (_wrapperController.user?.role == Role.volunteer ||
-                  //           _wrapperController.user?.role == Role.doctor) {
-                  //         Get.toNamed(Routes.PATIENT_DETAIL_HISTORY);
-                  //         return;
-                  //       }
-                  //     },
-                  //   ),
-                  // ),
                 );
               default:
                 return Placeholder();
