@@ -26,20 +26,10 @@ class InputProfileView extends GetView<InputProfileController> {
         return Scaffold(body: Center(child: CircularProgressIndicator()));
       } else {
         return Scaffold(
-          appBar: BasicAppBar(),
+          appBar: BasicAppBar(title: "Data Diri"),
           body: SingleChildScrollView(
             child: Column(
               children: [
-                SizedBox(
-                  width: Get.width,
-                  child: Text(
-                    "Data Diri",
-                    style: TextStyleTheme.HEADING_3.copyWith(
-                      color: ColorTheme.TEXT_100,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
                 SizedBox(height: SpacingTheme.SPACING_11),
                 Padding(
                   padding: const EdgeInsets.symmetric(

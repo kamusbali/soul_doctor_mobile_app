@@ -11,14 +11,14 @@ class CardExpandedInformation extends StatefulWidget {
     super.key,
     required this.title,
     required this.icon,
-    // required this.items,
-    required this.futureItems,
+    required this.items,
+    // required this.futureItems,
   });
 
   final String title;
   final IconData icon;
-  // final List<ItemInformation> items;
-  final Future<List<ItemInformation>> Function() futureItems;
+  final List<ItemInformation> items;
+  // final Future<List<ItemInformation>> Function() futureItems;
 
   @override
   State<CardExpandedInformation> createState() =>
@@ -28,13 +28,10 @@ class CardExpandedInformation extends StatefulWidget {
 class _CardExpandedInformationState extends State<CardExpandedInformation>
     with SingleTickerProviderStateMixin {
   bool isExpanded = false;
-  bool isLoading = false;
 
   late final AnimationController _controller;
   late final Animation<double> _arrowTurns;
   late final Animation<double> _expand;
-
-  List<ItemInformation>? items;
 
   @override
   void initState() {
@@ -52,16 +49,7 @@ class _CardExpandedInformationState extends State<CardExpandedInformation>
     _expand = CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
   }
 
-  void _toggle() async {
-    if (items == null) {
-      setState(() {
-        isLoading = true;
-      });
-      items = await widget.futureItems();
-      setState(() {
-        isLoading = false;
-      });
-    }
+  void _toggle() {
     setState(() {
       isExpanded = !isExpanded;
       if (isExpanded) {
@@ -75,7 +63,6 @@ class _CardExpandedInformationState extends State<CardExpandedInformation>
   @override
   void dispose() {
     _controller.dispose();
-    items = null;
     super.dispose();
   }
 
@@ -114,7 +101,7 @@ class _CardExpandedInformationState extends State<CardExpandedInformation>
               ),
               child: Column(
                 spacing: SpacingTheme.SPACING_6,
-                children: items ?? [],
+                children: widget.items,
               ),
             ),
           ),
@@ -130,36 +117,26 @@ class _CardExpandedInformationState extends State<CardExpandedInformation>
               child: Column(
                 children: [
                   if (isExpanded) Divider(),
-                  isLoading
-                      ? Center(
-                          child: SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(),
-                          ),
-                        )
-                      : Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          spacing: SpacingTheme.SPACING_4,
-                          children: [
-                            Text(
-                              isExpanded
-                                  ? "Lihat Lebih Sedikit"
-                                  : "Lihat Semua",
-                              style: TextStyleTheme.LABEL_1.copyWith(
-                                color: ColorTheme.CRIMSON_500,
-                              ),
-                            ),
-
-                            RotationTransition(
-                              turns: _arrowTurns,
-                              child: Icon(
-                                Amicons.flaticon_angle_small_down_rounded,
-                                color: ColorTheme.CRIMSON_500,
-                              ),
-                            ),
-                          ],
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    spacing: SpacingTheme.SPACING_4,
+                    children: [
+                      Text(
+                        isExpanded ? "Lihat Lebih Sedikit" : "Lihat Semua",
+                        style: TextStyleTheme.LABEL_1.copyWith(
+                          color: ColorTheme.CRIMSON_500,
                         ),
+                      ),
+
+                      RotationTransition(
+                        turns: _arrowTurns,
+                        child: Icon(
+                          Amicons.flaticon_angle_small_down_rounded,
+                          color: ColorTheme.CRIMSON_500,
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),

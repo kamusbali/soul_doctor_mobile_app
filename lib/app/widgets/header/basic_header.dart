@@ -6,12 +6,13 @@ import 'package:soul_doctor/app/domain/model/compact_user.dart';
 import 'package:soul_doctor/app/core/theme/color_theme.dart';
 import 'package:soul_doctor/app/core/theme/spacing_theme.dart';
 import 'package:soul_doctor/app/core/theme/text_style_theme.dart';
+import 'package:soul_doctor/app/domain/model/session_data.dart';
 import 'package:soul_doctor/app/widgets/list/list_user_data.dart';
 
 class BasicHeader extends StatelessWidget {
   const BasicHeader({super.key, required this.onTapNotification, this.user});
 
-  final CompactUser? user;
+  final SessionData? user;
   final void Function() onTapNotification;
 
   @override

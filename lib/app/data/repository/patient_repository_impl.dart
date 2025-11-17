@@ -7,6 +7,10 @@ import 'package:soul_doctor/app/data/source/remote/dto/response/patient_response
 import 'package:soul_doctor/app/domain/repository/patient_repository.dart';
 
 import '../../core/error/error_type.dart';
+import '../../domain/model/education.dart';
+import '../../domain/model/gender.dart';
+import '../../domain/model/marital.dart';
+import '../../domain/model/religion.dart';
 import '../source/remote/dto/common/response_wrapper.dart';
 import '../source/remote/provider/patient_provider.dart';
 
@@ -22,11 +26,11 @@ class PatientRepositoryImpl implements PatientRepository {
     required String phone,
     required String email,
     required DateTime birthday,
-    required bool gender,
-    required int maritalStatusId,
-    required int lastEducationId,
+    required Gender gender,
+    required Marital maritalStatusId,
+    required Education lastEducationId,
     required String job,
-    required int religionId,
+    required Religion religionId,
     required String address,
   }) async {
     try {
@@ -37,11 +41,11 @@ class PatientRepositoryImpl implements PatientRepository {
           phone: phone,
           email: email,
           birthday: birthday,
-          gender: gender,
-          maritalStatusId: maritalStatusId,
-          lastEducationId: lastEducationId,
+          gender: gender.value,
+          maritalStatusId: maritalStatusId.id,
+          lastEducationId: lastEducationId.id,
           job: job,
-          religionId: religionId,
+          religionId: religionId.id,
           address: address,
         ),
       );
@@ -73,7 +77,7 @@ class PatientRepositoryImpl implements PatientRepository {
   }
 
   @override
-  Future<Either<Failure, PatientResponseDto>> getPatient({String? q, }) async {
+  Future<Either<Failure, PatientResponseDto>> getPatient({String? q}) async {
     try {
       var response = await _patientProvider.getPatient(q: q);
       if (response.data == null) return Left(Failure("Data kosong"));
@@ -106,7 +110,7 @@ class PatientRepositoryImpl implements PatientRepository {
 
   @override
   Future<Either<Failure, PatientDetailResponseDto>> getPatientDetail(
-    String id
+    String id,
   ) async {
     try {
       var response = await _patientProvider.getPatientDetail(id);

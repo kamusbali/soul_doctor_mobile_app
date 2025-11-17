@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:soul_doctor/app/common/resource.dart';
 import 'package:soul_doctor/app/routes/app_pages.dart';
 
+import '../../../core/error/error_type.dart';
 import '../../../domain/use_case/auth_use_cases/auth_use_cases.dart';
 import '../../../helpers/ui_feedback_utils.dart';
 
@@ -70,8 +71,29 @@ class UpdatePinController extends GetxController {
 
     response.fold(
       (failure) {
+        if (failure.errorType == ErrorType.sessionExpired) {
+          UiFeedbackUtils.showDialog(
+            title: "Sesi Login Kadaluarsa",
+            body: "Silahkan login kembali untuk dapat mengakses fitur",
+            primaryButtonText: "Okay",
+            onPrimaryPressed: () async {
+              await _authUseCases.logoutUseCase.execute();
+              Get.offAllNamed(Routes.WRAPPER);
+            },
+          );
+          updatePinStatus.value = Resource.error(failure.message);
+          return;
+        }
+
+        UiFeedbackUtils.showDialog(
+          title: "Terjadi Kesalahan",
+          body: failure.message,
+          primaryButtonText: "Okay",
+          onPrimaryPressed: () {
+            Get.back();
+          },
+        );
         updatePinStatus.value = Resource.error(failure.message);
-        UiFeedbackUtils.showSnackbar("Error", failure.message);
       },
       (success) {
         UiFeedbackUtils.showDialog(

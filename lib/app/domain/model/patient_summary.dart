@@ -1,8 +1,10 @@
+import 'package:soul_doctor/app/domain/model/gender.dart';
+
 class PatientSummary {
   bool isContinuation;
   bool isFirstVisit;
   int age;
-  bool gender;
+  Gender gender;
   bool isVisitRejected;
   bool hasCaregiver;
 
@@ -19,7 +21,7 @@ class PatientSummary {
     isContinuation: false,
     isFirstVisit: false,
     age: -99,
-    gender: false,
+    gender: Gender.male,
     isVisitRejected: false,
     hasCaregiver: false,
   );

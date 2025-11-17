@@ -6,7 +6,7 @@ class DoctorHomeBinding extends Bindings {
   @override
   void dependencies() {
     Get.lazyPut<DoctorHomeController>(
-      () => DoctorHomeController(),
+      () => DoctorHomeController(Get.find(), Get.find()),
     );
   }
 }

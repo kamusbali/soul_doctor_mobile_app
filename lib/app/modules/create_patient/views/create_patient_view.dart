@@ -314,7 +314,7 @@ class CreatePatientView extends GetView<CreatePatientController> {
             padding: EdgeInsetsGeometry.all(16),
             child: SafeArea(
               child: FilledButton(
-                onPressed: controller.onUpdateProfile,
+                onPressed: controller.onCreatePatient,
                 child: Text("Tambah Pasien"),
               ),
             ),

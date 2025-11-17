@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:soul_doctor/app/domain/use_case/auth_use_cases/auth_use_cases.dart';
 import 'package:soul_doctor/app/helpers/ui_feedback_utils.dart';
 import 'package:soul_doctor/app/modules/create_pin/settings/create_pin_settings.dart';
-import 'package:soul_doctor/app/modules/input_profile/settings/input_profile_settings.dart';
 import 'package:soul_doctor/app/routes/app_pages.dart';
 
 class CreatePinController extends GetxController {

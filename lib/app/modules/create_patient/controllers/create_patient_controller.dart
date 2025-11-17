@@ -1,26 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:soul_doctor/app/domain/use_case/patient_use_cases/patient_use_cases.dart';
 
 import '../../../common/resource.dart';
 import '../../../domain/model/education.dart';
 import '../../../domain/model/gender.dart';
 import '../../../domain/model/marital.dart';
 import '../../../domain/model/religion.dart';
-import '../../../domain/model/role.dart';
-import '../../../domain/use_case/profile_use_cases/profile_use_cases.dart';
 import '../../../helpers/ui_feedback_utils.dart';
 
 class CreatePatientController extends GetxController {
-  final ProfileUseCases _profileUseCases;
+  final PatientUseCases _patientUseCases;
 
-  CreatePatientController(this._profileUseCases);
+  CreatePatientController(this._patientUseCases);
 
   final formKey = GlobalKey<FormState>();
-
-  Role? selectedRole;
-  final TextEditingController roleController = TextEditingController();
-  Rx<String?> roleErrorText = (null as String?).obs;
 
   final TextEditingController fullnameController = TextEditingController();
   final TextEditingController nicknameController = TextEditingController();
@@ -67,10 +62,6 @@ class CreatePatientController extends GetxController {
     super.onClose();
   }
 
-  void onChangeRoleValue(Role role) {
-    selectedRole = role;
-  }
-
   void onChangeGenderValue(Gender gender) {
     selectedGender = gender;
   }
@@ -87,17 +78,13 @@ class CreatePatientController extends GetxController {
     selectedReligion = religion;
   }
 
-  void onUpdateProfile() async {
-    if (selectedRole == null &&
-        selectedGender == null &&
+  void onCreatePatient() async {
+    if (selectedGender == null &&
         selectedMarital == null &&
         selectedDateTime == null &&
         selectedEducation == null &&
         selectedReligion == null &&
         !formKey.currentState!.validate()) {
-      if (selectedRole == null) {
-        roleErrorText.value = "Jenis user tidak boleh kosong";
-      }
       if (selectedGender == null) {
         genderErrorText.value = "Jenis kelamin tidak boleh kosong";
       }
@@ -114,78 +101,7 @@ class CreatePatientController extends GetxController {
       return;
     }
     inputProfileStatus.value = Resource.loading();
-
-    var response = await _profileUseCases.updateProfileUseCase.execute(
-      role: selectedRole!,
-      fullname: fullnameController.text,
-      nickname: nicknameController.text,
-      phone: phoneController.text,
-      email: emailController.text,
-      birthday: selectedDateTime!,
-      gender: selectedGender!,
-      maritalStatusId: selectedMarital!,
-      lastEducationId: selectedEducation!,
-      job: jobController.text,
-      religionId: selectedReligion!,
-      address: addressController.text,
-    );
-
-    response.fold(
-      (failure) {
-        UiFeedbackUtils.showSnackbar("Error", failure.message);
-        inputProfileStatus.value = Resource.error(failure.message);
-      },
-      (success) {
-        inputProfileStatus.value = Resource.success(success);
-        UiFeedbackUtils.showDialog(
-          title: "Sukses",
-          body: "Data berhasil di input, silahkan anda dapat melanjutkan!",
-          primaryButtonText: "Oke",
-          onPrimaryPressed: () {
-            if (Get.isDialogOpen == true) {
-              Get.back();
-            }
-
-            if (Navigator.of(Get.context!).canPop()) {
-              Get.back();
-              return;
-            }
-          },
-          barrierDismissible: false,
-        );
-      },
-    );
-  }
-
-  void onCreateProfile() async {
-    if (selectedRole == null &&
-        selectedGender == null &&
-        selectedMarital == null &&
-        selectedDateTime == null &&
-        selectedEducation == null &&
-        selectedReligion == null &&
-        !formKey.currentState!.validate()) {
-      if (selectedRole == null) {
-        roleErrorText.value = "Jenis user tidak boleh kosong";
-      }
-      if (selectedGender == null) {
-        genderErrorText.value = "Jenis kelamin tidak boleh kosong";
-      }
-      if (selectedMarital == null) {
-        maritalErrorText.value = "Status perkawinan tidak boleh kosong";
-      }
-      if (selectedEducation == null) {
-        educationErrorText.value = "Pendidikan tidak boleh kosong";
-      }
-      if (selectedReligion == null) {
-        religionErrorText.value = "Agama tidak boleh kosong";
-      }
-      UiFeedbackUtils.showSnackbar("Lengkapi!", "Tolong lengkapi semua data!");
-      return;
-    }
-    inputProfileStatus.value = Resource.loading();
-    var response = await _profileUseCases.createProfileUseCase.execute(
-      role: selectedRole!,
+    var response = await _patientUseCases.createPatientUseCase.execute(
       fullname: fullnameController.text,
       nickname: nicknameController.text,
       phone: phoneController.text,

@@ -4,10 +4,10 @@ import 'package:soul_doctor/app/core/theme/color_theme.dart';
 import 'package:soul_doctor/app/core/theme/spacing_theme.dart';
 import 'package:soul_doctor/app/core/theme/text_style_theme.dart';
 
-class PlaceholderNoConsultation extends StatelessWidget {
-  const PlaceholderNoConsultation({
-    super.key,
-  });
+class PlaceholderNoData extends StatelessWidget {
+  const PlaceholderNoData({super.key, required this.title});
+
+  final String title;
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +25,7 @@ class PlaceholderNoConsultation extends StatelessWidget {
         borderRadius: BorderRadius.circular(SpacingTheme.SPACING_5),
       ),
       child: Text(
-        "Belum ada jadwal konsultasi",
+        title,
         style: TextStyleTheme.LABEL_3.copyWith(
           color: ColorTheme.TEXT_PLACEHOLDER,
         ),

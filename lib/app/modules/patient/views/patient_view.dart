@@ -5,9 +5,11 @@ import 'package:get/get.dart';
 import 'package:soul_doctor/app/common/resource.dart';
 import 'package:soul_doctor/app/domain/model/role.dart';
 import 'package:soul_doctor/app/modules/patient_detail_history/settings/patient_detail_history_settings.dart';
+import 'package:soul_doctor/app/modules/patient_history/settings/patient_history_settings.dart';
 import 'package:soul_doctor/app/modules/wrapper/controllers/wrapper_controller.dart';
 import 'package:soul_doctor/app/routes/app_pages.dart';
 import 'package:soul_doctor/app/widgets/card/card_patient.dart';
+import 'package:soul_doctor/app/widgets/placeholder/placeholder_no_consultation.dart';
 
 import '../../../core/theme/color_theme.dart';
 import '../../../core/theme/spacing_theme.dart';
@@ -157,49 +159,105 @@ class PatientView extends GetView<PatientController> {
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: SpacingTheme.SPACING_8),
-        child: SingleChildScrollView(
-          child: Obx(() {
-            switch (controller.patient.value.status) {
-              case Status.loading:
-                return Center(child: CircularProgressIndicator());
-              case Status.success:
-                return Column(
-                  spacing: SpacingTheme.SPACING_4,
-                  children:
-                      controller.patient.value.data
-                          ?.map(
-                            (e) => CardPatient(
-                              name: e.name,
-                              age: e.summary.age,
-                              onTap: () {
-                                if (_wrapperController.user.value.data?.role ==
-                                    Role.caregiver) {
-                                  Get.toNamed(Routes.PATIENT_HISTORY);
-                                  return;
-                                }
-                                if (_wrapperController.user.value.data?.role ==
-                                        Role.volunteer ||
-                                    _wrapperController.user.value.data?.role ==
-                                        Role.doctor) {
-                                  Get.toNamed(
-                                    Routes.PATIENT_DETAIL_HISTORY,
-                                    arguments: PatientDetailHistorySettings(
-                                      patientId: e.id,
+        child: Obx(() {
+          switch (controller.patient.value.status) {
+            case Status.loading:
+              return Center(child: CircularProgressIndicator());
+            case Status.success:
+              return LayoutBuilder(
+                builder: (context, constraints) {
+                  return RefreshIndicator(
+                    onRefresh: () async {
+                      controller.onInit();
+                    },
+                    child: SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minHeight: constraints.maxHeight,
+                        ),
+                        child: Column(
+                          spacing: SpacingTheme.SPACING_4,
+                          children:
+                              controller.patient.value.data
+                                  ?.map(
+                                    (e) => CardPatient(
+                                      name: e.name,
+                                      age: e.summary.age,
+                                      onTap: () {
+                                        if (_wrapperController
+                                                .user
+                                                .value
+                                                .data
+                                                ?.role ==
+                                            Role.caregiver) {
+                                          Get.toNamed(
+                                            Routes.PATIENT_HISTORY,
+                                            arguments: PatientHistorySettings(
+                                              patientId: e.id,
+                                            ),
+                                          );
+                                          return;
+                                        }
+                                        if (_wrapperController
+                                                    .user
+                                                    .value
+                                                    .data
+                                                    ?.role ==
+                                                Role.volunteer ||
+                                            _wrapperController
+                                                    .user
+                                                    .value
+                                                    .data
+                                                    ?.role ==
+                                                Role.doctor) {
+                                          Get.toNamed(
+                                            Routes.PATIENT_DETAIL_HISTORY,
+                                            arguments:
+                                                PatientDetailHistorySettings(
+                                                  patientId: e.id,
+                                                ),
+                                          );
+                                          return;
+                                        }
+                                      },
                                     ),
-                                  );
-                                  return;
-                                }
-                              },
+                                  )
+                                  .toList() ??
+                              [],
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              );
+            default:
+              return LayoutBuilder(
+                builder: (context, constraints) {
+                  return RefreshIndicator(
+                    onRefresh: () async {
+                      controller.onInit();
+                    },
+                    child: SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minHeight: constraints.maxHeight,
+                        ),
+                        child: Column(
+                          children: [
+                            PlaceholderNoData(
+                              title: "Belum ada jadwal konsultasi",
                             ),
-                          )
-                          .toList() ??
-                      [],
-                );
-              default:
-                return Placeholder();
-            }
-          }),
-        ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              );
+          }
+        }),
       ),
     );
   }

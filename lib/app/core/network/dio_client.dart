@@ -10,78 +10,95 @@ class DioClient {
   static final _refreshClient = RefreshApiClient();
 
   static Dio get instance {
-    if (_dio == null) {
-      _dio = Dio(BaseOptions(baseUrl: ApiUrl.baseUrl ?? ""));
+    _dio ??= _createDio();
+    return _dio!;
+  }
 
-      _dio!.interceptors.add(
-        InterceptorsWrapper(
-          onRequest: (options, handler) async {
-            final accessToken = await _tokenManager.getAccessToken();
+  static Dio _createDio() {
+    final dio = Dio(BaseOptions(baseUrl: ApiUrl.baseUrl ?? ""));
 
-            if (accessToken != null && accessToken.isNotEmpty) {
-              options.headers['Authorization'] = 'Bearer $accessToken';
-            }
-            return handler.next(options);
-          },
-          onError: (error, handler) async {
-            final req = error.requestOptions;
-            final status = error.response?.statusCode ?? 0;
+    dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) async {
+          final accessToken = await _tokenManager.getAccessToken();
 
-            final alreadyRetried = req.extra['__ret'] == true;
+          if (accessToken != null && accessToken.isNotEmpty) {
+            options.headers['Authorization'] = 'Bearer $accessToken';
+          }
 
-            if (status == 401 && !alreadyRetried) {
-              try {
-                final refreshToken = await _tokenManager.getRefreshToken();
+          return handler.next(options);
+        },
+        onError: (error, handler) async {
+          final req = error.requestOptions;
+          final status = error.response?.statusCode ?? 0;
+          final alreadyRetried = req.extra['__ret'] == true;
 
-                if (refreshToken == null) return handler.next(error);
-                print("Here");
+          // Hanya handle 401 sekali
+          if (status == 401 && !alreadyRetried) {
+            try {
+              final refreshToken = await _tokenManager.getRefreshToken();
 
-                req.extra['__ret'] = true;
-
-                var authStatusResponse = await _refreshClient.refresh(
-                  refreshToken,
-                );
-
-                if (authStatusResponse.accessToken == null ||
-                    authStatusResponse.refreshToken == null) {
-                  throw DioException(
-                    requestOptions: error.requestOptions,
-                    type: DioExceptionType.badResponse,
-                    message: error.response?.data?["message"],
-                  );
-                }
-
-                _tokenManager.saveAccessToken(authStatusResponse.accessToken!);
-                _tokenManager.saveRefreshToken(
-                  authStatusResponse.refreshToken!,
-                );
-
-                try {
-                  final retryResp = await _dio!.fetch(req);
-                  return handler.resolve(retryResp);
-                } on DioException catch (e) {
-                  return handler.next(e);
-                }
-              } catch (e) {
+              // Kalau gak ada refresh token, lempar error saja
+              if (refreshToken == null || refreshToken.isEmpty) {
                 return handler.next(error);
               }
+
+              print("Refreshing token...");
+
+              final authStatusResponse = await _refreshClient.refresh(
+                refreshToken,
+              );
+
+              if (authStatusResponse.accessToken == null ||
+                  authStatusResponse.refreshToken == null) {
+                // Refresh gagal → biarkan error naik (nanti di UI bisa logout paksa)
+                return handler.next(error);
+              }
+
+              // Simpan token baru
+              await _tokenManager.saveAccessToken(
+                authStatusResponse.accessToken!,
+              );
+              await _tokenManager.saveRefreshToken(
+                authStatusResponse.refreshToken!,
+              );
+
+              // Buat ulang request dengan header Authorization yang baru
+              final newRequest = req.copyWith(
+                headers: {
+                  ...req.headers,
+                  'Authorization': 'Bearer ${authStatusResponse.accessToken}',
+                },
+                extra: {
+                  ...req.extra,
+                  '__ret': true, // penanda sudah pernah di-retry
+                },
+              );
+
+              // Kirim ulang request
+              final response = await dio.fetch(newRequest);
+              return handler.resolve(response);
+            } catch (e) {
+              // Kalau refresh token juga error / gagal
+              return handler.next(error);
             }
+          }
 
-            return handler.next(error);
-          },
-        ),
-      );
+          // Selain itu, teruskan error seperti biasa
+          return handler.next(error);
+        },
+      ),
+    );
 
-      _dio!.interceptors.add(
-        LogInterceptor(
-          request: true,
-          requestHeader: true,
-          responseBody: true,
-          requestBody: true,
-        ),
-      );
-    }
+    dio.interceptors.add(
+      LogInterceptor(
+        request: true,
+        requestHeader: true,
+        responseBody: true,
+        requestBody: true,
+      ),
+    );
 
-    return _dio!;
+    return dio;
   }
 }

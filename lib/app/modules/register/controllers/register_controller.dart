@@ -51,6 +51,7 @@ class RegisterController extends GetxController {
               "Kode OTP sudah dikirim ke nomor tersebut silahkan masukkan kode pada halaman selanjutnya!",
           primaryButtonText: "Oke",
           onPrimaryPressed: () {
+            Get.back();
             Get.offNamed(
               Routes.OTP_VERIFICATION,
               arguments: OtpVerificationSettings(

@@ -5,6 +5,7 @@
 import 'dart:convert';
 
 import 'package:soul_doctor/app/common/constant/default.dart';
+import 'package:soul_doctor/app/domain/model/gender.dart';
 import 'package:soul_doctor/app/domain/model/patient_summary.dart';
 
 PatientSummaryResponseDto patientSummaryResponseDtoFromJson(String str) =>
@@ -56,7 +57,7 @@ extension PatientSummaryResponseDtoConversion on PatientSummaryResponseDto {
       isContinuation: isContinuation ?? Default.defaultBool,
       isFirstVisit: isFirstVisit ?? Default.defaultBool,
       age: age ?? Default.defaultInt,
-      gender: gender ?? Default.defaultBool,
+      gender: Gender.getGenderByValue(gender ?? false),
       isVisitRejected: isVisitRejected ?? Default.defaultBool,
       hasCaregiver: hasCaregiver ?? Default.defaultBool,
     );

@@ -258,9 +258,7 @@ class VisitView extends GetView<VisitController> {
                               isChecked: false,
                             ),
                             ChipTagItem(
-                              title: Gender.getGenderByValue(
-                                e.patientSummary.gender,
-                              ).name,
+                              title: e.patientSummary.gender.name,
                               isChecked: false,
                             ),
                             if (e.patientSummary.hasCaregiver)
@@ -271,7 +269,7 @@ class VisitView extends GetView<VisitController> {
                       .toList(),
                 );
               default:
-                return PlaceholderNoConsultation();
+                return PlaceholderNoData(title: "Belum ada jadwal konsultasi");
             }
           }),
           // child: Column(

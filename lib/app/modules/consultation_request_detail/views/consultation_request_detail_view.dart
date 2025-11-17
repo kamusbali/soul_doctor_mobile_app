@@ -64,38 +64,34 @@ class ConsultationRequestDetailView
             CardExpandedInformation(
               title: "Data Diri Pasien",
               icon: Amicons.remix_user3,
-              futureItems: () async {
-                return [
-                  ItemInformation(
-                    title: "Nama Lengkap",
-                    value: Text("I Putu", style: TextStyleTheme.PARAGRAPH_5),
-                  ),
-                  ItemInformation(
-                    title: "Nama Panggilan",
-                    value: Text("Abo", style: TextStyleTheme.PARAGRAPH_5),
-                  ),
-                ];
-              },
+              items: [
+                ItemInformation(
+                  title: "Nama Lengkap",
+                  value: Text("I Putu", style: TextStyleTheme.PARAGRAPH_5),
+                ),
+                ItemInformation(
+                  title: "Nama Panggilan",
+                  value: Text("Abo", style: TextStyleTheme.PARAGRAPH_5),
+                ),
+              ],
             ),
             SizedBox(height: SpacingTheme.SPACING_4),
             CardExpandedInformation(
               title: "Data Diri Pengasuh",
               icon: Amicons.remix_user5,
-              futureItems: () async {
-                return [
-                  ItemInformation(
-                    title: "Nama Lengkap",
-                    value: Text(
-                      "Anak Agung Sagung Sari Dewi Lestari",
-                      style: TextStyleTheme.PARAGRAPH_5,
-                    ),
+              items: [
+                ItemInformation(
+                  title: "Nama Lengkap",
+                  value: Text(
+                    "Anak Agung Sagung Sari Dewi Lestari",
+                    style: TextStyleTheme.PARAGRAPH_5,
                   ),
-                  ItemInformation(
-                    title: "Nama Panggilan",
-                    value: Text("Gung Dewi", style: TextStyleTheme.PARAGRAPH_5),
-                  ),
-                ];
-              },
+                ),
+                ItemInformation(
+                  title: "Nama Panggilan",
+                  value: Text("Gung Dewi", style: TextStyleTheme.PARAGRAPH_5),
+                ),
+              ],
             ),
             SizedBox(height: SpacingTheme.SPACING_4),
             CardFullInformation(

@@ -6,7 +6,7 @@ class InputProfileBinding extends Bindings {
   @override
   void dependencies() {
     Get.lazyPut<InputProfileController>(
-      () => InputProfileController(Get.find()),
+      () => InputProfileController(Get.find(), Get.find()),
     );
   }
 }

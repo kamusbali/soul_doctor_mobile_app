@@ -240,8 +240,6 @@ class PatientHistoryView extends GetView<PatientHistoryController> {
           switch (controller.consultation.value.status) {
             case Status.loading:
               return Center(child: CircularProgressIndicator());
-            case Status.empty:
-              return PlaceholderNoConsultation();
             case Status.success:
               // return PagingListener<int, Consultation>(
               //   controller:
@@ -278,38 +276,87 @@ class PatientHistoryView extends GetView<PatientHistoryController> {
               //         ),
               //       ),
               // );
-              return SingleChildScrollView(
-                child: Column(
-                  spacing: 8,
-                  children: controller.consultation.value.data!.data
-                      .map(
-                        (e) => CardConsultation(
-                          onTap: () {
-                            Get.toNamed(
-                              Routes.DETAIL_CONSULTATION,
-                              arguments: e.id,
-                            );
-                          },
-                          title: e.visitDate != null
-                              ? DateTimeUtils.dateToDayMonthYear(e.visitDate!)
-                              : e.state.getName(Role.patient),
-                          body: e.description,
-                          color: e.state.getColor(Role.patient),
-                          chips: [
-                            if (e.medicationSummary.medication)
-                              ChipTagItem(title: "Obat", isChecked: true),
-                            if (e.medicationSummary.therapy)
-                              ChipTagItem(title: "Terapi", isChecked: true),
-                            if (e.medicationSummary.visit)
-                              ChipTagItem(title: "Visit", isChecked: true),
-                          ],
+              return LayoutBuilder(
+                builder: (context, constraints) {
+                  return RefreshIndicator(
+                    onRefresh: () async {
+                      controller.onInit();
+                    },
+                    child: SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minHeight: constraints.maxHeight,
                         ),
-                      )
-                      .toList(),
-                ),
+                        child: Column(
+                          spacing: 8,
+                          children: controller.consultation.value.data!.data
+                              .map(
+                                (e) => CardConsultation(
+                                  onTap: () {
+                                    Get.toNamed(
+                                      Routes.DETAIL_CONSULTATION,
+                                      arguments: e.id,
+                                    );
+                                  },
+                                  title: e.visitDate != null
+                                      ? DateTimeUtils.dateToDayMonthYear(
+                                          e.visitDate!,
+                                        )
+                                      : e.state.getName(Role.patient),
+                                  body: e.description,
+                                  color: e.state.getColor(Role.patient),
+                                  chips: [
+                                    if (e.medicationSummary.medication)
+                                      ChipTagItem(
+                                        title: "Obat",
+                                        isChecked: true,
+                                      ),
+                                    if (e.medicationSummary.therapy)
+                                      ChipTagItem(
+                                        title: "Terapi",
+                                        isChecked: true,
+                                      ),
+                                    if (e.medicationSummary.visit)
+                                      ChipTagItem(
+                                        title: "Visit",
+                                        isChecked: true,
+                                      ),
+                                  ],
+                                ),
+                              )
+                              .toList(),
+                        ),
+                      ),
+                    ),
+                  );
+                },
               );
             default:
-              return PlaceholderNoConsultation();
+              return LayoutBuilder(
+                builder: (context, constraints) {
+                  return RefreshIndicator(
+                    onRefresh: () async {
+                      controller.onInit();
+                    },
+                    child: SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minHeight: constraints.maxHeight,
+                        ),
+                        child: Column(
+                          children: [
+                            PlaceholderNoData(
+                              title: "Belum ada jadwal konsultasi",
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              );
           }
         }),
       ),

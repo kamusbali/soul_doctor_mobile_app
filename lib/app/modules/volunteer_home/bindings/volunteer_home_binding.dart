@@ -6,7 +6,7 @@ class VolunteerHomeBinding extends Bindings {
   @override
   void dependencies() {
     Get.lazyPut<VolunteerHomeController>(
-      () => VolunteerHomeController(),
+      () => VolunteerHomeController(Get.find(), Get.find()),
     );
   }
 }

@@ -2,7 +2,6 @@ import 'package:get/get.dart';
 import 'package:soul_doctor/app/core/error/error_type.dart';
 import 'package:soul_doctor/app/core/infrastructure/auth/claims_token_service.dart';
 import 'package:soul_doctor/app/domain/model/consultation.dart';
-import 'package:soul_doctor/app/domain/model/consultation_status.dart';
 import 'package:soul_doctor/app/domain/model/role.dart';
 import 'package:soul_doctor/app/domain/use_case/auth_use_cases/auth_use_cases.dart';
 import 'package:soul_doctor/app/domain/use_case/consultation_use_cases/consultation_use_cases.dart';
@@ -32,7 +31,6 @@ class UserHomeController extends GetxController {
 
   void onRefresh() async {
     await getSessionStatus();
-
     if (isAuth) {
       getConsultationData();
     }
@@ -48,6 +46,11 @@ class UserHomeController extends GetxController {
     super.onClose();
   }
 
+  void onLogoutClear() {
+    consultation.value = Resource.none();
+    isAuth = false;
+  }
+
   void getConsultationData() async {
     consultation.value = Resource.loading();
     var sessionData = await _claimsTokenService.getSessionData();
@@ -58,7 +61,7 @@ class UserHomeController extends GetxController {
     }
 
     var data = await _consultationUseCases.getHomeConsultation.execute(
-      state: ConsultationStatus.scheduled,
+      role: sessionData.role,
       patientId: sessionData.role == Role.patient ? sessionData.id : null,
     );
 

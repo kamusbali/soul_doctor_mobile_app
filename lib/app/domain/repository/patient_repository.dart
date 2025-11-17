@@ -3,6 +3,11 @@ import 'package:soul_doctor/app/core/error/failure.dart';
 import 'package:soul_doctor/app/data/source/remote/dto/response/patient_detail_response_dto.dart';
 import 'package:soul_doctor/app/data/source/remote/dto/response/patient_response_dto.dart';
 
+import '../model/education.dart';
+import '../model/gender.dart';
+import '../model/marital.dart';
+import '../model/religion.dart';
+
 abstract class PatientRepository {
   Future<Either<Failure, bool>> createPatientOnCaregiver({
     required String fullname,
@@ -10,11 +15,11 @@ abstract class PatientRepository {
     required String phone,
     required String email,
     required DateTime birthday,
-    required bool gender,
-    required int maritalStatusId,
-    required int lastEducationId,
+    required Gender gender,
+    required Marital maritalStatusId,
+    required Education lastEducationId,
     required String job,
-    required int religionId,
+    required Religion religionId,
     required String address,
   });
 

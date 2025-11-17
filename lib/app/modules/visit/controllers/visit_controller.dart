@@ -115,6 +115,10 @@ class VisitController extends GetxController {
         consultation.value = Resource.error(failure.message);
       },
       (success) {
+        if (success.data.isEmpty) {
+          consultation.value = Resource.empty();
+          return;
+        }
         consultation.value = Resource.success(success);
       },
     );

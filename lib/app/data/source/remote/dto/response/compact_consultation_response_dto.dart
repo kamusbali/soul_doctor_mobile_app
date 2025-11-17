@@ -5,6 +5,7 @@
 import 'dart:convert';
 
 import 'package:soul_doctor/app/data/source/remote/dto/response/compact_consultation_detail_response_dto.dart';
+import 'package:soul_doctor/app/domain/model/compact_consultation.dart';
 
 CompactConsultationResponseDto
 patientDetailCompactConsultationResponseDtoFromJson(String str) =>
@@ -40,4 +41,16 @@ class CompactConsultationResponseDto {
         "${date!.year.toString().padLeft(4, '0')}-${date!.month.toString().padLeft(2, '0')}-${date!.day.toString().padLeft(2, '0')}",
     "detail": compactConsultationDetailResponseDto?.toJson(),
   };
+}
+
+extension CompactConsultationResponseDtoConversion
+    on CompactConsultationResponseDto {
+  CompactConsultation toCompactConsultation() {
+    return CompactConsultation(
+      consultationId: consultationId!,
+      date: date!,
+      compactConsultationDetail: compactConsultationDetailResponseDto
+          ?.toCompactConsultationDetail(),
+    );
+  }
 }

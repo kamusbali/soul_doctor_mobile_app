@@ -6,6 +6,7 @@ import 'package:soul_doctor/app/modules/account/widgets/accordion_account_linked
 import 'package:soul_doctor/app/modules/account/widgets/accordion_account_linked_item.dart';
 import 'package:soul_doctor/app/modules/account/widgets/card_account_authentication.dart';
 import 'package:soul_doctor/app/modules/account/widgets/list_account.dart';
+import 'package:soul_doctor/app/modules/patient_detail_history/settings/patient_detail_history_settings.dart';
 import 'package:soul_doctor/app/routes/app_pages.dart';
 import 'package:soul_doctor/app/core/theme/color_theme.dart';
 import 'package:soul_doctor/app/core/theme/spacing_theme.dart';
@@ -27,13 +28,7 @@ class AccountView extends GetView<AccountController> {
               controller.wrapperController.user.value.data == null
                   ? CardAccountAuthentication(
                       onLogin: () {
-                        Get.toNamed(Routes.LOGIN)
-                            ?.then((value) {
-                              controller.wrapperController.onRefreshPage();
-                            })
-                            .then((value) {
-                              controller.wrapperController.onChangeTab(0);
-                            });
+                        Get.toNamed(Routes.LOGIN);
                       },
                       onRegister: () {
                         Get.toNamed(Routes.REGISTER);
@@ -53,14 +48,14 @@ class AccountView extends GetView<AccountController> {
                           ),
                           if (controller
                                       .wrapperController
-                                      .user
+                                      .compactUser
                                       .value
                                       .data
                                       ?.role ==
                                   Role.patient &&
                               controller
                                       .wrapperController
-                                      .user
+                                      .compactUser
                                       .value
                                       .data
                                       ?.caregiver !=
@@ -71,7 +66,7 @@ class AccountView extends GetView<AccountController> {
                                 AccordionAccountLinkedItem(
                                   title: controller
                                       .wrapperController
-                                      .user
+                                      .compactUser
                                       .value
                                       .data!
                                       .caregiver!
@@ -82,38 +77,37 @@ class AccountView extends GetView<AccountController> {
                             ),
                           ],
                           if (controller
-                                      .wrapperController
-                                      .user
-                                      .value
-                                      .data
-                                      ?.role ==
-                                  Role.caregiver &&
-                              controller
-                                      .wrapperController
-                                      .user
-                                      .value
-                                      .data
-                                      ?.patients !=
-                                  null &&
-                              controller
                                   .wrapperController
                                   .user
                                   .value
-                                  .data!
-                                  .patients!
-                                  .isNotEmpty) ...[
+                                  .data
+                                  ?.role ==
+                              Role.caregiver) ...[
                             AccordionAccountLinked(
+                              onAddPatient: () {
+                                Get.toNamed(Routes.CREATE_PATIENT)?.then((_) {
+                                  Get.offAllNamed(Routes.WRAPPER);
+                                });
+                              },
                               items:
                                   controller
                                       .wrapperController
-                                      .user
+                                      .compactUser
                                       .value
-                                      .data!
-                                      .patients
+                                      .data
+                                      ?.patients
                                       ?.map(
                                         (element) => AccordionAccountLinkedItem(
                                           title: element.name,
-                                          onTap: () {},
+                                          onTap: () {
+                                            Get.toNamed(
+                                              Routes.PATIENT_DETAIL_HISTORY,
+                                              arguments:
+                                                  PatientDetailHistorySettings(
+                                                    patientId: element.id,
+                                                  ),
+                                            );
+                                          },
                                         ),
                                       )
                                       .toList() ??

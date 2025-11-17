@@ -37,6 +37,7 @@ class PatientController extends GetxController {
   @override
   void onReady() {
     super.onReady();
+    getPatient();
   }
 
   @override
@@ -78,6 +79,10 @@ class PatientController extends GetxController {
         patient.value = Resource.error(failure.message);
       },
       (succes) {
+        if (succes.isEmpty) {
+          patient.value = Resource.empty();
+          return;
+        }
         patient.value = Resource.success(succes);
       },
     );

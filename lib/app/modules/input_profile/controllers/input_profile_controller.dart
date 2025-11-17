@@ -9,15 +9,19 @@ import 'package:soul_doctor/app/domain/model/marital.dart';
 import 'package:soul_doctor/app/domain/model/profile.dart';
 import 'package:soul_doctor/app/domain/model/religion.dart';
 import 'package:soul_doctor/app/domain/model/role.dart';
+import 'package:soul_doctor/app/domain/use_case/auth_use_cases/auth_use_cases.dart';
 import 'package:soul_doctor/app/domain/use_case/profile_use_cases/profile_use_cases.dart';
 import 'package:soul_doctor/app/helpers/ui_feedback_utils.dart';
 import 'package:soul_doctor/app/modules/input_profile/settings/input_profile_settings.dart';
 import 'package:soul_doctor/app/routes/app_pages.dart';
 
+import '../../../core/error/error_type.dart';
+
 class InputProfileController extends GetxController {
   final ProfileUseCases _profileUseCases;
+  final AuthUseCases _authUseCases;
 
-  InputProfileController(this._profileUseCases);
+  InputProfileController(this._profileUseCases, this._authUseCases);
 
   InputProfileSettings inputProfileSettings = Get.arguments;
 
@@ -101,47 +105,37 @@ class InputProfileController extends GetxController {
       currentProfileData.value = Resource.loading();
       var profile = inputProfileSettings.initialProfile!;
 
-      var compactResponse = await _profileUseCases.getCompactProfileUseCase
-          .execute();
+      var sessionData = await _authUseCases.getSessionDataUseCases.execute();
 
-      compactResponse.fold(
-        (failure) {
-          UiFeedbackUtils.showSnackbar("Error", failure.message);
-          currentProfileData.value = Resource.error(failure.message);
-          Get.back();
-        },
-        (success) {
-          selectedRole = success?.role;
-          roleController.text = success!.role!.name;
+      selectedRole = sessionData?.role;
+      roleController.text = sessionData!.role.name;
 
-          fullnameController.text = profile.fullname;
-          nicknameController.text = profile.nickname;
-          emailController.text = profile.email ?? "";
-          dateTimeController.text = DateFormat(
-            "yyyy-MM-dd",
-          ).format(profile.birthday).toString();
-          selectedDateTime = profile.birthday;
+      fullnameController.text = profile.fullname;
+      nicknameController.text = profile.nickname;
+      emailController.text = profile.email ?? "";
+      dateTimeController.text = DateFormat(
+        "yyyy-MM-dd",
+      ).format(profile.birthday).toString();
+      selectedDateTime = profile.birthday;
 
-          selectedGender = profile.gender;
-          genderController.text = profile.gender.name;
+      selectedGender = profile.gender;
+      genderController.text = profile.gender.name;
 
-          selectedMarital = Marital.getMaritalFromId(profile.maritalStatusId);
-          maritalController.text = selectedMarital!.name;
+      selectedMarital = Marital.getMaritalFromId(profile.maritalStatusId);
+      maritalController.text = selectedMarital!.name;
 
-          selectedEducation = Education.getEducationFromId(
-            profile.lastEducationId,
-          );
-          educationController.text = selectedEducation!.name;
+      selectedEducation = Education.getEducationFromId(profile.lastEducationId);
+      educationController.text = selectedEducation!.name;
+      phoneController.text = profile.phone!;
 
-          jobController.text = profile.job;
+      jobController.text = profile.job;
 
-          selectedReligion = Religion.getReligionFromId(profile.religionId);
-          religionController.text = selectedReligion!.name;
+      selectedReligion = Religion.getReligionFromId(profile.religionId);
+      religionController.text = selectedReligion!.name;
 
-          addressController.text = profile.address;
-          currentProfileData.value = Resource.success(profile);
-        },
-      );
+      addressController.text = profile.address;
+      currentProfileData.value = Resource.success(profile);
+
       return;
     }
     currentProfileData.value = Resource.loading();
@@ -150,12 +144,34 @@ class InputProfileController extends GetxController {
 
     compactResponse.fold(
       (failure) {
-        UiFeedbackUtils.showSnackbar("Error", failure.message);
+        if (failure.errorType == ErrorType.sessionExpired) {
+          UiFeedbackUtils.showDialog(
+            title: "Sesi Login Kadaluarsa",
+            body: "Silahkan login kembali untuk dapat mengakses fitur",
+            primaryButtonText: "Okay",
+            onPrimaryPressed: () async {
+              await _authUseCases.logoutUseCase.execute();
+              Get.offAllNamed(Routes.WRAPPER);
+            },
+          );
+          currentProfileData.value = Resource.error(failure.message);
+          return;
+        }
+
+        UiFeedbackUtils.showDialog(
+          title: "Terjadi Kesalahan",
+          body: failure.message,
+          primaryButtonText: "Okay",
+          onPrimaryPressed: () {
+            Get.back();
+          },
+        );
         currentProfileData.value = Resource.error(failure.message);
-        Get.back();
       },
       (success) {
+        print("Nomor Telp : ${success.phone}");
         phoneController.text = success.phone!;
+        currentProfileData.value = Resource.success(success);
       },
     );
 

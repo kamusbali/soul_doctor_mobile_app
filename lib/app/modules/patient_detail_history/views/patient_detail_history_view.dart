@@ -2,6 +2,8 @@ import 'package:amicons/amicons.dart';
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
+import 'package:soul_doctor/app/common/resource.dart';
+import 'package:soul_doctor/app/helpers/date_time_utils.dart';
 import 'package:soul_doctor/app/widgets/card/card_expanded_information.dart';
 import 'package:soul_doctor/app/widgets/card/card_full_information.dart';
 import 'package:soul_doctor/app/widgets/item/item_information.dart';
@@ -33,129 +35,192 @@ class PatientDetailHistoryView extends GetView<PatientDetailHistoryController> {
         ),
         automaticallyImplyLeading: false,
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            SizedBox(height: SpacingTheme.SPACING_4),
-            CardExpandedInformation(
-              title: 'Keterangan Pasien',
-              icon: Amicons.remix_user2,
-              futureItems: () async {
-                await Future.delayed(Duration(seconds: 2));
-                return [
-                  ItemInformation(
-                    title: "Nama Lengkap",
-                    value: Text("I Wayan", style: TextStyleTheme.PARAGRAPH_5),
+      body: Obx(() {
+        if (controller.patientDataStatus.value.status == Status.loading ||
+            controller.patientDataStatus.value.status == Status.none) {
+          return Center(child: CircularProgressIndicator());
+        } else {
+          var data = controller.patientDataStatus.value.data;
+          return SingleChildScrollView(
+            child: Column(
+              children: [
+                SizedBox(height: SpacingTheme.SPACING_4),
+                CardExpandedInformation(
+                  title: 'Keterangan Pasien',
+                  icon: Amicons.remix_user2,
+                  items: [
+                    ItemInformation(
+                      title: "Nama Lengkap",
+                      value: Text(
+                        data?.patient.fullname ?? "-",
+                        style: TextStyleTheme.PARAGRAPH_5,
+                      ),
+                    ),
+                    ItemInformation(
+                      title: "Nama Panggilan",
+                      value: Text(
+                        data?.patient.nickname ?? "-",
+                        style: TextStyleTheme.PARAGRAPH_5,
+                      ),
+                    ),
+                    ItemInformation(
+                      title: "Tanggal Lahir",
+                      value: Text(
+                        data?.patient.birthday == null
+                            ? "-"
+                            : DateTimeUtils.dateToDayMonthYear(
+                                data!.patient.birthday,
+                              ),
+                        style: TextStyleTheme.PARAGRAPH_5,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: SpacingTheme.SPACING_4),
+                if (data?.caregiver != null)
+                  CardExpandedInformation(
+                    title: 'Data Diri Pengasuh',
+                    icon: Amicons.remix_user2,
+                    items: [
+                      ItemInformation(
+                        title: "Nama Lengkap",
+                        value: Text(
+                          data?.caregiver?.fullname ?? "-",
+                          style: TextStyleTheme.PARAGRAPH_5,
+                        ),
+                      ),
+                      ItemInformation(
+                        title: "Nama Panggilan",
+                        value: Text(
+                          data?.caregiver?.nickname ?? "-",
+                          style: TextStyleTheme.PARAGRAPH_5,
+                        ),
+                      ),
+                      ItemInformation(
+                        title: "Tanggal Lahir",
+                        value: Text(
+                          data?.patient.birthday == null
+                              ? "-"
+                              : DateTimeUtils.dateToDayMonthYear(
+                                  data!.patient.birthday,
+                                ),
+                          style: TextStyleTheme.PARAGRAPH_5,
+                        ),
+                      ),
+                    ],
                   ),
-                  ItemInformation(
-                    title: "Nama Panggilan",
-                    value: Text("Abo", style: TextStyleTheme.PARAGRAPH_5),
-                  ),
-                  ItemInformation(
-                    title: "Tanggal Lahir",
-                    value: Text(
-                      "1 Januari 1956",
-                      style: TextStyleTheme.PARAGRAPH_5,
+                SizedBox(height: SpacingTheme.SPACING_4),
+                CardFullInformation(
+                  title: "Riwayat Penyakit Pasien",
+                  icon: Amicons.remix_thermometer,
+                  items: [
+                    ItemInformation(
+                      title: "Heteroanamnesis",
+                      value: Text(
+                        data?.patientHistory?.heteroanamnesis ?? "-",
+                        style: TextStyleTheme.PARAGRAPH_5,
+                      ),
+                    ),
+                    ItemInformation(
+                      title: "Riwayat Penyakit",
+                      value: Text(
+                        data?.patientHistory?.diseaseHistory ?? "-",
+                        style: TextStyleTheme.PARAGRAPH_5,
+                      ),
+                    ),
+                    ItemInformation(
+                      title: "Riwayat Keluarga",
+                      value: Text(
+                        data?.patientHistory?.familyHistory ?? "-",
+                        style: TextStyleTheme.PARAGRAPH_5,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: SpacingTheme.SPACING_4),
+                if (data != null)
+                  ...data.consultations.map(
+                    (e) => CardExpandedInformation(
+                      title:
+                          'Riwayat Konsultasi ${DateTimeUtils.dateToDayMonthYear(e.date)}',
+                      icon: Amicons.lucide_briefcase_medical,
+                      items: [
+                        ItemInformation(
+                          title: "Keluhan",
+                          value: Text(
+                            e.compactConsultationDetail?.symptom ?? "-",
+                            style: TextStyleTheme.PARAGRAPH_5,
+                          ),
+                        ),
+                        ItemInformation(
+                          title: "Tanggal Awal Keluhan",
+                          value: Text(
+                            e.compactConsultationDetail?.startDate == null
+                                ? "-"
+                                : DateTimeUtils.dateToDayMonthYear(
+                                    e.compactConsultationDetail!.startDate,
+                                  ),
+                            style: TextStyleTheme.PARAGRAPH_5,
+                          ),
+                        ),
+                        ItemInformation(
+                          title: "Hasil Observasi Volunteer",
+                          value: Text(
+                            e.compactConsultationDetail?.observation ?? "-",
+                            style: TextStyleTheme.PARAGRAPH_5,
+                          ),
+                        ),
+                        ItemInformation(
+                          title: "Diagnosis Dokter",
+                          value: Text(
+                            e.compactConsultationDetail?.diagnosis ?? "-",
+                            style: TextStyleTheme.PARAGRAPH_5,
+                          ),
+                        ),
+                        ItemInformation(
+                          title: "Obat",
+                          value: Text(
+                            e.compactConsultationDetail?.medication ?? "-",
+                            style: TextStyleTheme.PARAGRAPH_5,
+                          ),
+                        ),
+                        ItemInformation(
+                          title: "Terapi",
+                          value: Text(
+                            e.compactConsultationDetail?.therapy ?? "-",
+                            style: TextStyleTheme.PARAGRAPH_5,
+                          ),
+                        ),
+                        ItemInformation(
+                          title: "Visitor",
+                          value: Text(
+                            e.compactConsultationDetail?.visitor ?? "-",
+                            style: TextStyleTheme.PARAGRAPH_5,
+                          ),
+                        ),
+                        if (e.compactConsultationDetail != null &&
+                            e.compactConsultationDetail!.visitImages.isNotEmpty)
+                          ItemInformation(
+                            title: "Foto Hasil Visit",
+                            value: SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: Row(
+                                children: e
+                                    .compactConsultationDetail!
+                                    .visitImages
+                                    .map((e) => Image.network(e, height: 200))
+                                    .toList(),
+                              ),
+                            ),
+                          ),
+                      ],
                     ),
                   ),
-                ];
-              },
-            ),
-            SizedBox(height: SpacingTheme.SPACING_4),
-            CardExpandedInformation(
-              title: 'Data Diri Pengasuh',
-              icon: Amicons.remix_user2,
-              futureItems: () async {
-                await Future.delayed(Duration(seconds: 2));
-                return [
-                  ItemInformation(
-                    title: "Nama Lengkap",
-                    value: Text("I Wayan", style: TextStyleTheme.PARAGRAPH_5),
-                  ),
-                  ItemInformation(
-                    title: "Nama Panggilan",
-                    value: Text("Abo", style: TextStyleTheme.PARAGRAPH_5),
-                  ),
-                  ItemInformation(
-                    title: "Tanggal Lahir",
-                    value: Text(
-                      "1 Januari 1956",
-                      style: TextStyleTheme.PARAGRAPH_5,
-                    ),
-                  ),
-                ];
-              },
-            ),
-            SizedBox(height: SpacingTheme.SPACING_4),
-            CardFullInformation(
-              title: "Riwayat Penyakit Pasien",
-              icon: Amicons.remix_thermometer,
-              items: [
-                ItemInformation(
-                  title: "Heteroanamnesis",
-                  value: Text("-", style: TextStyleTheme.PARAGRAPH_5),
-                ),
-                ItemInformation(
-                  title: "Riwayat Penyakit",
-                  value: Text("-", style: TextStyleTheme.PARAGRAPH_5),
-                ),
-                ItemInformation(
-                  title: "Riwayat Keluarga",
-                  value: Text("-", style: TextStyleTheme.PARAGRAPH_5),
-                ),
               ],
             ),
-            SizedBox(height: SpacingTheme.SPACING_4),
-            CardExpandedInformation(
-              title: 'Riwayat Konsultasi 12 Januari 2025',
-              icon: Amicons.lucide_briefcase_medical,
-              futureItems: () async {
-                await Future.delayed(Duration(seconds: 2));
-                return [
-                  ItemInformation(
-                    title: "Keluhan",
-                    value: Text("Batuk", style: TextStyleTheme.PARAGRAPH_5),
-                  ),
-                  ItemInformation(
-                    title: "Tanggal Awal Keluhan",
-                    value: Text(
-                      "1 Januari 2025",
-                      style: TextStyleTheme.PARAGRAPH_5,
-                    ),
-                  ),
-                  ItemInformation(
-                    title: "Hasil Observasi Volunteer",
-                    value: Text(
-                      "Pasien mengalami gejala susah tidur",
-                      style: TextStyleTheme.PARAGRAPH_5,
-                    ),
-                  ),
-                  ItemInformation(
-                    title: "Diagnosis Dokter",
-                    value: Text("Pilek", style: TextStyleTheme.PARAGRAPH_5),
-                  ),
-                  ItemInformation(
-                    title: "Obat",
-                    value: Text("Demacolyn", style: TextStyleTheme.PARAGRAPH_5),
-                  ),
-                  ItemInformation(
-                    title: "Terapi",
-                    value: Text("-", style: TextStyleTheme.PARAGRAPH_5),
-                  ),
-                  ItemInformation(
-                    title: "Visitor",
-                    value: Text("-", style: TextStyleTheme.PARAGRAPH_5),
-                  ),
-                  ItemInformation(
-                    title: "Foto Hasil Visit",
-                    value: Text("-", style: TextStyleTheme.PARAGRAPH_5),
-                  ),
-                ];
-              },
-            ),
-          ],
-        ),
-      ),
+          );
+        }
+      }),
     );
   }
 }

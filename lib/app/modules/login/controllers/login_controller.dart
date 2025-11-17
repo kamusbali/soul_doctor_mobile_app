@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:soul_doctor/app/common/resource.dart';
 import 'package:soul_doctor/app/domain/use_case/auth_use_cases/auth_use_cases.dart';
 import 'package:soul_doctor/app/helpers/ui_feedback_utils.dart';
+import 'package:soul_doctor/app/routes/app_pages.dart';
 
 class LoginController extends GetxController {
   final AuthUseCases _authUseCases;
@@ -64,8 +65,7 @@ class LoginController extends GetxController {
           body: "Login berhasil!",
           primaryButtonText: "Okay",
           onPrimaryPressed: () {
-            Get.back();
-            Get.back();
+            Get.offAllNamed(Routes.WRAPPER);
           },
         );
       },

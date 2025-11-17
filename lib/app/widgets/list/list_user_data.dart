@@ -4,13 +4,14 @@ import 'package:soul_doctor/app/domain/model/compact_user.dart';
 import 'package:soul_doctor/app/core/theme/color_theme.dart';
 import 'package:soul_doctor/app/core/theme/spacing_theme.dart';
 import 'package:soul_doctor/app/core/theme/text_style_theme.dart';
+import 'package:soul_doctor/app/domain/model/session_data.dart';
 import 'package:soul_doctor/app/widgets/avatar/circle_photo_profile.dart';
 import 'package:soul_doctor/app/widgets/chip/chip_role.dart';
 
 class ListUserData extends StatelessWidget {
   const ListUserData({super.key, required this.user});
 
-  final CompactUser user;
+  final SessionData user;
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +39,7 @@ class ListUserData extends StatelessWidget {
                     ),
                   ),
                   SizedBox(height: SpacingTheme.SPACING_3),
-                  if (user.role != null) ChipRole(role: user.role!),
+                  ChipRole(role: user.role),
                 ],
               ),
             ),

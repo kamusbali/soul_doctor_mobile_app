@@ -62,6 +62,18 @@ class PatientHistoryController extends GetxController {
     super.onClose();
   }
 
+  void onLogoutClear() {
+    selectedIndex.value = 0;
+    selectedState = Role.patient.status[0];
+    consultation.value = Resource<Pagination<List<Consultation>>>.none();
+    isMedication = false;
+    isTherapy = false;
+    isVisit = false;
+    isMedicationTemp.value = false;
+    isTherapyTemp.value = false;
+    isVisitTemp.value = false;
+  }
+
   // Future<List<Consultation>> onFetchPage({int pageKey = 1}) async {
   //   print(pageKey);
   //   consultation.value = Resource.loading();

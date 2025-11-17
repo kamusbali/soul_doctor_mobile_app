@@ -7,6 +7,9 @@ import 'package:soul_doctor/app/domain/use_case/auth_use_cases/auth_use_cases.da
 import 'package:soul_doctor/app/domain/use_case/consultation_use_cases/consultation_use_cases.dart';
 import 'package:soul_doctor/app/helpers/ui_feedback_utils.dart';
 
+import '../../../core/error/error_type.dart';
+import '../../../routes/app_pages.dart';
+
 class AddConsultationController extends GetxController {
   final ConsultationUseCases _consultationUseCases;
   final AuthUseCases _authUseCases;
@@ -23,6 +26,8 @@ class AddConsultationController extends GetxController {
 
   var addConsultationState = Resource<bool>.none().obs;
 
+  final formKey = GlobalKey<FormState>();
+
   @override
   void onInit() {
     super.onInit();
@@ -38,7 +43,7 @@ class AddConsultationController extends GetxController {
     super.onClose();
   }
 
-  void onSelectDateBirth() async {
+  void onSelectStartDate() async {
     final pickedDate = await showDatePicker(
       context: Get.context!,
       initialDate: DateTime.now(),
@@ -94,7 +99,7 @@ class AddConsultationController extends GetxController {
   void onAddConsultation() async {
     addConsultationState.value = Resource.loading();
     var sessionData = await _authUseCases.getSessionDataUseCases.execute();
-    
+
     if (sessionData == null) {
       UiFeedbackUtils.showSnackbar(
         "Tidak ada sesi",
@@ -123,8 +128,29 @@ class AddConsultationController extends GetxController {
 
     response.fold(
       (failure) {
+        if (failure.errorType == ErrorType.sessionExpired) {
+          UiFeedbackUtils.showDialog(
+            title: "Sesi Login Kadaluarsa",
+            body: "Silahkan login kembali untuk dapat mengakses fitur",
+            primaryButtonText: "Okay",
+            onPrimaryPressed: () async {
+              await _authUseCases.logoutUseCase.execute();
+              Get.offAllNamed(Routes.WRAPPER);
+            },
+          );
+          addConsultationState.value = Resource.error(failure.message);
+          return;
+        }
+
+        UiFeedbackUtils.showDialog(
+          title: "Terjadi Kesalahan",
+          body: failure.message,
+          primaryButtonText: "Okay",
+          onPrimaryPressed: () {
+            Get.back();
+          },
+        );
         addConsultationState.value = Resource.error(failure.message);
-        UiFeedbackUtils.showSnackbar("Error", failure.message);
       },
       (success) {
         if (success) {

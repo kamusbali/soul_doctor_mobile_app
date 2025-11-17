@@ -4,6 +4,8 @@
 
 import 'dart:convert';
 
+import 'package:soul_doctor/app/domain/model/patient_detail_history.dart';
+
 PatientDetailHistoryResponseDto patientDetailHistoryResponseDtoFromJson(
   String str,
 ) => PatientDetailHistoryResponseDto.fromJson(json.decode(str));
@@ -55,4 +57,20 @@ class PatientDetailHistoryResponseDto {
     "medication_history": medicationHistory,
     "psychiatric_status": psychiatricStatus,
   };
+}
+
+extension PatientDetailHistoryResponseDtoConversion
+    on PatientDetailHistoryResponseDto {
+  PatientDetailHistory toPatientDetailHistory() {
+    return PatientDetailHistory(
+      cooperation: cooperation!,
+      mainDisease: mainDisease!,
+      autoanamnesis: autoanamnesis!,
+      diseaseHistory: diseaseHistory!,
+      familyHistory: familyHistory!,
+      heteroanamnesis: heteroanamnesis!,
+      medicationHistory: medicationHistory!,
+      psychiatricStatus: psychiatricStatus!,
+    );
+  }
 }

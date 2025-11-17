@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:soul_doctor/app/common/constant/const_path.dart';
 import 'package:soul_doctor/app/common/resource.dart';
+import 'package:soul_doctor/app/domain/model/role.dart';
 import 'package:soul_doctor/app/helpers/date_time_utils.dart';
 import 'package:soul_doctor/app/helpers/ui_feedback_utils.dart';
 import 'package:soul_doctor/app/widgets/card/card_consultation.dart';
@@ -64,9 +65,21 @@ class UserHomeView extends GetView<UserHomeController> {
                           ConstPath.CARD_ILLUSTRATION_CONSULTATION_PATH,
                       backgroundColor: ColorTheme.EUCALYPTUS_500,
                       onTap: () {
-                        if (controller.isAuth) {
-                          Get.toNamed(Routes.ADD_CONSULTATION);
-                          return;
+                        if (controller.wrapperController.user.value.data !=
+                            null) {
+                          if (controller
+                                  .wrapperController
+                                  .user
+                                  .value
+                                  .data
+                                  ?.role ==
+                              Role.patient) {
+                            Get.toNamed(Routes.ADD_CONSULTATION);
+                            return;
+                          } else {
+                            Get.toNamed(Routes.ADD_VISIT_REQUEST);
+                            return;
+                          }
                         }
 
                         UiFeedbackUtils.showDialog(
@@ -168,7 +181,9 @@ class UserHomeView extends GetView<UserHomeController> {
                           .toList(),
                     );
                   default:
-                    return PlaceholderNoConsultation();
+                    return PlaceholderNoData(
+                      title: "Belum ada jadwal konsultasi",
+                    );
                 }
               }),
             ],

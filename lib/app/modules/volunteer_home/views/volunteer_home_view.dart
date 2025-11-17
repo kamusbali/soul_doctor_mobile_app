@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
+import 'package:soul_doctor/app/domain/model/role.dart';
+import 'package:soul_doctor/app/helpers/date_time_utils.dart';
 import 'package:soul_doctor/app/routes/app_pages.dart';
 import 'package:soul_doctor/app/widgets/card/card_add_consultation.dart';
 import 'package:soul_doctor/app/widgets/card/card_consultation.dart';
 import 'package:soul_doctor/app/widgets/chip/chip_tag_consultation_item.dart';
+import 'package:soul_doctor/app/widgets/placeholder/placeholder_no_consultation.dart';
 
 import '../../../common/resource.dart';
 import '../../../core/theme/color_theme.dart';
@@ -68,25 +71,59 @@ class VolunteerHomeView extends GetView<VolunteerHomeController> {
                 ),
               ),
               SizedBox(height: SpacingTheme.SPACING_4),
-              CardConsultation(
-                onTap: () {
-                  Get.toNamed(Routes.VISIT_DETAIL);
-                },
-                title: "26 April 2025",
-                subTitle: "I Putu",
-                overline: "Jl. Catur No. 3",
-                body:
-                    "Cemas berlebihan / Kesulitan tidur / Stres  karena pekerjaan",
-                color: ColorTheme.COBALT_200,
-                chips: [
-                  ChipTagItem(title: "69 Tahun", isChecked: false),
-                  ChipTagItem(title: "Laki-Laki", isChecked: false),
-                  ChipTagItem(title: "Diasuh", isChecked: false),
-                ],
-              ),
+              Obx(() {
+                switch (controller.upcomingVisitState.value.status) {
+                  case Status.loading:
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [CircularProgressIndicator()],
+                    );
+                  case Status.success:
+                    var data = controller.upcomingVisitState.value.data!;
+                    return Column(
+                      children: data
+                          .map(
+                            (e) => CardConsultation(
+                              onTap: () {
+                                Get.toNamed(Routes.VISIT_DETAIL);
+                              },
+                              title: e.visitDate == null
+                                  ? null
+                                  : DateTimeUtils.dateToDayMonthYear(
+                                      e.visitDate!,
+                                    ),
+                              subTitle: e.name,
+                              overline: e.address,
+                              body: e.description,
+                              color: ColorTheme.COBALT_200,
+                              chips: [
+                                ChipTagItem(
+                                  title: "${e.patientSummary.age} Tahun",
+                                  isChecked: false,
+                                ),
+                                ChipTagItem(
+                                  title: e.patientSummary.gender.name,
+                                  isChecked: false,
+                                ),
+                                if (e.patientSummary.hasCaregiver)
+                                  ChipTagItem(
+                                    title: "Diasuh",
+                                    isChecked: false,
+                                  ),
+                              ],
+                            ),
+                          )
+                          .toList(),
+                    );
+                  default:
+                    return PlaceholderNoData(title: "No Data Consultation");
+                }
+              }),
               SizedBox(height: SpacingTheme.SPACING_4),
               OutlinedButton(
-                onPressed: () {},
+                onPressed: () {
+                  controller.wrapperController.onChangeTab(1);
+                },
                 style: OutlinedButton.styleFrom(side: BorderSide.none),
                 child: Center(
                   child: Text("Lihat Semua", style: TextStyleTheme.LABEL_1),
@@ -103,22 +140,55 @@ class VolunteerHomeView extends GetView<VolunteerHomeController> {
                 ),
               ),
               SizedBox(height: SpacingTheme.SPACING_4),
-              CardConsultation(
-                onTap: () {
-                  Get.toNamed(Routes.VISIT_DETAIL);
-                },
-                title: "19 Mei 2025",
-                subTitle: "I Wayan",
-                overline: "Jl. Mawar No. 10",
-                body:
-                    "Cemas berlebihan / Kesulitan tidur / Stres  karena pekerjaan",
-                color: ColorTheme.GAMBOGE_200,
-                chips: [
-                  ChipTagItem(title: "27 Tahun", isChecked: false),
-                  ChipTagItem(title: "Laki-Laki", isChecked: false),
-                  ChipTagItem(title: "Diasuh", isChecked: false),
-                ],
-              ),
+              Obx(() {
+                switch (controller.visitRequestState.value.status) {
+                  case Status.loading:
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [CircularProgressIndicator()],
+                    );
+                  case Status.success:
+                    var data = controller.visitRequestState.value.data!;
+                    return Column(
+                      children: data
+                          .map(
+                            (e) => CardConsultation(
+                              onTap: () {
+                                Get.toNamed(Routes.VISIT_DETAIL);
+                              },
+                              title: e.visitDate == null
+                                  ? null
+                                  : DateTimeUtils.dateToDayMonthYear(
+                                      e.visitDate!,
+                                    ),
+                              subTitle: e.name,
+                              overline: e.address,
+                              body: e.description,
+                              color: e.state.getColor(Role.volunteer),
+                              chips: [
+                                ChipTagItem(
+                                  title: "${e.patientSummary.age} Tahun",
+                                  isChecked: false,
+                                ),
+                                ChipTagItem(
+                                  title: e.patientSummary.gender.name,
+                                  isChecked: false,
+                                ),
+                                if (e.patientSummary.hasCaregiver)
+                                  ChipTagItem(
+                                    title: "Diasuh",
+                                    isChecked: false,
+                                  ),
+                              ],
+                            ),
+                          )
+                          .toList(),
+                    );
+                  default:
+                    return PlaceholderNoData(title: "No Data Consultation");
+                }
+              }),
+
               SizedBox(height: SpacingTheme.SPACING_4),
               OutlinedButton(
                 onPressed: () {},

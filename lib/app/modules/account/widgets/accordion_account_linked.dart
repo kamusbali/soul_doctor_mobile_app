@@ -128,6 +128,7 @@ class _AccordionAccountLinkedState extends State<AccordionAccountLinked>
                         scrollDirection: Axis.horizontal,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           spacing: SpacingTheme.SPACING_4,
                           children: widget.items
                               .map(

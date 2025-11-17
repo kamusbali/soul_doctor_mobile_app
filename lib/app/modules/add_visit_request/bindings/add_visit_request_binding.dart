@@ -6,7 +6,7 @@ class AddVisitRequestBinding extends Bindings {
   @override
   void dependencies() {
     Get.lazyPut<AddVisitRequestController>(
-      () => AddVisitRequestController(),
+      () => AddVisitRequestController(Get.find(), Get.find()),
     );
   }
 }

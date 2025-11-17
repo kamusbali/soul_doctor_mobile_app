@@ -6,7 +6,7 @@ class AccountSettingBinding extends Bindings {
   @override
   void dependencies() {
     Get.lazyPut<AccountSettingController>(
-      () => AccountSettingController(Get.find()),
+      () => AccountSettingController(Get.find(), Get.find()),
     );
   }
 }

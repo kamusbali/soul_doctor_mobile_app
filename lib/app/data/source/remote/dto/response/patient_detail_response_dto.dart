@@ -7,6 +7,7 @@ import 'dart:convert';
 import 'package:soul_doctor/app/data/source/remote/dto/response/compact_information_response_dto.dart';
 import 'package:soul_doctor/app/data/source/remote/dto/response/compact_consultation_response_dto.dart';
 import 'package:soul_doctor/app/data/source/remote/dto/response/patient_detail_history_response_dto.dart';
+import 'package:soul_doctor/app/domain/model/patient_detail.dart';
 
 PatientDetailResponseDto patientDetailResponseDtoFromJson(String str) =>
     PatientDetailResponseDto.fromJson(json.decode(str));
@@ -55,4 +56,17 @@ class PatientDetailResponseDto {
         ? []
         : List<dynamic>.from(consultations!.map((x) => x.toJson())),
   };
+}
+
+extension PatientDetailResponseDtoConversion on PatientDetailResponseDto {
+  PatientDetail toPatientDetail() {
+    return PatientDetail(
+      patient: patient!.toCompactInformation(),
+      caregiver: caregiver?.toCompactInformation(),
+      patientHistory: patientHistory?.toPatientDetailHistory(),
+      consultations: consultations!
+          .map((e) => e.toCompactConsultation())
+          .toList(),
+    );
+  }
 }

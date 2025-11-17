@@ -20,6 +20,5 @@ class ClaimsTokenService {
 
   Future<void> clearSessionData() async {
     await _box.remove(_claimsKey);
-    print("Done");
   }
 }

@@ -9,7 +9,6 @@ import '../../../common/resource.dart';
 import '../../../core/theme/color_theme.dart';
 import '../../../core/theme/spacing_theme.dart';
 import '../../../core/theme/text_style_theme.dart';
-import '../../../domain/model/gender.dart';
 import '../../../domain/model/role.dart';
 import '../../../routes/app_pages.dart';
 import '../../../widgets/chip/chip_tag_consultation_item.dart';
@@ -232,9 +231,7 @@ class ConsultationView extends GetView<ConsultationController> {
                               isChecked: false,
                             ),
                             ChipTagItem(
-                              title: Gender.getGenderByValue(
-                                e.patientSummary.gender,
-                              ).name,
+                              title: e.patientSummary.gender.name,
                               isChecked: false,
                             ),
                             if (e.patientSummary.hasCaregiver)
@@ -245,7 +242,7 @@ class ConsultationView extends GetView<ConsultationController> {
                       .toList(),
                 );
               default:
-                return PlaceholderNoConsultation();
+                return PlaceholderNoData(title: "Belum ada jadwal konsultasi");
             }
           }),
           // child: Column(
