@@ -80,6 +80,7 @@ class CardConsultation extends StatelessWidget {
                   if (chips != null && chips!.isNotEmpty)
                     Wrap(
                       spacing: SpacingTheme.SPACING_4,
+                      runSpacing: SpacingTheme.SPACING_4,
                       children: chips!
                           .map((element) => ChipTag(data: element))
                           .toList(),

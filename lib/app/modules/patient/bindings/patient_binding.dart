@@ -7,6 +7,7 @@ class PatientBinding extends Bindings {
   void dependencies() {
     Get.lazyPut<PatientController>(
       () => PatientController(Get.find(), Get.find()),
+      fenix: true,
     );
   }
 }

@@ -1,9 +1,7 @@
 import 'package:dartz/dartz.dart';
-import 'package:soul_doctor/app/common/resource.dart';
 import 'package:soul_doctor/app/core/error/failure.dart';
 import 'package:soul_doctor/app/data/source/remote/dto/response/consultation_response_dto.dart';
 import 'package:soul_doctor/app/domain/model/consultation.dart';
-import 'package:soul_doctor/app/domain/model/consultation_status.dart';
 import 'package:soul_doctor/app/domain/model/role.dart';
 import 'package:soul_doctor/app/domain/repository/consultation_repository.dart';
 

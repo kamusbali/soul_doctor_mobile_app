@@ -6,7 +6,6 @@ import 'package:soul_doctor/app/common/resource.dart';
 import 'package:soul_doctor/app/domain/model/role.dart';
 import 'package:soul_doctor/app/modules/patient_detail_history/settings/patient_detail_history_settings.dart';
 import 'package:soul_doctor/app/modules/patient_history/settings/patient_history_settings.dart';
-import 'package:soul_doctor/app/modules/wrapper/controllers/wrapper_controller.dart';
 import 'package:soul_doctor/app/routes/app_pages.dart';
 import 'package:soul_doctor/app/widgets/card/card_patient.dart';
 import 'package:soul_doctor/app/widgets/placeholder/placeholder_no_consultation.dart';
@@ -17,9 +16,7 @@ import '../../../core/theme/text_style_theme.dart';
 import '../controllers/patient_controller.dart';
 
 class PatientView extends GetView<PatientController> {
-  final WrapperController _wrapperController = Get.find();
-
-  PatientView({super.key});
+  const PatientView({super.key});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -185,31 +182,22 @@ class PatientView extends GetView<PatientController> {
                                       name: e.name,
                                       age: e.summary.age,
                                       onTap: () {
-                                        if (_wrapperController
-                                                .user
-                                                .value
-                                                .data
-                                                ?.role ==
+                                        if (controller.user.value.data?.role ==
                                             Role.caregiver) {
                                           Get.toNamed(
                                             Routes.PATIENT_HISTORY,
                                             arguments: PatientHistorySettings(
                                               patientId: e.id,
                                             ),
-                                          );
+                                          )?.then((_) {
+                                            controller.onInit();
+                                          });
                                           return;
                                         }
-                                        if (_wrapperController
-                                                    .user
-                                                    .value
-                                                    .data
-                                                    ?.role ==
+                                        print(controller.user.value.data?.role);
+                                        if (controller.user.value.data?.role ==
                                                 Role.volunteer ||
-                                            _wrapperController
-                                                    .user
-                                                    .value
-                                                    .data
-                                                    ?.role ==
+                                            controller.user.value.data?.role ==
                                                 Role.doctor) {
                                           Get.toNamed(
                                             Routes.PATIENT_DETAIL_HISTORY,
@@ -217,7 +205,9 @@ class PatientView extends GetView<PatientController> {
                                                 PatientDetailHistorySettings(
                                                   patientId: e.id,
                                                 ),
-                                          );
+                                          )?.then((_) {
+                                            controller.onInit();
+                                          });
                                           return;
                                         }
                                       },

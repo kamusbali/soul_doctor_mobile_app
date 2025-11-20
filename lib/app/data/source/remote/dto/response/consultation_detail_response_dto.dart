@@ -50,38 +50,52 @@ class ConsultationDetailResponseDto {
         state: json["state"],
         patient: json["patient"] == null
             ? null
-            : ProfileResponseDto.fromJson(json["patient"]),
+            : ProfileResponseDto.fromJson(
+                Map<String, dynamic>.from(json["patient"]),
+              ),
         caregiver: json["caregiver"] == null
             ? null
-            : ProfileResponseDto.fromJson(json["caregiver"]),
+            : ProfileResponseDto.fromJson(
+                Map<String, dynamic>.from(json["caregiver"]),
+              ),
         consultationRequest: json["consultation_request"] == null
             ? null
             : ConsultationRequestResponseDto.fromJson(
-                json["consultation_request"],
+                Map<String, dynamic>.from(json["consultation_request"]),
               ),
         currentVisit: json["current_visit"] == null
             ? null
-            : CurrentVisitResponseDto.fromJson(json["current_visit"]),
+            : CurrentVisitResponseDto.fromJson(
+                Map<String, dynamic>.from(json["current_visit"]),
+              ),
         recentVisitors: json["recent_visitors"] == null
             ? []
             : List<RecentVisitorResponseDto>.from(
                 json["recent_visitors"]!.map(
-                  (x) => RecentVisitorResponseDto.fromJson(x),
+                  (x) => RecentVisitorResponseDto.fromJson(
+                    Map<String, dynamic>.from(x),
+                  ),
                 ),
               ),
         visitorRejections: json["visitor_rejections"] == null
             ? []
             : List<VisitorRejectionResponseDto>.from(
                 json["visitor_rejections"]!.map(
-                  (x) => VisitorRejectionResponseDto.fromJson(x),
+                  (x) => VisitorRejectionResponseDto.fromJson(
+                    Map<String, dynamic>.from(x),
+                  ),
                 ),
               ),
         visitResult: json["visit_result"] == null
             ? null
-            : VisitResultResponseDto.fromJson(json["visit_result"]),
+            : VisitResultResponseDto.fromJson(
+                Map<String, dynamic>.from(json["visit_result"]),
+              ),
         doctorDiagnosis: json["doctor_diagnosis"] == null
             ? null
-            : DoctorDiagnosisResponseDto.fromJson(json["doctor_diagnosis"]),
+            : DoctorDiagnosisResponseDto.fromJson(
+                Map<String, dynamic>.from(json["doctor_diagnosis"]),
+              ),
       );
 
   Map<String, dynamic> toJson() => {

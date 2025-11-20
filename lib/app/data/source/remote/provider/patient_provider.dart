@@ -35,7 +35,7 @@ class PatientProvider {
     try {
       var response = await _dio.get(
         ApiUrl.patients,
-        queryParameters: {"p": p, "pp": 99, "q": q},
+        queryParameters: {"p": p, "pp": 9999, "q": q},
       );
       var result = ResponseWrapper<PatientResponseDto>.fromJson(
         response.data,
@@ -73,7 +73,7 @@ class PatientProvider {
     try {
       var response = await _dio.get(
         "${ApiUrl.patients}/$id",
-        queryParameters: {"detailed": detailed},
+        queryParameters: {"detailed": true},
       );
       var result = ResponseWrapper<PatientDetailResponseDto>.fromJson(
         response.data,

@@ -4,11 +4,10 @@ import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
 
-import '../controllers/wrapper_controller.dart';
+import '../controllers/patient_wrapper_controller.dart';
 
-class WrapperView extends GetView<WrapperController> {
-  const WrapperView({super.key});
-
+class PatientWrapperView extends GetView<PatientWrapperController> {
+  const PatientWrapperView({super.key});
   @override
   Widget build(BuildContext context) {
     return Scaffold(

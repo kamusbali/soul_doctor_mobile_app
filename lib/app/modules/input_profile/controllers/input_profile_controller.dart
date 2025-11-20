@@ -151,7 +151,7 @@ class InputProfileController extends GetxController {
             primaryButtonText: "Okay",
             onPrimaryPressed: () async {
               await _authUseCases.logoutUseCase.execute();
-              Get.offAllNamed(Routes.WRAPPER);
+              Get.offAllNamed(Routes.GUEST_WRAPPER);
             },
           );
           currentProfileData.value = Resource.error(failure.message);
@@ -232,7 +232,7 @@ class InputProfileController extends GetxController {
           title: "Sukses",
           body: "Data berhasil di input, silahkan anda dapat melanjutkan!",
           primaryButtonText: "Oke",
-          onPrimaryPressed: () {
+          onPrimaryPressed: () async {
             if (Get.isDialogOpen == true) {
               Get.back();
             }
@@ -242,7 +242,24 @@ class InputProfileController extends GetxController {
               return;
             }
 
-            Get.offAllNamed(Routes.WRAPPER);
+            var sessionData = await _authUseCases.getSessionDataUseCases
+                .execute();
+            if (sessionData?.role == Role.patient) {
+              Get.offAllNamed(Routes.PATIENT_WRAPPER);
+              return;
+            } else if (sessionData?.role == Role.caregiver) {
+              Get.offAllNamed(Routes.CAREGIVER_WRAPPER);
+              return;
+            } else if (sessionData?.role == Role.volunteer) {
+              Get.offAllNamed(Routes.VOLUNTEER_WRAPPER);
+              return;
+            } else if (sessionData?.role == Role.doctor) {
+              Get.offAllNamed(Routes.DOCTOR_WRAPPER);
+              return;
+            }
+
+            Get.offAllNamed(Routes.GUEST_WRAPPER);
+            // Get to
           },
           barrierDismissible: false,
         );
@@ -303,7 +320,7 @@ class InputProfileController extends GetxController {
           title: "Sukses",
           body: "Data berhasil di input, silahkan anda dapat melanjutkan!",
           primaryButtonText: "Oke",
-          onPrimaryPressed: () {
+          onPrimaryPressed: () async {
             if (Get.isDialogOpen == true) {
               Get.back();
             }
@@ -313,7 +330,23 @@ class InputProfileController extends GetxController {
               return;
             }
 
-            Get.offAllNamed(Routes.WRAPPER);
+            var sessionData = await _authUseCases.getSessionDataUseCases
+                .execute();
+            if (sessionData?.role == Role.patient) {
+              Get.offAllNamed(Routes.PATIENT_WRAPPER);
+              return;
+            } else if (sessionData?.role == Role.caregiver) {
+              Get.offAllNamed(Routes.CAREGIVER_WRAPPER);
+              return;
+            } else if (sessionData?.role == Role.volunteer) {
+              Get.offAllNamed(Routes.VOLUNTEER_WRAPPER);
+              return;
+            } else if (sessionData?.role == Role.doctor) {
+              Get.offAllNamed(Routes.DOCTOR_WRAPPER);
+              return;
+            }
+
+            Get.offAllNamed(Routes.GUEST_WRAPPER);
           },
           barrierDismissible: false,
         );

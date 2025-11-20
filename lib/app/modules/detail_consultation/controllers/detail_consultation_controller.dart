@@ -51,7 +51,7 @@ class DetailConsultationController extends GetxController {
             primaryButtonText: "Okay",
             onPrimaryPressed: () async {
               await _authUseCases.logoutUseCase.execute();
-              Get.offAllNamed(Routes.WRAPPER);
+              Get.offAllNamed(Routes.GUEST_WRAPPER);
             },
           );
           consultationDetail.value = Resource.error(failure.message);

@@ -40,3 +40,5 @@ class VolunteerResponseDto {
     "pagination": pagination?.toJson(),
   };
 }
+
+

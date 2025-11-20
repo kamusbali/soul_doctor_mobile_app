@@ -2,8 +2,8 @@ import 'package:amicons/amicons.dart';
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
-import 'package:soul_doctor/app/domain/model/gender.dart';
 import 'package:soul_doctor/app/domain/model/role.dart';
+import 'package:soul_doctor/app/modules/visit_detail/settings/visit_detail_settings.dart';
 
 import '../../../common/resource.dart';
 import '../../../core/theme/color_theme.dart';
@@ -229,68 +229,123 @@ class VisitView extends GetView<VisitController> {
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.only(left: 16, right: 16, top: 12),
-          child: Obx(() {
-            switch (controller.consultation.value.status) {
-              case Status.loading:
-                return Center(child: CircularProgressIndicator());
-              case Status.success:
-                return Column(
-                  spacing: 8,
-                  children: controller.consultation.value.data!.data
-                      .map(
-                        (e) => CardConsultation(
-                          onTap: () {
-                            Get.toNamed(Routes.VISIT_DETAIL, arguments: e.id);
-                          },
-                          title: e.visitDate != null
-                              ? DateTimeUtils.dateToDayMonthYear(e.visitDate!)
-                              : e.state.getName(Role.patient),
-                          subTitle: e.name,
-                          overline: e.address,
-                          body: e.description,
-                          color: e.state.getColor(Role.patient),
-                          chips: [
-                            ChipTagItem(
-                              title: "${e.patientSummary.age} tahun",
-                              isChecked: false,
+      body: Padding(
+        padding: EdgeInsets.only(left: 16, right: 16, top: 12),
+        child: Obx(() {
+          switch (controller.consultation.value.status) {
+            case Status.loading:
+              return Center(child: CircularProgressIndicator());
+            case Status.success:
+              return LayoutBuilder(
+                builder: (context, constraints) {
+                  return RefreshIndicator(
+                    onRefresh: () async {
+                      controller.onInit();
+                    },
+                    child: SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minHeight: constraints.maxHeight,
+                        ),
+                        child: Column(
+                          spacing: 8,
+                          children: controller.consultation.value.data!.data
+                              .map(
+                                (e) => CardConsultation(
+                                  onTap: () {
+                                    Get.toNamed(
+                                      Routes.VISIT_DETAIL,
+                                      arguments: VisitDetailSettings(
+                                        id: e.id,
+                                        isFirstVisit:
+                                            e.patientSummary.isFirstVisit,
+                                      ),
+                                    );
+                                  },
+                                  title: e.visitDate != null
+                                      ? DateTimeUtils.dateToDayMonthYear(
+                                          e.visitDate!,
+                                        )
+                                      : e.state.getName(Role.patient),
+                                  subTitle: e.name,
+                                  overline: e.address,
+                                  body: e.description,
+                                  color: e.state.getColor(Role.patient),
+                                  chips: [
+                                    if (e.patientSummary.isContinuation)
+                                      ChipTagItem(
+                                        title: "Lanjutan",
+                                        isChecked: false,
+                                      ),
+                                    ChipTagItem(
+                                      title: "${e.patientSummary.age} tahun",
+                                      isChecked: false,
+                                    ),
+                                    ChipTagItem(
+                                      title: e.patientSummary.gender.name,
+                                      isChecked: false,
+                                    ),
+                                    if (e.patientSummary.hasCaregiver)
+                                      ChipTagItem(
+                                        title: "Diasuh",
+                                        isChecked: false,
+                                      ),
+                                  ],
+                                ),
+                              )
+                              .toList(),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              );
+            default:
+              return LayoutBuilder(
+                builder: (context, constraints) {
+                  return RefreshIndicator(
+                    onRefresh: () async {
+                      controller.onInit();
+                    },
+                    child: SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minHeight: constraints.maxHeight,
+                        ),
+                        child: Column(
+                          children: [
+                            PlaceholderNoData(
+                              title: "Belum ada jadwal konsultasi",
                             ),
-                            ChipTagItem(
-                              title: e.patientSummary.gender.name,
-                              isChecked: false,
-                            ),
-                            if (e.patientSummary.hasCaregiver)
-                              ChipTagItem(title: "Diasuh", isChecked: false),
                           ],
                         ),
-                      )
-                      .toList(),
-                );
-              default:
-                return PlaceholderNoData(title: "Belum ada jadwal konsultasi");
-            }
-          }),
-          // child: Column(
-          //   spacing: SpacingTheme.SPACING_4,
-          //   children: [
-          //     CardConsultation(
-          //       title: "19 Mei 2025",
-          //       subTitle: "I Wayan",
-          //       overline: "Jl. Mawar No. 10",
-          //       body:
-          //           "Cemas berlebihan / Kesulitan tidur / Stres  karena pekerjaan",
-          //       color: ColorTheme.GAMBOGE_200,
-          //       chips: [
-          //         ChipTagItem(title: "27 Tahun", isChecked: false),
-          //         ChipTagItem(title: "Laki-Laki", isChecked: false),
-          //         ChipTagItem(title: "Diasuh", isChecked: false),
-          //       ],
-          //     ),
-          //   ],
-          // ),
-        ),
+                      ),
+                    ),
+                  );
+                },
+              );
+          }
+        }),
+        // child: Column(
+        //   spacing: SpacingTheme.SPACING_4,
+        //   children: [
+        //     CardConsultation(
+        //       title: "19 Mei 2025",
+        //       subTitle: "I Wayan",
+        //       overline: "Jl. Mawar No. 10",
+        //       body:
+        //           "Cemas berlebihan / Kesulitan tidur / Stres  karena pekerjaan",
+        //       color: ColorTheme.GAMBOGE_200,
+        //       chips: [
+        //         ChipTagItem(title: "27 Tahun", isChecked: false),
+        //         ChipTagItem(title: "Laki-Laki", isChecked: false),
+        //         ChipTagItem(title: "Diasuh", isChecked: false),
+        //       ],
+        //     ),
+        //   ],
+        // ),
       ),
     );
   }

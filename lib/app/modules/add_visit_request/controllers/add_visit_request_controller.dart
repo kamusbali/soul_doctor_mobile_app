@@ -16,7 +16,7 @@ class AddVisitRequestController extends GetxController {
   AddVisitRequestController(this._consultationUseCases, this._patientUseCases);
 
   Patient? selectedPatient;
-  String? selectedPatientErrorText;
+  Rx<String?> selectedPatientErrorText = (null as String?).obs;
   final patientController = TextEditingController();
 
   final symptomController = TextEditingController();
@@ -53,7 +53,7 @@ class AddVisitRequestController extends GetxController {
         selectedPatient == null &&
         !formKey.currentState!.validate()) {
       if (selectedPatient == null) {
-        selectedPatientErrorText = "Pasien tidak boleh kosong";
+        selectedPatientErrorText.value = "Pasien tidak boleh kosong";
       }
       UiFeedbackUtils.showSnackbar(
         "Data belom lengkap",
@@ -62,6 +62,8 @@ class AddVisitRequestController extends GetxController {
 
       return;
     }
+
+    addConsultationState.value = Resource.loading();
 
     var response = await _consultationUseCases.createRequestConsultationUseCase
         .execute(

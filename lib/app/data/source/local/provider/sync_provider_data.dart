@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:dartz/dartz.dart';
 import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
@@ -12,27 +14,36 @@ class SyncProviderData {
   static final SyncProviderData _instance = SyncProviderData._internal();
   static SyncProviderData get instance => _instance;
 
-  final Box<Map<String, dynamic>> _consultationBox =
-      Hive.box<Map<String, dynamic>>('consultation');
+  // final Box<Map<String, dynamic>> _consultationBox =
+  //     Hive.box<Map<String, dynamic>>('consultation');
+  final Box _consultationBox = Hive.box('consultation');
 
-  final Box<Map<String, dynamic>> _consultationDetailBox =
-      Hive.box<Map<String, dynamic>>('consultation_detail');
+  final Box _consultationDetailBox = Hive.box('consultation_detail');
 
-  final Box<Map<String, dynamic>> _visitReportBox =
-      Hive.box<Map<String, dynamic>>('visit_report');
+  final Box _visitReportBox = Hive.box('visit_report');
 
-  void addConsultationStateData({
+  Future<void> addConsultationStateData({
     required int state,
     required ConsultationResponseDto consultationResponseDto,
   }) async {
-    _consultationBox.put(state.toString(), consultationResponseDto.toJson());
+    print("Menambah data list konsultasi");
+    await _consultationBox.put(
+      state.toString(),
+      consultationResponseDto.toJson(),
+    );
+
+    print(_consultationBox.get(state.toString()));
   }
 
-  void addConsultationDetailData({
+  Future<void> addConsultationDetailData({
     required String id,
     required ConsultationDetailResponseDto consultationDetailResponseDto,
   }) async {
-    _consultationDetailBox.put(id, consultationDetailResponseDto.toJson());
+    print("Menambah data detail konsultasi");
+    await _consultationDetailBox.put(
+      id,
+      consultationDetailResponseDto.toJson(),
+    );
   }
 
   Future<void> addVisitReportData({
@@ -73,25 +84,36 @@ class SyncProviderData {
   }
 
   Either<Failure, List<VisitReportLocalDto>> getVisitReport() {
-    var data = _visitReportBox.values.toList();
+    var data = _visitReportBox.values
+        .toList()
+        .map((e) => Map<String, dynamic>.from(e))
+        .toList();
 
     if (data.isEmpty) {
-      return Left(Failure("No Data"));
+      return Left(Failure("Tidak ada lokal data yang didapatkan"));
     }
 
     return Right(
-      data.map((element) => VisitReportLocalDto.fromJson(element)).toList(),
+      data
+          .map(
+            (element) => VisitReportLocalDto.fromJson(
+              Map<String, dynamic>.from(element),
+            ),
+          )
+          .toList(),
     );
   }
 
   Either<Failure, ConsultationResponseDto> getLocalConsultation({
     required int state,
   }) {
-    var data = _consultationBox.get(state);
+    final raw = _consultationBox.get(state.toString());
 
-    if (data == null) {
-      return Left(Failure("No Data"));
+    if (raw == null) {
+      return Left(Failure("Tidak ada lokal data yang didapatkan"));
     }
+
+    final data = Map<String, dynamic>.from(raw!);
 
     return Right(ConsultationResponseDto.fromJson(data));
   }
@@ -99,11 +121,13 @@ class SyncProviderData {
   Either<Failure, ConsultationDetailResponseDto> getLocalDetailConsultation({
     required String id,
   }) {
-    var data = _consultationDetailBox.get(id);
+    var raw = _consultationDetailBox.get(id);
 
-    if (data == null) {
-      return Left(Failure("No Data"));
+    if (raw == null) {
+      return Left(Failure("Tidak ada lokal data yang didapatkan"));
     }
+
+    final data = Map<String, dynamic>.from(raw!);
 
     return Right(ConsultationDetailResponseDto.fromJson(data));
   }

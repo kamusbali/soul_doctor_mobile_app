@@ -1,5 +1,4 @@
 import 'package:get/get.dart';
-import 'package:soul_doctor/app/data/source/remote/dto/request/verify_otp_request.dart';
 import 'package:soul_doctor/app/domain/use_case/auth_use_cases/auth_use_cases.dart';
 import 'package:soul_doctor/app/domain/use_case/auth_use_cases/create_pin_use_case.dart';
 import 'package:soul_doctor/app/domain/use_case/auth_use_cases/get_session_data_use_cases.dart';

@@ -5,10 +5,11 @@ import 'package:soul_doctor/app/domain/model/consultation.dart';
 import 'package:soul_doctor/app/domain/model/consultation_status.dart';
 import 'package:soul_doctor/app/domain/use_case/auth_use_cases/auth_use_cases.dart';
 import 'package:soul_doctor/app/domain/use_case/consultation_use_cases/consultation_use_cases.dart';
+import 'package:soul_doctor/app/modules/volunteer_wrapper/controllers/volunteer_wrapper_controller.dart';
 
+import '../../../domain/model/session_data.dart';
 import '../../../helpers/ui_feedback_utils.dart';
 import '../../../routes/app_pages.dart';
-import '../../wrapper/controllers/wrapper_controller.dart';
 
 class VolunteerHomeController extends GetxController {
   final ConsultationUseCases _consultationUseCases;
@@ -16,14 +17,19 @@ class VolunteerHomeController extends GetxController {
 
   VolunteerHomeController(this._consultationUseCases, this._authUseCases);
 
-  final WrapperController wrapperController = Get.find();
+  final VolunteerWrapperController volunteerWrapperController = Get.find();
 
   var upcomingVisitState = Resource<List<Consultation>>.none().obs;
   var visitRequestState = Resource<List<Consultation>>.none().obs;
 
+  var user = Resource<SessionData>.none().obs;
+
   @override
   void onInit() {
     super.onInit();
+    onGetProfileData();
+    onGetVisitRequest();
+    onGetUpcomingVisit();
   }
 
   @override
@@ -52,21 +58,23 @@ class VolunteerHomeController extends GetxController {
             primaryButtonText: "Okay",
             onPrimaryPressed: () async {
               await _authUseCases.logoutUseCase.execute();
-              Get.offAllNamed(Routes.WRAPPER);
+              Get.offAllNamed(Routes.GUEST_WRAPPER);
             },
           );
           upcomingVisitState.value = Resource.error(failure.message);
           return;
         }
+        if (Get.isDialogOpen != true) {
+          UiFeedbackUtils.showDialog(
+            title: "Terjadi Kesalahan",
+            body: failure.message,
+            primaryButtonText: "Okay",
+            onPrimaryPressed: () {
+              Get.back();
+            },
+          );
+        }
 
-        UiFeedbackUtils.showDialog(
-          title: "Terjadi Kesalahan",
-          body: failure.message,
-          primaryButtonText: "Okay",
-          onPrimaryPressed: () {
-            Get.back();
-          },
-        );
         upcomingVisitState.value = Resource.error(failure.message);
       },
       (success) {
@@ -77,6 +85,17 @@ class VolunteerHomeController extends GetxController {
         upcomingVisitState.value = Resource.success(success.data);
       },
     );
+  }
+
+  void onGetProfileData() async {
+    var sessionData = await _authUseCases.getSessionDataUseCases.execute();
+
+    if (sessionData == null) {
+      user.value = Resource.none();
+      return;
+    }
+
+    user.value = Resource.success(sessionData);
   }
 
   void onGetVisitRequest() async {
@@ -95,21 +114,23 @@ class VolunteerHomeController extends GetxController {
             primaryButtonText: "Okay",
             onPrimaryPressed: () async {
               await _authUseCases.logoutUseCase.execute();
-              Get.offAllNamed(Routes.WRAPPER);
+              Get.offAllNamed(Routes.GUEST_WRAPPER);
             },
           );
           visitRequestState.value = Resource.error(failure.message);
           return;
         }
 
-        UiFeedbackUtils.showDialog(
-          title: "Terjadi Kesalahan",
-          body: failure.message,
-          primaryButtonText: "Okay",
-          onPrimaryPressed: () {
-            Get.back();
-          },
-        );
+        if (Get.isDialogOpen != true) {
+          UiFeedbackUtils.showDialog(
+            title: "Terjadi Kesalahan",
+            body: failure.message,
+            primaryButtonText: "Okay",
+            onPrimaryPressed: () {
+              Get.back();
+            },
+          );
+        }
         visitRequestState.value = Resource.error(failure.message);
       },
       (success) {

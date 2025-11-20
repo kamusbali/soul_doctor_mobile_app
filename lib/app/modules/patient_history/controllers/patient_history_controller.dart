@@ -148,13 +148,12 @@ class PatientHistoryController extends GetxController {
       var sessionData = await _claimsTokenService.getSessionData();
 
       if (sessionData == null) {
-        UiFeedbackUtils.showSnackbar("Error", "Tidak ada user yang tersimpan");
         return;
       }
 
       var data = await _consultationUseCases.getConsultationUseCase.execute(
         state: selectedState,
-        pp: 99,
+        pp: 9999,
         medication: isMedication,
         therapy: isTherapy,
         visit: isVisit,
@@ -171,7 +170,7 @@ class PatientHistoryController extends GetxController {
               primaryButtonText: "Okay",
               onPrimaryPressed: () async {
                 await _authUseCases.logoutUseCase.execute();
-                Get.offAllNamed(Routes.WRAPPER);
+                Get.offAllNamed(Routes.GUEST_WRAPPER);
               },
             );
             consultation.value = Resource.error(failure.message);
@@ -218,7 +217,7 @@ class PatientHistoryController extends GetxController {
             primaryButtonText: "Okay",
             onPrimaryPressed: () async {
               await _authUseCases.logoutUseCase.execute();
-              Get.offAllNamed(Routes.WRAPPER);
+              Get.offAllNamed(Routes.GUEST_WRAPPER);
             },
           );
           consultation.value = Resource.error(failure.message);

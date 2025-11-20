@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:soul_doctor/app/common/constant/dummy.dart';
-import 'package:soul_doctor/app/domain/model/compact_user.dart';
 import 'package:soul_doctor/app/core/theme/color_theme.dart';
 import 'package:soul_doctor/app/core/theme/spacing_theme.dart';
 import 'package:soul_doctor/app/core/theme/text_style_theme.dart';

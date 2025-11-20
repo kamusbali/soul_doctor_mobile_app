@@ -1,32 +1,32 @@
 import 'package:get/get.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:soul_doctor/app/domain/use_case/auth_use_cases/auth_use_cases.dart';
+import 'package:soul_doctor/app/domain/use_case/profile_use_cases/profile_use_cases.dart';
 import 'package:soul_doctor/app/helpers/ui_feedback_utils.dart';
-import 'package:soul_doctor/app/modules/consultation/controllers/consultation_controller.dart';
-import 'package:soul_doctor/app/modules/doctor_home/controllers/doctor_home_controller.dart';
-import 'package:soul_doctor/app/modules/patient/controllers/patient_controller.dart';
-import 'package:soul_doctor/app/modules/user_home/controllers/user_home_controller.dart';
-import 'package:soul_doctor/app/modules/visit/controllers/visit_controller.dart';
-import 'package:soul_doctor/app/modules/volunteer_home/controllers/volunteer_home_controller.dart';
-import 'package:soul_doctor/app/modules/wrapper/controllers/wrapper_controller.dart';
 
-import '../../patient_history/controllers/patient_history_controller.dart';
+import '../../../common/resource.dart';
+import '../../../domain/model/compact_user.dart';
+import '../../../domain/model/role.dart';
+import '../../../domain/model/session_data.dart';
+import '../../../routes/app_pages.dart';
 
 class AccountController extends GetxController {
   final AuthUseCases _authUseCases;
+  final ProfileUseCases _profileUseCases;
 
-  AccountController(this._authUseCases);
+  AccountController(this._authUseCases, this._profileUseCases);
 
   var version = "".obs;
-  late WrapperController wrapperController;
+
+  var user = Resource<SessionData>.none().obs;
+  var compactUser = Resource<CompactUser>.none().obs;
 
   @override
   void onInit() {
     super.onInit();
 
-    wrapperController = Get.find<WrapperController>();
-
     getAppInfo();
+    onGetProfileData();
   }
 
   @override
@@ -44,6 +44,38 @@ class AccountController extends GetxController {
     version.value = packageInfo.version;
   }
 
+  void onGetProfileData() async {
+    var sessionData = await _authUseCases.getSessionDataUseCases.execute();
+
+    if (sessionData == null) {
+      user.value = Resource.none();
+      return;
+    }
+
+    user.value = Resource.success(sessionData);
+
+    if (user.value.data?.role == Role.patient ||
+        user.value.data?.role == Role.caregiver) {
+      var response = await _profileUseCases.getCompactProfileUseCase.execute();
+
+      response.fold(
+        (failure) {
+          UiFeedbackUtils.showSnackbar("Error", failure.message);
+          compactUser.value = Resource.error(failure.message);
+        },
+        (success) {
+          if (success == null) {
+            UiFeedbackUtils.showSnackbar("Error", "Data kosong");
+            compactUser.value = Resource.error("Data kosong");
+            return;
+          }
+
+          compactUser.value = Resource.success(success);
+        },
+      );
+    }
+  }
+
   void onLogout() async {
     UiFeedbackUtils.showDialog(
       title: "Keluar",
@@ -51,38 +83,8 @@ class AccountController extends GetxController {
       primaryButtonText: "Iya",
       onPrimaryPressed: () async {
         await _authUseCases.logoutUseCase.execute();
-
-        if (Get.isRegistered<PatientHistoryController>()) {
-          Get.find<PatientHistoryController>().onLogoutClear();
-        }
-
-        // if (Get.isRegistered<VisitController>()) {
-        //   Get.find<VisitController>().onInit();
-        // }
-
-        // if (Get.isRegistered<ConsultationController>()) {
-        //   Get.find<ConsultationController>().onInit();
-        // }
-
-        // if (Get.isRegistered<PatientController>()) {
-        //   Get.find<PatientController>().onInit();
-        // }
-
-        if (Get.isRegistered<UserHomeController>()) {
-          Get.find<UserHomeController>().onLogoutClear();
-        }
-
-        // if (Get.isRegistered<VolunteerHomeController>()) {
-        //   Get.find<VolunteerHomeController>().onInit();
-        // }
-
-        // if (Get.isRegistered<DoctorHomeController>()) {
-        //   Get.find<VolunteerHomeController>().onInit();
-        // }
-
-        wrapperController.onLogoutClear();
-        wrapperController.onChangeTab(0);
         Get.back();
+        Get.offAllNamed(Routes.GUEST_WRAPPER);
       },
       secondaryButtonText: "Tidak",
       onSecondaryPressed: () {

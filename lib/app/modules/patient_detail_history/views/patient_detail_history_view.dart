@@ -205,6 +205,7 @@ class PatientDetailHistoryView extends GetView<PatientDetailHistoryController> {
                             value: SingleChildScrollView(
                               scrollDirection: Axis.horizontal,
                               child: Row(
+                                spacing: SpacingTheme.SPACING_8,
                                 children: e
                                     .compactConsultationDetail!
                                     .visitImages

@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:soul_doctor/app/domain/model/patient.dart';
+import 'package:soul_doctor/app/domain/model/role.dart';
 import 'package:soul_doctor/app/domain/use_case/auth_use_cases/auth_use_cases.dart';
 import 'package:soul_doctor/app/domain/use_case/patient_use_cases/patient_use_cases.dart';
 
 import '../../../common/resource.dart';
 import '../../../core/error/error_type.dart';
+import '../../../domain/model/session_data.dart';
 import '../../../helpers/ui_feedback_utils.dart';
 import '../../../routes/app_pages.dart';
 
@@ -19,6 +22,8 @@ class PatientController extends GetxController {
 
   final patient = Resource<List<Patient>>.none().obs;
 
+  var user = Resource<SessionData>.none().obs;
+
   var isMale = false;
   var isFemale = false;
   var isAgeGreaterThan50 = false;
@@ -30,14 +35,13 @@ class PatientController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-
+    onGetProfileData();
     getPatient();
   }
 
   @override
   void onReady() {
     super.onReady();
-    getPatient();
   }
 
   @override
@@ -45,11 +49,30 @@ class PatientController extends GetxController {
     super.onClose();
   }
 
+  void onLogoutClear() {
+    patient.value = Resource.none();
+    isMale = false;
+    isMaleTemp.value = false;
+
+    isFemale = false;
+    isFemaleTemp.value = false;
+
+    isAgeGreaterThan50 = false;
+    isAgeGreaterThan50Temp.value = false;
+  }
+
   void getPatient() async {
+    final bool isConnected = await InternetConnection().hasInternetAccess;
+
+    if (!isConnected && user.value.data?.role == Role.volunteer) {
+      print("here");
+      return;
+    }
     patient.value = Resource.loading();
 
     var data = await _patientUseCases.getPatientUseCase.execute(
       q: searchController.text,
+      
     );
 
     data.fold(
@@ -61,21 +84,23 @@ class PatientController extends GetxController {
             primaryButtonText: "Okay",
             onPrimaryPressed: () async {
               await _authUseCases.logoutUseCase.execute();
-              Get.offAllNamed(Routes.WRAPPER);
+              Get.offAllNamed(Routes.GUEST_WRAPPER);
             },
           );
           patient.value = Resource.error(failure.message);
           return;
         }
 
-        UiFeedbackUtils.showDialog(
-          title: "Terjadi Kesalahan",
-          body: failure.message,
-          primaryButtonText: "Okay",
-          onPrimaryPressed: () {
-            Get.back();
-          },
-        );
+        if (Get.isDialogOpen != true) {
+          UiFeedbackUtils.showDialog(
+            title: "Terjadi Kesalahan",
+            body: failure.message,
+            primaryButtonText: "Okay",
+            onPrimaryPressed: () {
+              Get.back();
+            },
+          );
+        }
         patient.value = Resource.error(failure.message);
       },
       (succes) {
@@ -86,6 +111,17 @@ class PatientController extends GetxController {
         patient.value = Resource.success(succes);
       },
     );
+  }
+
+  void onGetProfileData() async {
+    var sessionData = await _authUseCases.getSessionDataUseCases.execute();
+
+    if (sessionData == null) {
+      user.value = Resource.none();
+      return;
+    }
+
+    user.value = Resource.success(sessionData);
   }
 
   void onOpenBottomSheet() {

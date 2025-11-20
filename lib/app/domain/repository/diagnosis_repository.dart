@@ -5,8 +5,8 @@ abstract class DiagnosisRepository {
   Future<Either<Failure, bool>> createDiagnosis({
     required String consultationId,
     required String diagnosis,
-    required String medication,
-    required String therapy,
-    required String note,
+    String? medication,
+    String? therapy,
+    String? note,
   });
 }

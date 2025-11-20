@@ -18,7 +18,7 @@ abstract class ApiUrl {
   static final visits = "/visits";
   static final visitsReport = '/visits/report';
   static final visitsReject = '/visits/reject';
-  static final visitsAccept = "/visit/accept";
+  static final visitsAccept = "/visits/accept";
 
   static final diagnosis = "/diagnosis";
 

@@ -4,7 +4,6 @@ part of 'app_pages.dart';
 abstract class Routes {
   Routes._();
   static const SPLASH_SCREEN = _Paths.SPLASH_SCREEN;
-  static const WRAPPER = _Paths.WRAPPER;
   static const USER_HOME = _Paths.USER_HOME;
   static const PATIENT_HISTORY = _Paths.PATIENT_HISTORY;
   static const VOLUNTEER_HOME = _Paths.VOLUNTEER_HOME;
@@ -33,12 +32,16 @@ abstract class Routes {
   static const CREATE_PIN = _Paths.CREATE_PIN;
   static const UPDATE_PIN = _Paths.UPDATE_PIN;
   static const CREATE_PATIENT = _Paths.CREATE_PATIENT;
+  static const GUEST_WRAPPER = _Paths.GUEST_WRAPPER;
+  static const PATIENT_WRAPPER = _Paths.PATIENT_WRAPPER;
+  static const CAREGIVER_WRAPPER = _Paths.CAREGIVER_WRAPPER;
+  static const VOLUNTEER_WRAPPER = _Paths.VOLUNTEER_WRAPPER;
+  static const DOCTOR_WRAPPER = _Paths.DOCTOR_WRAPPER;
 }
 
 abstract class _Paths {
   _Paths._();
   static const SPLASH_SCREEN = '/splash-screen';
-  static const WRAPPER = '/wrapper';
   static const USER_HOME = '/user-home';
   static const PATIENT_HISTORY = '/patient-history';
   static const VOLUNTEER_HOME = '/volunteer-home';
@@ -67,4 +70,9 @@ abstract class _Paths {
   static const CREATE_PIN = '/create-pin';
   static const UPDATE_PIN = '/update-pin';
   static const CREATE_PATIENT = '/create-patient';
+  static const GUEST_WRAPPER = '/guest-wrapper';
+  static const PATIENT_WRAPPER = '/patient-wrapper';
+  static const CAREGIVER_WRAPPER = '/caregiver-wrapper';
+  static const VOLUNTEER_WRAPPER = '/volunteer-wrapper';
+  static const DOCTOR_WRAPPER = '/doctor-wrapper';
 }

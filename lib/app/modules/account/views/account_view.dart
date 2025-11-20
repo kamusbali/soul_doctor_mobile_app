@@ -25,7 +25,7 @@ class AccountView extends GetView<AccountController> {
         child: Obx(
           () => Column(
             children: [
-              controller.wrapperController.user.value.data == null
+              controller.user.value.data == null
                   ? CardAccountAuthentication(
                       onLogin: () {
                         Get.toNamed(Routes.LOGIN);
@@ -43,29 +43,16 @@ class AccountView extends GetView<AccountController> {
                       decoration: BoxDecoration(color: ColorTheme.NEUTRAL_100),
                       child: Column(
                         children: [
-                          ListUserData(
-                            user: controller.wrapperController.user.value.data!,
-                          ),
-                          if (controller
-                                      .wrapperController
-                                      .compactUser
-                                      .value
-                                      .data
-                                      ?.role ==
+                          ListUserData(user: controller.user.value.data!),
+                          if (controller.compactUser.value.data?.role ==
                                   Role.patient &&
-                              controller
-                                      .wrapperController
-                                      .compactUser
-                                      .value
-                                      .data
-                                      ?.caregiver !=
+                              controller.compactUser.value.data?.caregiver !=
                                   null) ...[
                             AccordionAccountLinked(
                               isPatient: true,
                               items: [
                                 AccordionAccountLinkedItem(
                                   title: controller
-                                      .wrapperController
                                       .compactUser
                                       .value
                                       .data!
@@ -76,26 +63,16 @@ class AccountView extends GetView<AccountController> {
                               ],
                             ),
                           ],
-                          if (controller
-                                  .wrapperController
-                                  .user
-                                  .value
-                                  .data
-                                  ?.role ==
+                          if (controller.user.value.data?.role ==
                               Role.caregiver) ...[
                             AccordionAccountLinked(
                               onAddPatient: () {
                                 Get.toNamed(Routes.CREATE_PATIENT)?.then((_) {
-                                  Get.offAllNamed(Routes.WRAPPER);
+                                  controller.onInit();
                                 });
                               },
                               items:
-                                  controller
-                                      .wrapperController
-                                      .compactUser
-                                      .value
-                                      .data
-                                      ?.patients
+                                  controller.compactUser.value.data?.patients
                                       ?.map(
                                         (element) => AccordionAccountLinkedItem(
                                           title: element.name,
@@ -124,14 +101,16 @@ class AccountView extends GetView<AccountController> {
                 decoration: BoxDecoration(color: ColorTheme.NEUTRAL_100),
                 child: Column(
                   children: [
-                    if (controller.wrapperController.user.value.data != null)
+                    if (controller.user.value.data != null)
                       Column(
                         children: [
                           ListAccount(
                             icon: Amicons.flaticon_user_rounded_fill,
                             title: 'Pengaturan Akun',
                             onTap: () {
-                              Get.toNamed(Routes.ACCOUNT_SETTING);
+                              Get.toNamed(Routes.ACCOUNT_SETTING)?.then((_) {
+                                controller.onInit();
+                              });
                             },
                           ),
                           SizedBox(height: SpacingTheme.SPACING_6),
@@ -157,7 +136,7 @@ class AccountView extends GetView<AccountController> {
                 ),
               ),
               SizedBox(height: SpacingTheme.SPACING_4),
-              if (controller.wrapperController.user.value.data != null)
+              if (controller.user.value.data != null)
                 ListItem(
                   icon: Amicons.remix_door_open_fill,
                   title: "Keluar",

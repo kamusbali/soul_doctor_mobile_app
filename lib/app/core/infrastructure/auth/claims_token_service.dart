@@ -15,7 +15,11 @@ class ClaimsTokenService {
   }
 
   Future<SessionData?> getSessionData() async {
-    return SessionData.fromJson(_box.read(_claimsKey));
+    try {
+      return SessionData.fromJson(_box.read(_claimsKey));
+    } catch (e) {
+      return null;
+    }
   }
 
   Future<void> clearSessionData() async {

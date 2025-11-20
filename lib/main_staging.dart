@@ -25,9 +25,9 @@ void main() async {
   final appDocumentDirectory = await getApplicationDocumentsDirectory();
   Hive.init(appDocumentDirectory.path);
 
-  await Hive.openBox<Map<String, dynamic>>('consultation');
-  await Hive.openBox<Map<String, dynamic>>('consultation_detail');
-  await Hive.openBox<Map<String, dynamic>>('visit_report');
+  await Hive.openBox('consultation');
+  await Hive.openBox('consultation_detail');
+  await Hive.openBox('visit_report');
 
   Workmanager().initialize(syncServiceStart);
   Workmanager().registerPeriodicTask(

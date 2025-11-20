@@ -13,6 +13,7 @@ import '../../../domain/model/role.dart';
 import '../../../routes/app_pages.dart';
 import '../../../widgets/chip/chip_tag_consultation_item.dart';
 import '../../../widgets/placeholder/placeholder_no_consultation.dart';
+import '../../consultation_request_detail/settings/consultation_request_detail_settings.dart';
 import '../controllers/consultation_controller.dart';
 
 class ConsultationView extends GetView<ConsultationController> {
@@ -200,69 +201,121 @@ class ConsultationView extends GetView<ConsultationController> {
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: SpacingTheme.SPACING_8,
-            vertical: SpacingTheme.SPACING_11,
-          ),
-          child: Obx(() {
-            switch (controller.consultation.value.status) {
-              case Status.loading:
-                return Center(child: CircularProgressIndicator());
-              case Status.success:
-                return Column(
-                  spacing: 8,
-                  children: controller.consultation.value.data!.data
-                      .map(
-                        (e) => CardConsultation(
-                          onTap: () {
-                            Get.toNamed(
-                              Routes.CONSULTATION_REQUEST_DETAIL,
-                              arguments: e.id,
-                            );
-                          },
-                          title: e.name,
-                          body: e.description,
-                          color: e.state.getColor(Role.patient),
-                          chips: [
-                            ChipTagItem(
-                              title: "${e.patientSummary.age} tahun",
-                              isChecked: false,
+      body: Padding(
+        padding: EdgeInsets.symmetric(
+          horizontal: SpacingTheme.SPACING_8,
+          vertical: SpacingTheme.SPACING_11,
+        ),
+        child: Obx(() {
+          switch (controller.consultation.value.status) {
+            case Status.loading:
+              return Center(child: CircularProgressIndicator());
+            case Status.success:
+              return LayoutBuilder(
+                builder: (context, constraints) {
+                  return RefreshIndicator(
+                    onRefresh: () async {
+                      controller.onInit();
+                    },
+                    child: SingleChildScrollView(
+                      physics: AlwaysScrollableScrollPhysics(),
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minHeight: constraints.maxHeight,
+                        ),
+                        child: Column(
+                          spacing: 8,
+                          children: controller.consultation.value.data!.data
+                              .map(
+                                (e) => CardConsultation(
+                                  onTap: () {
+                                    Get.toNamed(
+                                      Routes.CONSULTATION_REQUEST_DETAIL,
+                                      arguments:
+                                          ConsultationRequestDetailSettings(
+                                            id: e.id,
+                                          ),
+                                    )?.then((_) {
+                                      controller.onInit();
+                                    });
+                                  },
+                                  title: e.name,
+                                  body: e.description,
+                                  color: e.state.getColor(Role.doctor),
+                                  chips: [
+                                    if (e.patientSummary.isContinuation)
+                                      ChipTagItem(
+                                        title: "Lanjutan",
+                                        isChecked: false,
+                                      ),
+                                    ChipTagItem(
+                                      title: "${e.patientSummary.age} tahun",
+                                      isChecked: false,
+                                    ),
+                                    ChipTagItem(
+                                      title: e.patientSummary.gender.name,
+                                      isChecked: false,
+                                    ),
+                                    if (e.patientSummary.hasCaregiver)
+                                      ChipTagItem(
+                                        title: "Diasuh",
+                                        isChecked: false,
+                                      ),
+                                  ],
+                                ),
+                              )
+                              .toList(),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              );
+            default:
+              return LayoutBuilder(
+                builder: (context, constraints) {
+                  return RefreshIndicator(
+                    onRefresh: () async {
+                      controller.onInit();
+                    },
+                    child: SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minHeight: constraints.maxHeight,
+                        ),
+                        child: Column(
+                          children: [
+                            PlaceholderNoData(
+                              title: "Belum ada jadwal konsultasi",
                             ),
-                            ChipTagItem(
-                              title: e.patientSummary.gender.name,
-                              isChecked: false,
-                            ),
-                            if (e.patientSummary.hasCaregiver)
-                              ChipTagItem(title: "Diasuh", isChecked: false),
                           ],
                         ),
-                      )
-                      .toList(),
-                );
-              default:
-                return PlaceholderNoData(title: "Belum ada jadwal konsultasi");
-            }
-          }),
-          // child: Column(
-          //   children: [
-          //     CardConsultation(
-          //       onTap: () {
-          //       },
-          //       title: "I Putu",
-          //       body: "Perasaan hampa dan kehilangan semangat",
-          //       color: ColorTheme.COBALT_200,
-          //       chips: [
-          //         ChipTagItem(title: "69 Tahun", isChecked: false),
-          //         ChipTagItem(title: "Laki-Laki", isChecked: false),
-          //         ChipTagItem(title: "Diasuh", isChecked: false),
-          //       ],
-          //     ),
-          //     SizedBox(height: SpacingTheme.SPACING_4),
-          //   ],
-          // ),
-        ),
+                      ),
+                    ),
+                  );
+                },
+              );
+          }
+        }),
+
+        // child: Column(
+        //   children: [
+        //     CardConsultation(
+        //       onTap: () {
+        //       },
+        //       title: "I Putu",
+        //       body: "Perasaan hampa dan kehilangan semangat",
+        //       color: ColorTheme.COBALT_200,
+        //       chips: [
+        //         ChipTagItem(title: "69 Tahun", isChecked: false),
+        //         ChipTagItem(title: "Laki-Laki", isChecked: false),
+        //         ChipTagItem(title: "Diasuh", isChecked: false),
+        //       ],
+        //     ),
+        //     SizedBox(height: SpacingTheme.SPACING_4),
+        //   ],
+        // ),
       ),
     );
   }

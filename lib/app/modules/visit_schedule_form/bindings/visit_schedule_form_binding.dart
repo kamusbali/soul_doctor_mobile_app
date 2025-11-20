@@ -6,7 +6,7 @@ class VisitScheduleFormBinding extends Bindings {
   @override
   void dependencies() {
     Get.lazyPut<VisitScheduleFormController>(
-      () => VisitScheduleFormController(),
+      () => VisitScheduleFormController(Get.find(), Get.find()),
     );
   }
 }

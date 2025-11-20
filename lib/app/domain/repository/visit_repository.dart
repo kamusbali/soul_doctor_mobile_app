@@ -22,4 +22,11 @@ abstract class VisitRepository {
     String? psychiatricStatus,
     List<XFile>? images,
   });
+
+  Future<Either<Failure, bool>> rejectVolunteerVisit({
+    required String visitId,
+    required String reason,
+  });
+
+  Future<Either<Failure, bool>> acceptVolunteerVisit({required String visitId});
 }

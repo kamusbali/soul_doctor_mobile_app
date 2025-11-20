@@ -7,6 +7,7 @@ class PatientHistoryBinding extends Bindings {
   void dependencies() {
     Get.lazyPut<PatientHistoryController>(
       () => PatientHistoryController(Get.find(), Get.find()),
+      fenix: true,
     );
   }
 }

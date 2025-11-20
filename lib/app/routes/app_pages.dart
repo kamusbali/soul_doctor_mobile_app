@@ -4,8 +4,6 @@ import '../modules/account/bindings/account_binding.dart';
 import '../modules/account/views/account_view.dart';
 import '../modules/account_setting/bindings/account_setting_binding.dart';
 import '../modules/account_setting/views/account_setting_view.dart';
-import '../modules/account_setting_form/bindings/account_setting_form_binding.dart';
-import '../modules/account_setting_form/views/account_setting_form_view.dart';
 import '../modules/add_consultation/bindings/add_consultation_binding.dart';
 import '../modules/add_consultation/views/add_consultation_view.dart';
 import '../modules/add_visit_request/bindings/add_visit_request_binding.dart';
@@ -14,6 +12,8 @@ import '../modules/assessment_question/bindings/assessment_question_binding.dart
 import '../modules/assessment_question/views/assessment_question_view.dart';
 import '../modules/assessment_result/bindings/assessment_result_binding.dart';
 import '../modules/assessment_result/views/assessment_result_view.dart';
+import '../modules/caregiver_wrapper/bindings/caregiver_wrapper_binding.dart';
+import '../modules/caregiver_wrapper/views/caregiver_wrapper_view.dart';
 import '../modules/consultation/bindings/consultation_binding.dart';
 import '../modules/consultation/views/consultation_view.dart';
 import '../modules/consultation_request_detail/bindings/consultation_request_detail_binding.dart';
@@ -28,6 +28,10 @@ import '../modules/diagnosis_form/bindings/diagnosis_form_binding.dart';
 import '../modules/diagnosis_form/views/diagnosis_form_view.dart';
 import '../modules/doctor_home/bindings/doctor_home_binding.dart';
 import '../modules/doctor_home/views/doctor_home_view.dart';
+import '../modules/doctor_wrapper/bindings/doctor_wrapper_binding.dart';
+import '../modules/doctor_wrapper/views/doctor_wrapper_view.dart';
+import '../modules/guest_wrapper/bindings/guest_wrapper_binding.dart';
+import '../modules/guest_wrapper/views/guest_wrapper_view.dart';
 import '../modules/input_profile/bindings/input_profile_binding.dart';
 import '../modules/input_profile/views/input_profile_view.dart';
 import '../modules/login/bindings/login_binding.dart';
@@ -40,6 +44,8 @@ import '../modules/patient_detail_history/bindings/patient_detail_history_bindin
 import '../modules/patient_detail_history/views/patient_detail_history_view.dart';
 import '../modules/patient_history/bindings/patient_history_binding.dart';
 import '../modules/patient_history/views/patient_history_view.dart';
+import '../modules/patient_wrapper/bindings/patient_wrapper_binding.dart';
+import '../modules/patient_wrapper/views/patient_wrapper_view.dart';
 import '../modules/register/bindings/register_binding.dart';
 import '../modules/register/views/register_view.dart';
 import '../modules/report_visit/bindings/report_visit_binding.dart';
@@ -58,8 +64,8 @@ import '../modules/visit_schedule_form/bindings/visit_schedule_form_binding.dart
 import '../modules/visit_schedule_form/views/visit_schedule_form_view.dart';
 import '../modules/volunteer_home/bindings/volunteer_home_binding.dart';
 import '../modules/volunteer_home/views/volunteer_home_view.dart';
-import '../modules/wrapper/bindings/wrapper_binding.dart';
-import '../modules/wrapper/views/wrapper_view.dart';
+import '../modules/volunteer_wrapper/bindings/volunteer_wrapper_binding.dart';
+import '../modules/volunteer_wrapper/views/volunteer_wrapper_view.dart';
 
 part 'app_routes.dart';
 
@@ -73,21 +79,6 @@ class AppPages {
       name: _Paths.SPLASH_SCREEN,
       page: () => const SplashScreenView(),
       binding: SplashScreenBinding(),
-    ),
-    GetPage(
-      name: _Paths.WRAPPER,
-      page: () => const WrapperView(),
-      binding: WrapperBinding(),
-      bindings: [
-        UserHomeBinding(),
-        PatientHistoryBinding(),
-        PatientBinding(),
-        VolunteerHomeBinding(),
-        VisitBinding(),
-        DoctorHomeBinding(),
-        ConsultationBinding(),
-        AccountBinding(),
-      ],
     ),
     GetPage(
       name: _Paths.USER_HOME,
@@ -175,11 +166,6 @@ class AppPages {
       binding: PatientDetailHistoryBinding(),
     ),
     GetPage(
-      name: _Paths.ACCOUNT_SETTING_FORM,
-      page: () => const AccountSettingFormView(),
-      binding: AccountSettingFormBinding(),
-    ),
-    GetPage(
       name: _Paths.VISIT_DETAIL,
       page: () => const VisitDetailView(),
       binding: VisitDetailBinding(),
@@ -228,6 +214,46 @@ class AppPages {
       name: _Paths.CREATE_PATIENT,
       page: () => const CreatePatientView(),
       binding: CreatePatientBinding(),
+    ),
+    GetPage(
+      name: _Paths.GUEST_WRAPPER,
+      page: () => const GuestWrapperView(),
+      binding: GuestWrapperBinding(),
+      bindings: [UserHomeBinding(), AccountBinding()],
+    ),
+    GetPage(
+      name: _Paths.PATIENT_WRAPPER,
+      page: () => const PatientWrapperView(),
+      binding: PatientWrapperBinding(),
+      bindings: [UserHomeBinding(), PatientHistoryBinding(), AccountBinding()],
+    ),
+    GetPage(
+      name: _Paths.CAREGIVER_WRAPPER,
+      page: () => const CaregiverWrapperView(),
+      binding: CaregiverWrapperBinding(),
+      bindings: [UserHomeBinding(), PatientBinding(), AccountBinding()],
+    ),
+    GetPage(
+      name: _Paths.VOLUNTEER_WRAPPER,
+      page: () => const VolunteerWrapperView(),
+      binding: VolunteerWrapperBinding(),
+      bindings: [
+        VolunteerHomeBinding(),
+        VisitBinding(),
+        PatientBinding(),
+        AccountBinding(),
+      ],
+    ),
+    GetPage(
+      name: _Paths.DOCTOR_WRAPPER,
+      page: () => const DoctorWrapperView(),
+      binding: DoctorWrapperBinding(),
+      bindings: [
+        DoctorHomeBinding(),
+        ConsultationBinding(),
+        PatientBinding(),
+        AccountBinding(),
+      ],
     ),
   ];
 }

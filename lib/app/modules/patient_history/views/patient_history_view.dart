@@ -297,7 +297,9 @@ class PatientHistoryView extends GetView<PatientHistoryController> {
                                     Get.toNamed(
                                       Routes.DETAIL_CONSULTATION,
                                       arguments: e.id,
-                                    );
+                                    )?.then((_) {
+                                      controller.onInit();
+                                    });
                                   },
                                   title: e.visitDate != null
                                       ? DateTimeUtils.dateToDayMonthYear(

@@ -7,6 +7,7 @@ class UserHomeBinding extends Bindings {
   void dependencies() {
     Get.lazyPut<UserHomeController>(
       () => UserHomeController(Get.find(), Get.find()),
+      fenix: true,
     );
   }
 }

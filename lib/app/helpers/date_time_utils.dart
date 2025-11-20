@@ -6,6 +6,10 @@ class DateTimeUtils {
     return DateFormat.yMMMMd(Get.locale?.languageCode).format(dateTime);
   }
 
+  static String dateToHoursMinute(DateTime dateTime) {
+    return DateFormat.Hm(Get.locale?.languageCode).format(dateTime);
+  }
+
   static String onlyDate(DateTime dateTime) {
     return "${dateTime.year.toString().padLeft(4, '0')}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')}";
   }

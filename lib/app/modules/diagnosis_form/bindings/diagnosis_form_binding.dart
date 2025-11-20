@@ -6,7 +6,7 @@ class DiagnosisFormBinding extends Bindings {
   @override
   void dependencies() {
     Get.lazyPut<DiagnosisFormController>(
-      () => DiagnosisFormController(),
+      () => DiagnosisFormController(Get.find(), Get.find()),
     );
   }
 }

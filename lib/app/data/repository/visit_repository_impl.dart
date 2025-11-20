@@ -2,7 +2,9 @@ import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:soul_doctor/app/core/error/failure.dart';
+import 'package:soul_doctor/app/data/source/remote/dto/request/accept_visit_request.dart';
 import 'package:soul_doctor/app/data/source/remote/dto/request/assign_visit_request.dart';
+import 'package:soul_doctor/app/data/source/remote/dto/request/reject_visit_request.dart';
 import 'package:soul_doctor/app/data/source/remote/provider/visit_provider.dart';
 import 'package:soul_doctor/app/domain/repository/visit_repository.dart';
 
@@ -66,14 +68,19 @@ class VisitRepositoryImpl implements VisitRepository {
     List<XFile>? images,
   }) async {
     try {
+      print(images?.map((e) => e.path));
       List<MultipartFile> listMultipartImage = [];
 
-      images?.forEach((data) async {
-        listMultipartImage.add(
-          await MultipartFile.fromFile(data.path, filename: data.name),
-        );
-      });
+      if (images != null) {
+        for (final data in images) {
+          listMultipartImage.add(
+            await MultipartFile.fromFile(data.path, filename: data.name),
+          );
+        }
+      }
 
+      print("Ini Gambar $listMultipartImage");
+      
       await _visitProvider.reportVisit(
         visitId: visitId,
         observation: observation,
@@ -87,10 +94,74 @@ class VisitRepositoryImpl implements VisitRepository {
         psychiatricStatus: psychiatricStatus,
         images: listMultipartImage,
       );
+
       return Right(true);
     } catch (e) {
       if (e is DioException) {
         print(e);
+        var networkErrorMessage = ResponseWrapper.fromJson(
+          (e).response?.data,
+          (_) {},
+        );
+        if (networkErrorMessage.status == 401) {
+          return Left(
+            Failure(
+              networkErrorMessage.message.toString(),
+              errorType: ErrorType.sessionExpired,
+            ),
+          );
+        }
+        return Left(
+          Failure(networkErrorMessage.message ?? "Unexpected Error Occured"),
+        );
+      }
+      return Left(Failure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, bool>> acceptVolunteerVisit({
+    required String visitId,
+  }) async {
+    try {
+      await _visitProvider.acceptVolunteerVisit(
+        AcceptVisitRequestDto(visitId: visitId),
+      );
+      return Right(true);
+    } catch (e) {
+      if (e is DioException) {
+        var networkErrorMessage = ResponseWrapper.fromJson(
+          (e).response?.data,
+          (_) {},
+        );
+        if (networkErrorMessage.status == 401) {
+          return Left(
+            Failure(
+              networkErrorMessage.message.toString(),
+              errorType: ErrorType.sessionExpired,
+            ),
+          );
+        }
+        return Left(
+          Failure(networkErrorMessage.message ?? "Unexpected Error Occured"),
+        );
+      }
+      return Left(Failure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, bool>> rejectVolunteerVisit({
+    required String visitId,
+    required String reason,
+  }) async {
+    try {
+      await _visitProvider.rejectVolunteerVisit(
+        RejectVisitRequest(visitId: visitId, reason: reason),
+      );
+      return Right(true);
+    } catch (e) {
+      if (e is DioException) {
         var networkErrorMessage = ResponseWrapper.fromJson(
           (e).response?.data,
           (_) {},

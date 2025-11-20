@@ -85,6 +85,7 @@ class ConsultationController extends GetxController {
       age: isAgeGreaterThan50 ? 50 : null,
       firstConsultation: isFirstConsultation,
       q: searchController.text,
+      pp: 9999,
     );
 
     data.fold(
@@ -96,7 +97,7 @@ class ConsultationController extends GetxController {
             primaryButtonText: "Okay",
             onPrimaryPressed: () async {
               await _authUseCases.logoutUseCase.execute();
-              Get.offAllNamed(Routes.WRAPPER);
+              Get.offAllNamed(Routes.GUEST_WRAPPER);
             },
           );
           consultation.value = Resource.error(failure.message);
@@ -114,6 +115,10 @@ class ConsultationController extends GetxController {
         consultation.value = Resource.error(failure.message);
       },
       (success) {
+        if (success.data.isEmpty) {
+          consultation.value = Resource.empty();
+          return;
+        }
         consultation.value = Resource.success(success);
       },
     );

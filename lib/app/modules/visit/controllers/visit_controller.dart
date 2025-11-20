@@ -48,6 +48,16 @@ class VisitController extends GetxController {
     super.onClose();
   }
 
+  void onLogoutClear() {
+    selectedIndex.value = 0;
+    selectedState = Role.volunteer.status[0];
+    isAgeGreaterThan50 = false;
+    isFirstConsultation = false;
+
+    isAgeGreaterThan50Temp = false.obs;
+    isFirstConsultationTemp = false.obs;
+  }
+
   void changeIndexTab(int index, ConsultationStatus state) {
     selectedIndex.value = index;
     selectedState = state;
@@ -97,21 +107,23 @@ class VisitController extends GetxController {
             primaryButtonText: "Okay",
             onPrimaryPressed: () async {
               await _authUseCases.logoutUseCase.execute();
-              Get.offAllNamed(Routes.WRAPPER);
+              Get.offAllNamed(Routes.GUEST_WRAPPER);
             },
           );
           consultation.value = Resource.error(failure.message);
           return;
         }
 
-        UiFeedbackUtils.showDialog(
-          title: "Terjadi Kesalahan",
-          body: failure.message,
-          primaryButtonText: "Okay",
-          onPrimaryPressed: () {
-            Get.back();
-          },
-        );
+        if (Get.isDialogOpen != true) {
+          UiFeedbackUtils.showDialog(
+            title: "Terjadi Kesalahan",
+            body: failure.message,
+            primaryButtonText: "Okay",
+            onPrimaryPressed: () {
+              Get.back();
+            },
+          );
+        }
         consultation.value = Resource.error(failure.message);
       },
       (success) {

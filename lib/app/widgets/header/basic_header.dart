@@ -2,7 +2,6 @@ import 'package:amicons/amicons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:soul_doctor/app/common/constant/const_path.dart';
-import 'package:soul_doctor/app/domain/model/compact_user.dart';
 import 'package:soul_doctor/app/core/theme/color_theme.dart';
 import 'package:soul_doctor/app/core/theme/spacing_theme.dart';
 import 'package:soul_doctor/app/core/theme/text_style_theme.dart';
@@ -28,53 +27,55 @@ class BasicHeader extends StatelessWidget {
           padding: const EdgeInsets.only(
             left: SpacingTheme.SPACING_8,
             right: SpacingTheme.SPACING_8,
-            top: 80,
+            top: SpacingTheme.SPACING_8,
           ),
-          child: Column(
-            children: [
-              Row(
-                children: [
-                  Image.asset(ConstPath.ICON_APP_PATH, height: 28),
-                  Spacer(),
-                  IconButton(
-                    onPressed: () {
-                      onTapNotification();
-                    },
-                    icon: Icon(
-                      Amicons.flaticon_bell_rounded,
-                      color: ColorTheme.CRIMSON_500,
+          child: SafeArea(
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    Image.asset(ConstPath.ICON_APP_PATH, height: 28),
+                    Spacer(),
+                    IconButton(
+                      onPressed: () {
+                        onTapNotification();
+                      },
+                      icon: Icon(
+                        Amicons.flaticon_bell_rounded,
+                        color: ColorTheme.CRIMSON_500,
+                      ),
                     ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
 
-              user != null
-                  ? ListUserData(user: user!)
-                  : Column(
-                      children: [
-                        SizedBox(height: SpacingTheme.SPACING_8),
-                        SizedBox(
-                          width: Get.width,
-                          child: Text(
-                            "Hai,",
-                            style: TextStyleTheme.BODY_2.copyWith(
-                              color: ColorTheme.TEXT_100,
+                user != null
+                    ? ListUserData(user: user!)
+                    : Column(
+                        children: [
+                          SizedBox(height: SpacingTheme.SPACING_8),
+                          SizedBox(
+                            width: Get.width,
+                            child: Text(
+                              "Hai,",
+                              style: TextStyleTheme.BODY_2.copyWith(
+                                color: ColorTheme.TEXT_100,
+                              ),
                             ),
                           ),
-                        ),
-                        SizedBox(height: SpacingTheme.SPACING_2),
-                        SizedBox(
-                          width: Get.width,
-                          child: Text(
-                            "Selamat Datang",
-                            style: TextStyleTheme.BODY_2.copyWith(
-                              color: ColorTheme.TEXT_100,
+                          SizedBox(height: SpacingTheme.SPACING_2),
+                          SizedBox(
+                            width: Get.width,
+                            child: Text(
+                              "Selamat Datang",
+                              style: TextStyleTheme.BODY_2.copyWith(
+                                color: ColorTheme.TEXT_100,
+                              ),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-            ],
+                        ],
+                      ),
+              ],
+            ),
           ),
         ),
       ],

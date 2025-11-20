@@ -28,12 +28,16 @@ class ConsultationResponseDto {
             ? []
             : List<ConsultationItemResponseDto>.from(
                 json["consultations"]!.map(
-                  (x) => ConsultationItemResponseDto.fromJson(x),
+                  (x) => ConsultationItemResponseDto.fromJson(
+                    Map<String, dynamic>.from(x),
+                  ),
                 ),
               ),
         pagination: json["pagination"] == null
             ? null
-            : PaginationResponseDto.fromJson(json["pagination"]),
+            : PaginationResponseDto.fromJson(
+                Map<String, dynamic>.from(json["pagination"]),
+              ),
       );
 
   Map<String, dynamic> toJson() => {

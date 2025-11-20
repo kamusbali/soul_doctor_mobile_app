@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "dev.putuwaw.soul_doctor"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 36
     ndkVersion = flutter.ndkVersion
 
     compileOptions {

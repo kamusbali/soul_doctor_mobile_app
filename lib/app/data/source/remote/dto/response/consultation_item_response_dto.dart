@@ -51,10 +51,14 @@ class ConsultationItemResponseDto {
             : DateTime.parse(json["visit_date"]),
         medicationSummary: json["medication_summary"] == null
             ? null
-            : MedicationSummaryResponseDto.fromJson(json["medication_summary"]),
+            : MedicationSummaryResponseDto.fromJson(
+                Map<String, dynamic>.from(json["medication_summary"]),
+              ),
         patientSummary: json["patient_summary"] == null
             ? null
-            : PatientSummaryResponseDto.fromJson(json["patient_summary"]),
+            : PatientSummaryResponseDto.fromJson(
+                Map<String, dynamic>.from(json["patient_summary"]),
+              ),
       );
 
   Map<String, dynamic> toJson() => {

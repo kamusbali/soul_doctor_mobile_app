@@ -78,7 +78,7 @@ class UpdatePinController extends GetxController {
             primaryButtonText: "Okay",
             onPrimaryPressed: () async {
               await _authUseCases.logoutUseCase.execute();
-              Get.offAllNamed(Routes.WRAPPER);
+              Get.offAllNamed(Routes.GUEST_WRAPPER);
             },
           );
           updatePinStatus.value = Resource.error(failure.message);
@@ -103,7 +103,7 @@ class UpdatePinController extends GetxController {
           onPrimaryPressed: () async {
             updatePinStatus.value = Resource.success(success);
             await _authUseCases.logoutUseCase.execute();
-            Get.offAllNamed(Routes.WRAPPER);
+            Get.offAllNamed(Routes.GUEST_WRAPPER);
           },
           barrierDismissible: false,
         );

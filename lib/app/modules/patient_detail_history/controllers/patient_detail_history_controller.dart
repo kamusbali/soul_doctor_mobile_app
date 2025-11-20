@@ -48,7 +48,7 @@ class PatientDetailHistoryController extends GetxController {
             body: failure.message,
             primaryButtonText: "Oke",
             onPrimaryPressed: () {
-              Get.offAllNamed(Routes.WRAPPER);
+              Get.offAllNamed(Routes.GUEST_WRAPPER);
             },
           );
           return;

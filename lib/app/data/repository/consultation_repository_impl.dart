@@ -48,8 +48,7 @@ class ConsultationRepositoryImpl implements ConsultationRepository {
           p: p,
           pp: p,
         );
-        if (response.data == null) return Left(Failure("Data kosong"));
-        _syncProviderData.addConsultationStateData(
+        await _syncProviderData.addConsultationStateData(
           state: state.id,
           consultationResponseDto: response.data!,
         );
@@ -102,8 +101,7 @@ class ConsultationRepositoryImpl implements ConsultationRepository {
     if (isConnected) {
       try {
         var response = await _consultationProvider.getConsultationDetail(id);
-        if (response.data == null) return Left(Failure("Data kosong"));
-        _syncProviderData.addConsultationDetailData(
+        await _syncProviderData.addConsultationDetailData(
           id: id,
           consultationDetailResponseDto: response.data!,
         );
@@ -154,7 +152,6 @@ class ConsultationRepositoryImpl implements ConsultationRepository {
       var response = await _consultationProvider.getCompactConsultationDetail(
         id,
       );
-      if (response.data == null) return Left(Failure("Data kosong"));
       return Right(response.data!);
     } catch (e) {
       if (e is DioException) {
