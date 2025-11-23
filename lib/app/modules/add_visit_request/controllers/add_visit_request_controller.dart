@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:soul_doctor/app/domain/model/consultation_type.dart';
 import 'package:soul_doctor/app/domain/model/patient.dart';
 import 'package:soul_doctor/app/domain/use_case/consultation_use_cases/consultation_use_cases.dart';
 import 'package:soul_doctor/app/domain/use_case/patient_use_cases/patient_use_cases.dart';
@@ -18,6 +19,10 @@ class AddVisitRequestController extends GetxController {
   Patient? selectedPatient;
   Rx<String?> selectedPatientErrorText = (null as String?).obs;
   final patientController = TextEditingController();
+
+  // ConsultationType? selectedConsultationType;
+  // Rx<String?> selectedConsultationTypeErrorText = (null as String?).obs;
+  // final consultationTypeController = TextEditingController();
 
   final symptomController = TextEditingController();
   final startDateController = TextEditingController();
@@ -51,10 +56,16 @@ class AddVisitRequestController extends GetxController {
         selectedStartDate == null &&
         startDateController.text.isEmpty &&
         selectedPatient == null &&
+        // selectedConsultationType == null &&
         !formKey.currentState!.validate()) {
       if (selectedPatient == null) {
         selectedPatientErrorText.value = "Pasien tidak boleh kosong";
       }
+
+      // if (selectedConsultationType == null) {
+      //   selectedConsultationTypeErrorText.value =
+      //       "Jenis Konsultasi tidak boleh kosong";
+      // }
       UiFeedbackUtils.showSnackbar(
         "Data belom lengkap",
         "Silahkan lengkapi form sebelum mengajukan konsultasi!",
@@ -71,6 +82,7 @@ class AddVisitRequestController extends GetxController {
           symptom: symptomController.text,
           startDate: selectedStartDate!,
           image: picture.value.path == "" ? null : picture.value,
+          type: ConsultationType.consultation,
         );
 
     response.fold(
@@ -178,4 +190,8 @@ class AddVisitRequestController extends GetxController {
 
     return patients;
   }
+
+  // void onChangeSelectedConsultationType(ConsultationType consultationType) {
+  //   selectedConsultationType = consultationType;
+  // }
 }

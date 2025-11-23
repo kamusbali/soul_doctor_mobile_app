@@ -11,9 +11,9 @@ enum Role {
       case Role.patient:
         return "Pasien";
       case Role.caregiver:
-        return "Pengasuh";
+        return "Health Data Collector";
       case Role.volunteer:
-        return "Volunteer";
+        return "Perawat/Volunteer";
       case Role.doctor:
         return "Dokter";
     }

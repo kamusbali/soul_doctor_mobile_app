@@ -113,6 +113,11 @@ class VolunteerHomeView extends GetView<VolunteerHomeController> {
                                 body: e.description,
                                 color: ColorTheme.COBALT_200,
                                 chips: [
+                                  // if (e.type == ConsultationType.help)
+                                  //   ChipTagItem(
+                                  //     title: "Bantuan",
+                                  //     isChecked: false,
+                                  //   ),
                                   if (e.patientSummary.isContinuation)
                                     ChipTagItem(
                                       title: "Lanjutan",

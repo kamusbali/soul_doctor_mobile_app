@@ -6,6 +6,7 @@ import 'package:soul_doctor/app/common/resource.dart';
 import 'package:soul_doctor/app/domain/model/role.dart';
 import 'package:soul_doctor/app/helpers/date_time_utils.dart';
 import 'package:soul_doctor/app/helpers/ui_feedback_utils.dart';
+import 'package:soul_doctor/app/modules/consultation_request_detail/settings/consultation_request_detail_settings.dart';
 import 'package:soul_doctor/app/widgets/card/card_consultation.dart';
 import 'package:soul_doctor/app/widgets/chip/chip_tag_consultation_item.dart';
 import 'package:soul_doctor/app/widgets/loading/loading_view.dart';
@@ -146,8 +147,11 @@ class UserHomeView extends GetView<UserHomeController> {
                               (e) => CardConsultation(
                                 onTap: () {
                                   Get.toNamed(
-                                    Routes.DETAIL_CONSULTATION,
-                                    arguments: e.id,
+                                    Routes.CONSULTATION_REQUEST_DETAIL,
+                                    arguments:
+                                        ConsultationRequestDetailSettings(
+                                          id: e.id,
+                                        ),
                                   )?.then((_) {
                                     controller.onInit();
                                   });

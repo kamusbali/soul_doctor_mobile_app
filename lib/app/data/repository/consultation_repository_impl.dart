@@ -11,6 +11,7 @@ import 'package:soul_doctor/app/domain/model/consultation_status.dart';
 import 'package:soul_doctor/app/domain/repository/consultation_repository.dart';
 
 import '../../core/error/error_type.dart';
+import '../../domain/model/consultation_type.dart';
 import '../source/remote/dto/common/response_wrapper.dart';
 
 class ConsultationRepositoryImpl implements ConsultationRepository {
@@ -185,6 +186,7 @@ class ConsultationRepositoryImpl implements ConsultationRepository {
     required String symptom,
     required DateTime startDate,
     required MultipartFile? image,
+    required ConsultationType type,
   }) async {
     try {
       await _consultationProvider.createRequestConsultation(
@@ -192,6 +194,7 @@ class ConsultationRepositoryImpl implements ConsultationRepository {
         symptom: symptom,
         startDate: startDate,
         image: image,
+        type: type.id,
       );
       return Right(true);
     } catch (e) {

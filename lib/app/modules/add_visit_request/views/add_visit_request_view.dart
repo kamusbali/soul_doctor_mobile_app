@@ -34,6 +34,42 @@ class AddVisitRequestView extends GetView<AddVisitRequestController> {
                   key: controller.formKey,
                   child: Column(
                     children: [
+                      // Obx(
+                      //   () => StaticDropdownTextField<ConsultationType>(
+                      //     decoration: InputDecoration(
+                      //       border: OutlineInputBorder(),
+                      //       enabledBorder: OutlineInputBorder(
+                      //         borderSide: BorderSide(
+                      //           color: ColorTheme.NEUTRAL_500,
+                      //         ),
+                      //       ),
+                      //       labelText: "Jenis Konsultasi*",
+                      //       filled: true,
+                      //       errorText: controller
+                      //           .selectedConsultationTypeErrorText
+                      //           .value,
+                      //       fillColor: ColorTheme.NEUTRAL_100,
+                      //       alignLabelWithHint: true,
+                      //     ),
+                      //     childWidget: (data) => Padding(
+                      //       padding: EdgeInsetsGeometry.symmetric(
+                      //         horizontal: SpacingTheme.SPACING_8,
+                      //         vertical: SpacingTheme.SPACING_4,
+                      //       ),
+                      //       child: Text(
+                      //         data.name,
+                      //         style: TextStyleTheme.PARAGRAPH_5,
+                      //       ),
+                      //     ),
+                      //     items: ConsultationType.values.toList(),
+                      //     onSelectData:
+                      //         controller.onChangeSelectedConsultationType,
+                      //     onSetTextFieldLabel: (type) {
+                      //       return type.name;
+                      //     },
+                      //   ),
+                      // ),
+                      // SizedBox(height: SpacingTheme.SPACING_8),
                       AsyncDropdownTextField<Patient>(
                         childWidget: (data) => Padding(
                           padding: const EdgeInsets.all(16.0),
@@ -50,7 +86,7 @@ class AddVisitRequestView extends GetView<AddVisitRequestController> {
                               color: ColorTheme.NEUTRAL_500,
                             ),
                           ),
-                          hintText: "Nama Pasien",
+                          hintText: "Nama Pasien*",
                           errorText: controller.selectedPatientErrorText.value,
                           filled: true,
                           fillColor: ColorTheme.NEUTRAL_100,

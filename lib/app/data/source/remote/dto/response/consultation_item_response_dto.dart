@@ -9,6 +9,7 @@ import 'package:soul_doctor/app/data/source/remote/dto/response/medication_summa
 import 'package:soul_doctor/app/data/source/remote/dto/response/patient_summary_response_dto.dart';
 import 'package:soul_doctor/app/domain/model/consultation.dart';
 import 'package:soul_doctor/app/domain/model/consultation_status.dart';
+import 'package:soul_doctor/app/domain/model/consultation_type.dart';
 import 'package:soul_doctor/app/domain/model/medication_summary.dart';
 import 'package:soul_doctor/app/domain/model/patient_summary.dart';
 
@@ -24,6 +25,7 @@ class ConsultationItemResponseDto {
   String? description;
   String? address;
   int? state;
+  int? type;
   DateTime? visitDate;
   MedicationSummaryResponseDto? medicationSummary;
   PatientSummaryResponseDto? patientSummary;
@@ -34,6 +36,7 @@ class ConsultationItemResponseDto {
     this.description,
     this.address,
     this.state,
+    this.type,
     this.visitDate,
     this.medicationSummary,
     this.patientSummary,
@@ -46,6 +49,7 @@ class ConsultationItemResponseDto {
         description: json["description"],
         address: json["address"],
         state: json["state"],
+        type: json["type"],
         visitDate: json["visit_date"] == null
             ? null
             : DateTime.parse(json["visit_date"]),
@@ -67,6 +71,7 @@ class ConsultationItemResponseDto {
     "description": description,
     "address": address,
     "state": state,
+    "type": type,
     "visit_date": visitDate?.toIso8601String(),
     "medication_summary": medicationSummary?.toJson(),
     "patient_summary": patientSummary?.toJson(),
@@ -80,11 +85,9 @@ extension ConsultationItemResponseDtoConversion on ConsultationItemResponseDto {
       name: name ?? Default.defaultString,
       description: description ?? Default.defaultString,
       address: address ?? Default.defaultString,
-      state:
-          ConsultationStatus.getConsultationStatusById(
-            state ?? Default.defaultInt,
-          ) ??
-          ConsultationStatus.created,
+      state: ConsultationStatus.getConsultationStatusById(state!)!,
+
+      type: ConsultationType.getConsultationTypeById(type!)!,
       visitDate: visitDate ?? DateTime.now(),
       medicationSummary:
           medicationSummary?.toMedicationSummary() ??

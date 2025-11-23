@@ -245,6 +245,7 @@ class ConsultationProvider {
     required String symptom,
     required DateTime startDate,
     MultipartFile? image,
+    required int type,
   }) async {
     try {
       FormData formData = FormData.fromMap({
@@ -252,6 +253,7 @@ class ConsultationProvider {
         "symptom": symptom,
         "start_date": DateTimeUtils.onlyDate(startDate),
         "image": image,
+        "type": type,
       });
 
       var response = await _dio.post(ApiUrl.consultation, data: formData);

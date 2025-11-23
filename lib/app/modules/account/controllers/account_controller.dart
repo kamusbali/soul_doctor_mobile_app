@@ -1,8 +1,10 @@
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:soul_doctor/app/domain/use_case/auth_use_cases/auth_use_cases.dart';
 import 'package:soul_doctor/app/domain/use_case/profile_use_cases/profile_use_cases.dart';
 import 'package:soul_doctor/app/helpers/ui_feedback_utils.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../common/resource.dart';
 import '../../../domain/model/compact_user.dart';
@@ -92,5 +94,38 @@ class AccountController extends GetxController {
       },
       barrierDismissible: false,
     );
+  }
+
+  void onNeedHelp() async {
+    var helpPhone = "+62361467553";
+    UiFeedbackUtils.showDialog(
+      title: "Butuh Bantuan?",
+      body:
+          "Untuk permohonan bantuan silahkan menghubungi Suryani Institute for Mental Health ($helpPhone)",
+      primaryButtonText: "Telp",
+      onPrimaryPressed: () async {
+        await _launchUrl("tel:$helpPhone");
+        Get.back();
+      },
+      secondaryButtonText: "Salin Nomor",
+      onSecondaryPressed: () async {
+        await Clipboard.setData(ClipboardData(text: helpPhone));
+        UiFeedbackUtils.showSnackbar(
+          "Berhasil",
+          "Berhasil menyalin nomor telp",
+        );
+        Get.back();
+      },
+    );
+  }
+
+  Future<void> _launchUrl(String url) async {
+    try {
+      if (!await launchUrl(Uri.parse(url))) {
+        UiFeedbackUtils.showSnackbar("Error", "Tidak dapat mengarahkan link");
+      }
+    } on PlatformException {
+      UiFeedbackUtils.showSnackbar("Error", "Platform anda tidak mendukung!");
+    }
   }
 }

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:soul_doctor/app/common/resource.dart';
 import 'package:soul_doctor/app/domain/model/consultation_status.dart';
+import 'package:soul_doctor/app/domain/model/role.dart';
 import 'package:soul_doctor/app/helpers/date_time_utils.dart';
 import 'package:soul_doctor/app/modules/diagnosis_form/settings/diagnosis_form_settings.dart';
 import 'package:soul_doctor/app/modules/visit_schedule_form/settings/visit_schedule_form_settings.dart';
@@ -353,7 +354,8 @@ class ConsultationRequestDetailView
       ),
       bottomNavigationBar: Obx(() {
         if (controller.consultationDetail.value.data != null &&
-            controller.consultationDetail.value.status == Status.success) {
+            controller.consultationDetail.value.status == Status.success &&
+            controller.user.value?.role == Role.doctor) {
           var data = controller.consultationDetail.value.data!;
 
           if (data.state == ConsultationStatus.created) {
@@ -410,7 +412,8 @@ class ConsultationRequestDetailView
                 ],
               ),
             );
-          } else if (data.state == ConsultationStatus.needDiagnosis) {
+          } else if (data.state == ConsultationStatus.needDiagnosis &&
+              controller.user.value?.role == Role.doctor) {
             return Container(
               padding: EdgeInsetsGeometry.only(
                 left: SpacingTheme.SPACING_8,

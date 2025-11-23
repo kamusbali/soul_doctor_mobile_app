@@ -103,6 +103,11 @@ class DoctorHomeView extends GetView<DoctorHomeController> {
                                 body: e.description,
                                 color: e.state.getColor(Role.doctor),
                                 chips: [
+                                  // if (e.type == ConsultationType.help)
+                                  //   ChipTagItem(
+                                  //     title: "Bantuan",
+                                  //     isChecked: false,
+                                  //   ),
                                   if (e.patientSummary.isContinuation)
                                     ChipTagItem(
                                       title: "Lanjutan",

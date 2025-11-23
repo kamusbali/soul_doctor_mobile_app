@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:soul_doctor/app/core/error/failure.dart';
+import 'package:soul_doctor/app/domain/model/consultation_type.dart';
 
 import '../../repository/consultation_repository.dart';
 
@@ -15,6 +16,7 @@ class CreateRequestConsultationUseCase {
     required String symptom,
     required DateTime startDate,
     required XFile? image,
+    required ConsultationType type,
   }) async {
     MultipartFile? multipartImage = image != null
         ? await MultipartFile.fromFile(image.path, filename: image.name)
@@ -25,6 +27,7 @@ class CreateRequestConsultationUseCase {
       symptom: symptom,
       startDate: startDate,
       image: multipartImage,
+      type: type,
     );
 
     return response.fold(

@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:soul_doctor/app/common/resource.dart';
 import 'package:soul_doctor/app/domain/model/consultation_detail.dart';
+import 'package:soul_doctor/app/domain/model/session_data.dart';
 import 'package:soul_doctor/app/domain/use_case/auth_use_cases/auth_use_cases.dart';
 import 'package:soul_doctor/app/domain/use_case/consultation_use_cases/consultation_use_cases.dart';
 import 'package:soul_doctor/app/modules/consultation_request_detail/settings/consultation_request_detail_settings.dart';
@@ -23,9 +24,12 @@ class ConsultationRequestDetailController extends GetxController {
 
   var consultationDetail = Resource<ConsultationDetail>.none().obs;
 
+  Rx<SessionData?> user = (null as SessionData?).obs;
+
   @override
   void onInit() {
     super.onInit();
+    onGetSessionData();
     onGetConsultationData();
   }
 
@@ -37,6 +41,10 @@ class ConsultationRequestDetailController extends GetxController {
   @override
   void onClose() {
     super.onClose();
+  }
+
+  void onGetSessionData() async {
+    user.value = await _authUseCases.getSessionDataUseCases.execute();
   }
 
   void onGetConsultationData() async {

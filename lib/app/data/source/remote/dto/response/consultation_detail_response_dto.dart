@@ -13,6 +13,7 @@ import 'package:soul_doctor/app/data/source/remote/dto/response/visit_result_res
 import 'package:soul_doctor/app/data/source/remote/dto/response/visitor_rejection_response_dto.dart';
 import 'package:soul_doctor/app/domain/model/consultation_detail.dart';
 import 'package:soul_doctor/app/domain/model/consultation_status.dart';
+import 'package:soul_doctor/app/domain/model/consultation_type.dart';
 
 ConsultationDetailResponseDto consultationDetailResponseDtoFromJson(
   String str,
@@ -24,6 +25,7 @@ String consultationDetailResponseDtoToJson(
 
 class ConsultationDetailResponseDto {
   int? state;
+  int? type;
   ProfileResponseDto? patient;
   ProfileResponseDto? caregiver;
   ConsultationRequestResponseDto? consultationRequest;
@@ -35,6 +37,7 @@ class ConsultationDetailResponseDto {
 
   ConsultationDetailResponseDto({
     this.state,
+    this.type,
     this.patient,
     this.caregiver,
     this.consultationRequest,
@@ -48,6 +51,7 @@ class ConsultationDetailResponseDto {
   factory ConsultationDetailResponseDto.fromJson(Map<String, dynamic> json) =>
       ConsultationDetailResponseDto(
         state: json["state"],
+        type: json["type"],
         patient: json["patient"] == null
             ? null
             : ProfileResponseDto.fromJson(
@@ -100,6 +104,7 @@ class ConsultationDetailResponseDto {
 
   Map<String, dynamic> toJson() => {
     "state": state,
+    "type": type,
     "patient": patient?.toJson(),
     "caregiver": caregiver?.toJson(),
     "consultation_request": consultationRequest?.toJson(),
@@ -120,6 +125,7 @@ extension ConsultationDetailResponseDtoConversion
   ConsultationDetail toConsultationDetail() {
     return ConsultationDetail(
       state: ConsultationStatus.getConsultationStatusById(state!)!,
+      type: ConsultationType.getConsultationTypeById(type!)!,
       patient: patient!.toProfile(),
       caregiver: caregiver?.toProfile(),
       currentVisit: currentVisit?.toCurrentVisit(),

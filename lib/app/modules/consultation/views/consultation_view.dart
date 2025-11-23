@@ -9,6 +9,7 @@ import '../../../common/resource.dart';
 import '../../../core/theme/color_theme.dart';
 import '../../../core/theme/spacing_theme.dart';
 import '../../../core/theme/text_style_theme.dart';
+import '../../../domain/model/consultation_type.dart';
 import '../../../domain/model/role.dart';
 import '../../../routes/app_pages.dart';
 import '../../../widgets/chip/chip_tag_consultation_item.dart';
@@ -243,6 +244,11 @@ class ConsultationView extends GetView<ConsultationController> {
                                   body: e.description,
                                   color: e.state.getColor(Role.doctor),
                                   chips: [
+                                    if (e.type == ConsultationType.help)
+                                      ChipTagItem(
+                                        title: "Bantuan",
+                                        isChecked: false,
+                                      ),
                                     if (e.patientSummary.isContinuation)
                                       ChipTagItem(
                                         title: "Lanjutan",

@@ -6,6 +6,7 @@ import 'package:soul_doctor/app/common/resource.dart';
 import 'package:soul_doctor/app/domain/model/consultation_detail.dart';
 import 'package:soul_doctor/app/domain/model/consultation_request_data.dart';
 import 'package:soul_doctor/app/domain/model/consultation_status.dart';
+import 'package:soul_doctor/app/domain/model/consultation_type.dart';
 import 'package:soul_doctor/app/domain/model/gender.dart';
 import 'package:soul_doctor/app/domain/model/profile.dart';
 import 'package:soul_doctor/app/helpers/date_time_utils.dart';
@@ -34,6 +35,7 @@ class VisitDetailView extends GetView<VisitDetailController> {
             controller.visitDataStatus.value.data ??
             ConsultationDetail(
               state: ConsultationStatus.created,
+              type: ConsultationType.consultation,
               patient: Profile(
                 fullname: "-",
                 nickname: "-",

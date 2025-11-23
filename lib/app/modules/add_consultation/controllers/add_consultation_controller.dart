@@ -8,6 +8,7 @@ import 'package:soul_doctor/app/domain/use_case/consultation_use_cases/consultat
 import 'package:soul_doctor/app/helpers/ui_feedback_utils.dart';
 
 import '../../../core/error/error_type.dart';
+import '../../../domain/model/consultation_type.dart';
 import '../../../routes/app_pages.dart';
 
 class AddConsultationController extends GetxController {
@@ -19,6 +20,10 @@ class AddConsultationController extends GetxController {
   final symptomController = TextEditingController();
   final startDateController = TextEditingController();
   final pictureController = TextEditingController();
+
+  // ConsultationType? selectedConsultationType;
+  // Rx<String?> selectedConsultationTypeErrorText = (null as String?).obs;
+  // final consultationTypeController = TextEditingController();
 
   DateTime? selectedStartDate;
 
@@ -109,7 +114,13 @@ class AddConsultationController extends GetxController {
     }
     if (symptomController.text.isEmpty &&
         selectedStartDate == null &&
-        startDateController.text.isEmpty) {
+        startDateController.text.isEmpty
+    // selectedConsultationType == null
+    ) {
+      // if (selectedConsultationType == null) {
+      //   selectedConsultationTypeErrorText.value =
+      //       "Jenis Konsultasi tidak boleh kosong";
+      // }
       UiFeedbackUtils.showSnackbar(
         "Data belom lengkap",
         "Silahkan lengkapi form sebelum mengajukan konsultasi!",
@@ -124,6 +135,7 @@ class AddConsultationController extends GetxController {
           symptom: symptomController.text,
           startDate: selectedStartDate!,
           image: picture.value.path == "" ? null : picture.value,
+          type: ConsultationType.consultation,
         );
 
     response.fold(
@@ -178,4 +190,8 @@ class AddConsultationController extends GetxController {
       },
     );
   }
+
+  // void onChangeSelectedConsultationType(ConsultationType consultationType) {
+  //   selectedConsultationType = consultationType;
+  // }
 }

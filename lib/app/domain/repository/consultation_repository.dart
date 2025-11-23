@@ -4,6 +4,7 @@ import 'package:soul_doctor/app/core/error/failure.dart';
 import 'package:soul_doctor/app/data/source/remote/dto/response/compact_consultation_detail_response_dto.dart';
 import 'package:soul_doctor/app/data/source/remote/dto/response/consultation_detail_response_dto.dart';
 import 'package:soul_doctor/app/data/source/remote/dto/response/consultation_response_dto.dart';
+import 'package:soul_doctor/app/domain/model/consultation_type.dart';
 
 import '../model/consultation_status.dart';
 
@@ -33,5 +34,6 @@ abstract class ConsultationRepository {
     required String symptom,
     required DateTime startDate,
     required MultipartFile? image,
+    required ConsultationType type,
   });
 }
