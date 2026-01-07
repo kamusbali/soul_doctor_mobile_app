@@ -104,13 +104,8 @@ class RegisterView extends GetView<RegisterController> {
                         //   },
                         // ),
                         TextFormField(
-                          controller: controller.numberTextEditingController,
-                          validator: (value) {
-                            return Validators.onNotEmptyValidation(
-                              value,
-                              "Nomor Telp",
-                            );
-                          },
+                          controller: controller.emailController,
+                          validator: Validators.onEmailValidation,
                           decoration: InputDecoration(
                             border: OutlineInputBorder(),
                             enabledBorder: OutlineInputBorder(
@@ -118,7 +113,7 @@ class RegisterView extends GetView<RegisterController> {
                                 color: ColorTheme.NEUTRAL_500,
                               ),
                             ),
-                            hintText: "Nomor Telp",
+                            hintText: "Email",
                             filled: true,
                             fillColor: ColorTheme.NEUTRAL_100,
                           ),

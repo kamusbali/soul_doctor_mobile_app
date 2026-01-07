@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:soul_doctor/app/common/resource.dart';
+import 'package:soul_doctor/app/domain/model/visit_result_status.dart';
 import 'package:soul_doctor/app/domain/use_case/auth_use_cases/auth_use_cases.dart';
 import 'package:soul_doctor/app/domain/use_case/visit_use_cases/visit_use_cases.dart';
 import 'package:soul_doctor/app/helpers/ui_feedback_utils.dart';
@@ -30,6 +31,15 @@ class ReportVisitController extends GetxController {
   final heteroanamnesisController = TextEditingController();
   final medicationHistoryController = TextEditingController();
   final psychiatricStatusController = TextEditingController();
+
+  VisitResultStatus? selectedVisitResultStatus;
+  final TextEditingController visitResultStatusController =
+      TextEditingController();
+  Rx<String?> visitResultStatusErrorText = (null as String?).obs;
+
+  bool? selectedSideEffect;
+  final TextEditingController sideEffectController = TextEditingController();
+  Rx<String?> sideEffectErrorText = (null as String?).obs;
 
   final historyPatientFormKey = GlobalKey<FormState>();
   final observationFormKey = GlobalKey<FormState>();
@@ -121,7 +131,9 @@ class ReportVisitController extends GetxController {
   }
 
   void onSendVisitReportData() async {
-    if (!observationFormKey.currentState!.validate()) {
+    if (!observationFormKey.currentState!.validate() ||
+        (reportVisitSettings.isHasData && selectedSideEffect == null) ||
+        (reportVisitSettings.isHasData && selectedVisitResultStatus == null)) {
       UiFeedbackUtils.showSnackbar(
         "Data Riwayat Tidak Lengkap",
         "Silahkan lengkapi data riwayat!",
@@ -158,6 +170,8 @@ class ReportVisitController extends GetxController {
           ? null
           : psychiatricStatusController.text,
       images: pictures.isEmpty ? null : pictures,
+      sideEffect: selectedSideEffect,
+      resultStatusId: selectedVisitResultStatus,
     );
 
     response.fold(
@@ -212,5 +226,13 @@ class ReportVisitController extends GetxController {
         addReportStatus.value = Resource.success(success);
       },
     );
+  }
+
+  void onChangeVisitResultStatusValue(VisitResultStatus visitResultStatus) {
+    selectedVisitResultStatus = visitResultStatus;
+  }
+
+  void onChangeSideEffect(bool sideEffect) {
+    selectedSideEffect = sideEffect;
   }
 }

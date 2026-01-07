@@ -1,9 +1,11 @@
 import 'package:amicons/amicons.dart';
+import 'package:async_dropdown/async_dropdown.dart';
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
 import 'package:soul_doctor/app/common/resource.dart';
 import 'package:soul_doctor/app/core/theme/color_theme.dart';
+import 'package:soul_doctor/app/domain/model/visit_result_status.dart';
 import 'package:soul_doctor/app/helpers/validators.dart';
 
 import '../../../core/theme/spacing_theme.dart';
@@ -355,6 +357,86 @@ class ReportVisitView extends GetView<ReportVisitController> {
                                   ),
                                 ),
                               ),
+                              if (controller.reportVisitSettings.isHasData)
+                                Obx(
+                                  () => StaticDropdownTextField<bool>(
+                                    controller: controller.sideEffectController,
+                                    decoration: InputDecoration(
+                                      border: OutlineInputBorder(),
+                                      enabledBorder: OutlineInputBorder(
+                                        borderSide: BorderSide(
+                                          color: ColorTheme.NEUTRAL_500,
+                                        ),
+                                      ),
+                                      labelText: "Efek Samping",
+                                      filled: true,
+                                      errorText:
+                                          controller.sideEffectErrorText.value,
+                                      fillColor: ColorTheme.NEUTRAL_100,
+                                      alignLabelWithHint: true,
+                                    ),
+                                    childWidget: (data) => Padding(
+                                      padding: EdgeInsetsGeometry.symmetric(
+                                        horizontal: SpacingTheme.SPACING_8,
+                                        vertical: SpacingTheme.SPACING_4,
+                                      ),
+                                      child: Text(
+                                        data ? "Ada" : "Tidak Ada",
+                                        style: TextStyleTheme.PARAGRAPH_5,
+                                      ),
+                                    ),
+                                    items: [true, false],
+                                    onSelectData: controller.onChangeSideEffect,
+                                    onSetTextFieldLabel: (sideEffect) {
+                                      if (sideEffect) {
+                                        return "Ada";
+                                      }
+                                      return "Tidak Ada";
+                                    },
+                                  ),
+                                ),
+                              if (controller.reportVisitSettings.isHasData)
+                                Obx(
+                                  () =>
+                                      StaticDropdownTextField<
+                                        VisitResultStatus
+                                      >(
+                                        controller: controller
+                                            .visitResultStatusController,
+                                        decoration: InputDecoration(
+                                          border: OutlineInputBorder(),
+                                          enabledBorder: OutlineInputBorder(
+                                            borderSide: BorderSide(
+                                              color: ColorTheme.NEUTRAL_500,
+                                            ),
+                                          ),
+                                          labelText: "Keterangan",
+                                          filled: true,
+                                          errorText: controller
+                                              .visitResultStatusErrorText
+                                              .value,
+                                          fillColor: ColorTheme.NEUTRAL_100,
+                                          alignLabelWithHint: true,
+                                        ),
+                                        childWidget: (data) => Padding(
+                                          padding: EdgeInsetsGeometry.symmetric(
+                                            horizontal: SpacingTheme.SPACING_8,
+                                            vertical: SpacingTheme.SPACING_4,
+                                          ),
+                                          child: Text(
+                                            data.name,
+                                            style: TextStyleTheme.PARAGRAPH_5,
+                                          ),
+                                        ),
+                                        items: VisitResultStatus.values,
+                                        onSelectData: controller
+                                            .onChangeVisitResultStatusValue,
+                                        onSetTextFieldLabel:
+                                            (visitResultStatus) {
+                                              return visitResultStatus.name;
+                                            },
+                                      ),
+                                ),
                               SizedBox(height: SpacingTheme.SPACING_2),
                               Obx(
                                 () => Column(

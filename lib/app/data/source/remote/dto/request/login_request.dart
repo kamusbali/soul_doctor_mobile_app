@@ -10,13 +10,13 @@ LoginRequest loginRequestFromJson(String str) =>
 String loginRequestToJson(LoginRequest data) => json.encode(data.toJson());
 
 class LoginRequest {
-  String? phone;
+  String? email;
   String? pin;
 
-  LoginRequest({this.phone, this.pin});
+  LoginRequest({this.email, this.pin});
 
   factory LoginRequest.fromJson(Map<String, dynamic> json) =>
-      LoginRequest(phone: json["phone"], pin: json["pin"]);
+      LoginRequest(email: json["email"], pin: json["pin"]);
 
-  Map<String, dynamic> toJson() => {"phone": phone, "pin": pin};
+  Map<String, dynamic> toJson() => {"email": email, "pin": pin};
 }

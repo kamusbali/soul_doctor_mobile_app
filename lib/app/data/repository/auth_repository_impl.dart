@@ -108,11 +108,11 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, TransactionOtpResponseDto>> forgetPassword({
-    required String phone,
+    required String email,
   }) async {
     try {
       var response = await _authProvider.forgetPassword(
-        OtpPhoneRequest(phone: phone),
+        OtpEmailRequest(email: email),
       );
       if (response.data == null) return Left(Failure("Data kosong"));
       return Right(response.data!);
@@ -144,12 +144,12 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, AuthStatusResponse>> login({
-    required String phone,
+    required String email,
     required String pin,
   }) async {
     try {
       var response = await _authProvider.login(
-        LoginRequest(phone: phone, pin: pin),
+        LoginRequest(email: email, pin: pin),
       );
       if (response.data == null) return Left(Failure("Data kosong"));
 
@@ -182,11 +182,11 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, TransactionOtpResponseDto>> register({
-    required String phone,
+    required String email,
   }) async {
     try {
       var response = await _authProvider.register(
-        OtpPhoneRequest(phone: phone),
+        OtpEmailRequest(email: email),
       );
       if (response.data == null) return Left(Failure("Data kosong"));
       return Right(response.data!);

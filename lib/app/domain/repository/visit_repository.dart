@@ -2,6 +2,8 @@ import 'package:dartz/dartz.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:soul_doctor/app/core/error/failure.dart';
 
+import '../model/visit_result_status.dart';
+
 abstract class VisitRepository {
   Future<Either<Failure, bool>> assignVolunteer({
     required String consultationId,
@@ -12,6 +14,8 @@ abstract class VisitRepository {
   Future<Either<Failure, bool>> reportVolunteer({
     required String visitId,
     required String observation,
+    bool? sideEffect,
+    VisitResultStatus? resultStatusId,
     String? cooperation,
     String? mainDisease,
     String? autoanamnesis,

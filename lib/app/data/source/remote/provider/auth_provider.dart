@@ -15,10 +15,10 @@ class AuthProvider {
   final Dio _dio = DioClient.instance;
 
   Future<ResponseWrapper<TransactionOtpResponseDto>> register(
-    OtpPhoneRequest phone,
+    OtpEmailRequest email,
   ) async {
     try {
-      var response = await _dio.post(ApiUrl.register, data: phone.toJson());
+      var response = await _dio.post(ApiUrl.register, data: email.toJson());
       var result = ResponseWrapper<TransactionOtpResponseDto>.fromJson(
         response.data,
         (json) =>
@@ -122,7 +122,7 @@ class AuthProvider {
   }
 
   Future<ResponseWrapper<TransactionOtpResponseDto>> forgetPassword(
-    OtpPhoneRequest phone,
+    OtpEmailRequest phone,
   ) async {
     try {
       var response = await _dio.post(

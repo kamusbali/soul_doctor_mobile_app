@@ -4,19 +4,19 @@
 
 import 'dart:convert';
 
-OtpPhoneRequest registerRequestFromJson(String str) =>
-    OtpPhoneRequest.fromJson(json.decode(str));
+OtpEmailRequest registerRequestFromJson(String str) =>
+    OtpEmailRequest.fromJson(json.decode(str));
 
-String registerRequestToJson(OtpPhoneRequest data) =>
+String registerRequestToJson(OtpEmailRequest data) =>
     json.encode(data.toJson());
 
-class OtpPhoneRequest {
-  String? phone;
+class OtpEmailRequest {
+  String? email;
 
-  OtpPhoneRequest({this.phone});
+  OtpEmailRequest({this.email});
 
-  factory OtpPhoneRequest.fromJson(Map<String, dynamic> json) =>
-      OtpPhoneRequest(phone: json["phone"]);
+  factory OtpEmailRequest.fromJson(Map<String, dynamic> json) =>
+      OtpEmailRequest(email: json["email"]);
 
-  Map<String, dynamic> toJson() => {"phone": phone};
+  Map<String, dynamic> toJson() => {"email": email};
 }

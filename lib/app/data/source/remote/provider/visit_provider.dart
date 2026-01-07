@@ -33,6 +33,8 @@ class VisitProvider {
   Future<ResponseWrapper> reportVisit({
     required String visitId,
     required String observation,
+    bool? sideEffect,
+    int? resultStatusId,
     String? cooperation,
     String? mainDisease,
     String? autoanamnesis,

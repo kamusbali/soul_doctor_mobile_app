@@ -11,10 +11,10 @@ class LoginUseCase {
   LoginUseCase(this._authRepository);
 
   Future<Either<Failure, bool>> execute({
-    required String phone,
+    required String email,
     required String pin,
   }) async {
-    var response = await _authRepository.login(phone: phone, pin: pin);
+    var response = await _authRepository.login(email: email, pin: pin);
 
     return response.fold(
       (failure) {

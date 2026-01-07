@@ -32,6 +32,8 @@ void syncServiceStart() {
               images: data.images
                   ?.map((data) => MultipartFile.fromBytes(data))
                   .toList(),
+              sideEffect: data.sideEffect ?? false,
+              resultStatusId: data.resultStatusId ?? 1,
             );
           }
         }

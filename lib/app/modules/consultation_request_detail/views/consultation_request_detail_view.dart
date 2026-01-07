@@ -3,7 +3,15 @@ import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
 import 'package:soul_doctor/app/common/resource.dart';
+import 'package:soul_doctor/app/domain/model/consultation_detail.dart';
+import 'package:soul_doctor/app/domain/model/consultation_request_data.dart';
 import 'package:soul_doctor/app/domain/model/consultation_status.dart';
+import 'package:soul_doctor/app/domain/model/consultation_type.dart';
+import 'package:soul_doctor/app/domain/model/education.dart';
+import 'package:soul_doctor/app/domain/model/gender.dart';
+import 'package:soul_doctor/app/domain/model/marital.dart';
+import 'package:soul_doctor/app/domain/model/profile.dart';
+import 'package:soul_doctor/app/domain/model/religion.dart';
 import 'package:soul_doctor/app/domain/model/role.dart';
 import 'package:soul_doctor/app/helpers/date_time_utils.dart';
 import 'package:soul_doctor/app/modules/diagnosis_form/settings/diagnosis_form_settings.dart';
@@ -47,7 +55,29 @@ class ConsultationRequestDetailView
             case Status.loading:
               return Center(child: CircularProgressIndicator());
             default:
-              var data = controller.consultationDetail.value.data!;
+              var data =
+                  controller.consultationDetail.value.data ??
+                  ConsultationDetail(
+                    state: ConsultationStatus.created,
+                    type: ConsultationType.consultation,
+                    patient: Profile(
+                      fullname: "-",
+                      nickname: "-",
+                      birthday: DateTime.now(),
+                      gender: Gender.male,
+                      maritalStatusId: Marital.divorce.id,
+                      lastEducationId: Education.bachelor.id,
+                      job: "-",
+                      religionId: Religion.believers.id,
+                      address: "-",
+                    ),
+                    consultationRequest: ConsultationRequestData(
+                      symptom: "",
+                      startDate: DateTime.now(),
+                    ),
+                    recentVisitors: [],
+                    visitorRejections: [],
+                  );
               return Column(
                 children: [
                   if (data.currentVisit?.visitNote != null)
@@ -97,6 +127,24 @@ class ConsultationRequestDetailView
                             style: TextStyleTheme.PARAGRAPH_5,
                           ),
                         ),
+                        if (data.visitResult!.sideEffect != null)
+                          ItemInformation(
+                            title: "Efek Samping",
+                            value: Text(
+                              data.visitResult!.sideEffect!
+                                  ? "Ada"
+                                  : "Tidak Ada",
+                              style: TextStyleTheme.PARAGRAPH_5,
+                            ),
+                          ),
+                        if (data.visitResult!.resultStatus != null)
+                          ItemInformation(
+                            title: "Keterangan",
+                            value: Text(
+                              data.visitResult!.resultStatus!.name,
+                              style: TextStyleTheme.PARAGRAPH_5,
+                            ),
+                          ),
                         if (data.visitResult!.images.isNotEmpty)
                           ItemInformation(
                             title: "Foto Hasil Visit",

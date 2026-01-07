@@ -6,6 +6,7 @@ import 'package:soul_doctor/app/data/source/remote/dto/request/accept_visit_requ
 import 'package:soul_doctor/app/data/source/remote/dto/request/assign_visit_request.dart';
 import 'package:soul_doctor/app/data/source/remote/dto/request/reject_visit_request.dart';
 import 'package:soul_doctor/app/data/source/remote/provider/visit_provider.dart';
+import 'package:soul_doctor/app/domain/model/visit_result_status.dart';
 import 'package:soul_doctor/app/domain/repository/visit_repository.dart';
 
 import '../../core/error/error_type.dart';
@@ -57,6 +58,8 @@ class VisitRepositoryImpl implements VisitRepository {
   Future<Either<Failure, bool>> reportVolunteer({
     required String visitId,
     required String observation,
+    bool? sideEffect,
+    VisitResultStatus? resultStatusId,
     String? cooperation,
     String? mainDisease,
     String? autoanamnesis,
@@ -80,7 +83,7 @@ class VisitRepositoryImpl implements VisitRepository {
       }
 
       print("Ini Gambar $listMultipartImage");
-      
+
       await _visitProvider.reportVisit(
         visitId: visitId,
         observation: observation,
@@ -93,6 +96,8 @@ class VisitRepositoryImpl implements VisitRepository {
         medicationHistory: medicationHistory,
         psychiatricStatus: psychiatricStatus,
         images: listMultipartImage,
+        sideEffect: sideEffect,
+        resultStatusId: resultStatusId?.id,
       );
 
       return Right(true);

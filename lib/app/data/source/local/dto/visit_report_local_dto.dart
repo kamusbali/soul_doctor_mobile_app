@@ -14,6 +14,8 @@ String visitReportLocalDtoToJson(VisitReportLocalDto data) =>
 class VisitReportLocalDto {
   String? visitId;
   String? observation;
+  bool? sideEffect;
+  int? resultStatusId;
   String? cooperation;
   String? mainDisease;
   String? autoanamnesis;
@@ -27,6 +29,8 @@ class VisitReportLocalDto {
   VisitReportLocalDto({
     this.visitId,
     this.observation,
+    this.sideEffect,
+    this.resultStatusId,
     this.cooperation,
     this.mainDisease,
     this.autoanamnesis,
@@ -42,6 +46,8 @@ class VisitReportLocalDto {
       VisitReportLocalDto(
         visitId: json["visit_id"],
         observation: json["observation"],
+        sideEffect: json["side_effect"],
+        resultStatusId: json["result_status_id"],
         cooperation: json["cooperation"],
         mainDisease: json["main_disease"],
         autoanamnesis: json["autoanamnesis"],
@@ -58,6 +64,8 @@ class VisitReportLocalDto {
   Map<String, dynamic> toJson() => {
     "visit_id": visitId,
     "observation": observation,
+    "side_effect": sideEffect,
+    "result_status_id": resultStatusId,
     "cooperation": cooperation,
     "main_disease": mainDisease,
     "autoanamnesis": autoanamnesis,

@@ -10,9 +10,9 @@ class RegisterUseCase {
   RegisterUseCase(this._authRepository);
 
   Future<Either<Failure, TransactionOtp>> execute({
-    required String phone,
+    required String email,
   }) async {
-    var response = await _authRepository.register(phone: phone);
+    var response = await _authRepository.register(email: email);
 
     return response.fold(
       (failure) {

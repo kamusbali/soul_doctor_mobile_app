@@ -8,6 +8,7 @@ import 'package:soul_doctor/app/common/resource.dart';
 import 'package:soul_doctor/app/core/theme/color_theme.dart';
 import 'package:soul_doctor/app/core/theme/spacing_theme.dart';
 import 'package:soul_doctor/app/core/theme/text_style_theme.dart';
+import 'package:soul_doctor/app/helpers/validators.dart';
 import 'package:soul_doctor/app/routes/app_pages.dart';
 import 'package:soul_doctor/app/widgets/header/basic_app_bar.dart';
 
@@ -58,7 +59,8 @@ class LoginView extends GetView<LoginController> {
                         ),
                         SizedBox(height: SpacingTheme.SPACING_11),
                         TextFormField(
-                          controller: controller.phoneController,
+                          controller: controller.emailController,
+                          validator: Validators.onEmailValidation,
                           decoration: InputDecoration(
                             border: OutlineInputBorder(),
                             enabledBorder: OutlineInputBorder(
@@ -69,7 +71,7 @@ class LoginView extends GetView<LoginController> {
                                 SpacingTheme.SPACING_5,
                               ),
                             ),
-                            hintText: "Nomor Telp (+62xxxx)",
+                            hintText: "Email (example@example.com)",
                             filled: true,
                             fillColor: ColorTheme.NEUTRAL_100,
                           ),

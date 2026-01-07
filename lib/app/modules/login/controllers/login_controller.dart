@@ -14,7 +14,7 @@ class LoginController extends GetxController {
   var isPinVisible = false.obs;
 
   final formKey = GlobalKey<FormState>();
-  final phoneController = TextEditingController();
+  final emailController = TextEditingController();
   final pinController = TextEditingController();
 
   var loginStatus = Resource<bool>.none().obs;
@@ -50,7 +50,7 @@ class LoginController extends GetxController {
     loginStatus.value = Resource.loading();
 
     final result = await _authUseCases.loginUseCase.execute(
-      phone: phoneController.text,
+      email: emailController.text,
       pin: pinController.text,
     );
 

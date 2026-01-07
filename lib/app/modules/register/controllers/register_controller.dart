@@ -11,8 +11,7 @@ class RegisterController extends GetxController {
 
   RegisterController(this._authUseCases);
 
-  final TextEditingController numberTextEditingController =
-      TextEditingController();
+  final TextEditingController emailController = TextEditingController();
 
   var registerResult = Resource<bool>.none().obs;
 
@@ -35,7 +34,7 @@ class RegisterController extends GetxController {
     registerResult.value = Resource.loading();
 
     var response = await _authUseCases.registerUseCase.execute(
-      phone: numberTextEditingController.text,
+      email: emailController.text,
     );
 
     response.fold(
@@ -56,7 +55,7 @@ class RegisterController extends GetxController {
               Routes.OTP_VERIFICATION,
               arguments: OtpVerificationSettings(
                 transactionOtp: success,
-                phoneNumber: numberTextEditingController.text,
+                phoneNumber: emailController.text,
               ),
             );
           },

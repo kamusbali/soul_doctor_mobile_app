@@ -247,6 +247,22 @@ class VisitDetailView extends GetView<VisitDetailController> {
                           style: TextStyleTheme.PARAGRAPH_5,
                         ),
                       ),
+                      if (data.visitResult!.sideEffect != null)
+                        ItemInformation(
+                          title: "Efek Samping",
+                          value: Text(
+                            data.visitResult!.sideEffect! ? "Ada" : "Tidak Ada",
+                            style: TextStyleTheme.PARAGRAPH_5,
+                          ),
+                        ),
+                      if (data.visitResult!.resultStatus != null)
+                        ItemInformation(
+                          title: "Keterangan",
+                          value: Text(
+                            data.visitResult!.resultStatus!.name,
+                            style: TextStyleTheme.PARAGRAPH_5,
+                          ),
+                        ),
                       if (data.visitResult!.images.isNotEmpty)
                         ItemInformation(
                           title: "Foto Hasil Visit",

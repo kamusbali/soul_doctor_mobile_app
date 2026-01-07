@@ -7,7 +7,7 @@ import '../../data/source/remote/dto/response/transaction_otp_response_dto.dart'
 
 abstract class AuthRepository {
   Future<Either<Failure, TransactionOtpResponseDto>> register({
-    required String phone,
+    required String email,
   });
 
   Future<Either<Failure, bool>> verifyOtp({
@@ -22,7 +22,7 @@ abstract class AuthRepository {
   });
 
   Future<Either<Failure, AuthStatusResponse>> login({
-    required String phone,
+    required String email,
     required String pin,
   });
 
@@ -33,7 +33,7 @@ abstract class AuthRepository {
   });
 
   Future<Either<Failure, TransactionOtpResponseDto>> forgetPassword({
-    required String phone,
+    required String email,
   });
 
   Future<SessionData?> getSessionData();
