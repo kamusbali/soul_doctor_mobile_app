@@ -4,6 +4,7 @@ import 'package:soul_doctor/app/domain/model/gender.dart';
 class Profile {
   String fullname;
   String nickname;
+  String nik;
   String? email;
   DateTime birthday;
   Gender gender;
@@ -17,6 +18,7 @@ class Profile {
   Profile({
     required this.fullname,
     required this.nickname,
+    required this.nik,
     this.email,
     required this.birthday,
     required this.gender,
@@ -40,5 +42,6 @@ class Profile {
     religionId: Default.defaultInt,
     phone: Default.defaultString,
     address: Default.defaultString,
+    nik: Default.defaultString,
   );
 }

@@ -26,6 +26,7 @@ class SplashScreenController extends GetxController {
 
   Future<void> onGetSessionData() async {
     var response = await _authUseCases.getSessionDataUseCases.execute();
+    print("Id = ${response?.id}");
     sessionData = response;
   }
 }

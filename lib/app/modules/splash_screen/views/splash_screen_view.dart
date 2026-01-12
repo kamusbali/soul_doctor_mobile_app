@@ -20,12 +20,32 @@ class SplashScreenView extends GetView<SplashScreenController> {
           await controller.onGetSessionData();
 
           if (controller.sessionData?.role == Role.patient) {
+            if ((controller.sessionData?.fullname ?? "").isEmpty &&
+                (controller.sessionData?.nickname ?? "").isEmpty) {
+              return Routes.INPUT_PROFILE;
+            }
+
             return Routes.PATIENT_WRAPPER;
           } else if (controller.sessionData?.role == Role.caregiver) {
+            if ((controller.sessionData?.fullname ?? "").isEmpty &&
+                (controller.sessionData?.nickname ?? "").isEmpty) {
+              return Routes.INPUT_PROFILE;
+            }
+
             return Routes.CAREGIVER_WRAPPER;
           } else if (controller.sessionData?.role == Role.volunteer) {
+            if ((controller.sessionData?.fullname ?? "").isEmpty &&
+                (controller.sessionData?.nickname ?? "").isEmpty) {
+              return Routes.INPUT_PROFILE;
+            }
+
             return Routes.VOLUNTEER_WRAPPER;
           } else if (controller.sessionData?.role == Role.doctor) {
+            if ((controller.sessionData?.fullname ?? "").isEmpty &&
+                (controller.sessionData?.nickname ?? "").isEmpty) {
+              return Routes.INPUT_PROFILE;
+            }
+
             return Routes.DOCTOR_WRAPPER;
           }
 

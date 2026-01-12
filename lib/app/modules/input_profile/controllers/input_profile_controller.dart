@@ -23,7 +23,8 @@ class InputProfileController extends GetxController {
 
   InputProfileController(this._profileUseCases, this._authUseCases);
 
-  InputProfileSettings inputProfileSettings = Get.arguments;
+  InputProfileSettings inputProfileSettings =
+      Get.arguments ?? InputProfileSettings();
 
   final formKey = GlobalKey<FormState>();
 
@@ -33,6 +34,7 @@ class InputProfileController extends GetxController {
 
   final TextEditingController fullnameController = TextEditingController();
   final TextEditingController nicknameController = TextEditingController();
+  final TextEditingController nikController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
 
@@ -111,6 +113,7 @@ class InputProfileController extends GetxController {
       roleController.text = sessionData!.role.name;
 
       fullnameController.text = profile.fullname;
+      nikController.text = profile.nik;
       nicknameController.text = profile.nickname;
       emailController.text = profile.email ?? "";
       dateTimeController.text = DateFormat(
@@ -126,7 +129,7 @@ class InputProfileController extends GetxController {
 
       selectedEducation = Education.getEducationFromId(profile.lastEducationId);
       educationController.text = selectedEducation!.name;
-      phoneController.text = profile.phone!;
+      phoneController.text = profile.phone ?? "";
 
       jobController.text = profile.job;
 
@@ -169,8 +172,7 @@ class InputProfileController extends GetxController {
         currentProfileData.value = Resource.error(failure.message);
       },
       (success) {
-        print("Nomor Telp : ${success.phone}");
-        phoneController.text = success.phone!;
+        emailController.text = success.email!;
         currentProfileData.value = Resource.success(success);
       },
     );
@@ -210,6 +212,7 @@ class InputProfileController extends GetxController {
       role: selectedRole!,
       fullname: fullnameController.text,
       nickname: nicknameController.text,
+      nik: nicknameController.text,
       phone: phoneController.text,
       email: emailController.text,
       birthday: selectedDateTime!,
@@ -298,6 +301,7 @@ class InputProfileController extends GetxController {
       role: selectedRole!,
       fullname: fullnameController.text,
       nickname: nicknameController.text,
+      nik: nikController.text,
       phone: phoneController.text,
       email: emailController.text,
       birthday: selectedDateTime!,

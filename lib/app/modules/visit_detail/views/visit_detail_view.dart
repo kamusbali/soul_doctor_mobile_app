@@ -46,6 +46,7 @@ class VisitDetailView extends GetView<VisitDetailController> {
                 job: "-",
                 religionId: 1,
                 address: "'-",
+                nik: '-',
               ),
               consultationRequest: ConsultationRequestData(
                 symptom: "-",

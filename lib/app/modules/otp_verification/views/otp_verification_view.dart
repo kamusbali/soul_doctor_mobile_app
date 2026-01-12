@@ -82,6 +82,9 @@ class OtpVerificationView extends GetView<OtpVerificationController> {
                             borderRadius: BorderRadius.circular(4),
                           ),
                         ),
+                        onCompleted: (value) {
+                          controller.onVerifOtp();
+                        },
                       ),
                       SizedBox(height: SpacingTheme.SPACING_11),
                       Obx(

@@ -14,6 +14,7 @@ class ProfileRequest {
   int? role;
   String? fullname;
   String? nickname;
+  String? nik;
   String? phone;
   String? email;
   DateTime? birthday;
@@ -28,6 +29,7 @@ class ProfileRequest {
     this.role,
     this.fullname,
     this.nickname,
+    this.nik,
     this.phone,
     this.email,
     this.birthday,
@@ -43,6 +45,7 @@ class ProfileRequest {
     role: json["role"],
     fullname: json["fullname"],
     nickname: json["nickname"],
+    nik: json["nik"],
     phone: json["phone"],
     email: json["email"],
     birthday: json["birthday"] == null
@@ -60,6 +63,7 @@ class ProfileRequest {
     "role": role,
     "fullname": fullname,
     "nickname": nickname,
+    "nik": nik,
     "phone": phone,
     "email": email,
     "birthday":

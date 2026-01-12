@@ -16,6 +16,7 @@ abstract class ProfileRepository {
     required Role role,
     required String fullname,
     required String nickname,
+    required String nik,
     required String phone,
     required String email,
     required DateTime birthday,

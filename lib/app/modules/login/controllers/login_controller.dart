@@ -68,6 +68,11 @@ class LoginController extends GetxController {
           onPrimaryPressed: () async {
             var sessionData = await _authUseCases.getSessionDataUseCases
                 .execute();
+            if ((sessionData?.fullname ?? "").isEmpty &&
+                (sessionData?.nickname ?? "").isEmpty) {
+              Get.offAllNamed(Routes.INPUT_PROFILE);
+              return;
+            }
             if (sessionData?.role == Role.patient) {
               Get.offAllNamed(Routes.PATIENT_WRAPPER);
               return;

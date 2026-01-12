@@ -70,6 +70,7 @@ class ConsultationRequestDetailView
                       job: "-",
                       religionId: Religion.believers.id,
                       address: "-",
+                      nik: '-',
                     ),
                     consultationRequest: ConsultationRequestData(
                       symptom: "",

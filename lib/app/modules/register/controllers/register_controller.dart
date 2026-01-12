@@ -47,7 +47,7 @@ class RegisterController extends GetxController {
         UiFeedbackUtils.showDialog(
           title: "Kode OTP Dikirim",
           body:
-              "Kode OTP sudah dikirim ke nomor tersebut silahkan masukkan kode pada halaman selanjutnya!",
+              "Kode OTP sudah dikirim ke email tersebut silahkan masukkan kode pada halaman selanjutnya!",
           primaryButtonText: "Oke",
           onPrimaryPressed: () {
             Get.back();

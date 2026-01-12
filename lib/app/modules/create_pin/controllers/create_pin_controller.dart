@@ -20,6 +20,8 @@ class CreatePinController extends GetxController {
   final pinRepeatController = TextEditingController();
   var isPinRepeatVisible = false.obs;
 
+  var isLoading = false.obs;
+
   @override
   void onInit() {
     super.onInit();
@@ -52,6 +54,8 @@ class CreatePinController extends GetxController {
       return;
     }
 
+    isLoading.value = true;
+
     var response = await _authUseCases.createPinUseCase.execute(
       transactionId: createPinSettings.transactionOtp.transactionId,
       pin: pinController.text,
@@ -60,9 +64,11 @@ class CreatePinController extends GetxController {
 
     response.fold(
       (failure) {
+        isLoading.value = false;
         UiFeedbackUtils.showSnackbar("Error", failure.message);
       },
       (success) {
+        isLoading.value = false;
         UiFeedbackUtils.showDialog(
           title: "Sukses",
           body: "Berhasil membuat pin, silahkan lengkapi profile anda!",

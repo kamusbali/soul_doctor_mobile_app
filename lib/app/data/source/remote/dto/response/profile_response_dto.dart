@@ -16,6 +16,7 @@ String profileResponseDtoToJson(ProfileResponseDto data) =>
 class ProfileResponseDto {
   String? fullname;
   String? nickname;
+  String? nik;
   String? email;
   DateTime? birthday;
   bool? gender;
@@ -29,6 +30,7 @@ class ProfileResponseDto {
   ProfileResponseDto({
     this.fullname,
     this.nickname,
+    this.nik,
     this.email,
     this.birthday,
     this.gender,
@@ -44,6 +46,7 @@ class ProfileResponseDto {
       ProfileResponseDto(
         fullname: json["fullname"],
         nickname: json["nickname"],
+        nik: json["nik"],
         email: json["email"],
         birthday: json["birthday"] == null
             ? null
@@ -61,6 +64,7 @@ class ProfileResponseDto {
     "fullname": fullname,
     "nickname": nickname,
     "email": email,
+    "nik": nik,
     "birthday":
         "${birthday!.year.toString().padLeft(4, '0')}-${birthday!.month.toString().padLeft(2, '0')}-${birthday!.day.toString().padLeft(2, '0')}",
     "gender": gender,
@@ -78,6 +82,7 @@ extension ProfileResponseDtoConversion on ProfileResponseDto {
     return Profile(
       fullname: fullname!,
       nickname: nickname!,
+      nik: nik ?? "",
       email: email,
       birthday: birthday!,
       gender: Gender.getGenderByValue(gender ?? false),

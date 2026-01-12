@@ -115,8 +115,24 @@ class InputProfileView extends GetView<InputProfileController> {
                           ),
                         ),
                         TextFormField(
-                          readOnly: true,
-                          enabled: false,
+                          controller: controller.nikController,
+                          validator: (value) => Validators.onNotEmptyValidation(
+                            value,
+                            "NIK",
+                          ),
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(),
+                            enabledBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                color: ColorTheme.NEUTRAL_500,
+                              ),
+                            ),
+                            hintText: "Nik",
+                            filled: true,
+                            fillColor: ColorTheme.NEUTRAL_100,
+                          ),
+                        ),
+                        TextFormField(
                           validator: (value) => Validators.onNotEmptyValidation(
                             value,
                             "Nomor Telepon",
@@ -135,6 +151,8 @@ class InputProfileView extends GetView<InputProfileController> {
                           ),
                         ),
                         TextFormField(
+                          readOnly: true,
+                          enabled: false,
                           controller: controller.emailController,
                           validator: Validators.onEmailValidation,
                           decoration: InputDecoration(

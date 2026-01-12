@@ -17,12 +17,12 @@ class ProfileUseCasesInjection {
     );
 
     Get.lazyPut<CreateProfileUseCase>(
-      () => CreateProfileUseCase(Get.find()),
+      () => CreateProfileUseCase(Get.find(), Get.find()),
       fenix: true,
     );
 
     Get.lazyPut<UpdateProfileUseCase>(
-      () => UpdateProfileUseCase(Get.find()),
+      () => UpdateProfileUseCase(Get.find(), Get.find()),
       fenix: true,
     );
 

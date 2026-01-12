@@ -115,6 +115,14 @@ class AccountSettingView extends GetView<AccountSettingController> {
                               ),
                               SizedBox(height: SpacingTheme.SPACING_6),
                               ItemInformation(
+                                title: "Nik",
+                                value: Text(
+                                  data.nik.isEmpty ? "-" : data.nik,
+                                  style: TextStyleTheme.PARAGRAPH_5,
+                                ),
+                              ),
+                              SizedBox(height: SpacingTheme.SPACING_6),
+                              ItemInformation(
                                 title: "Tanggal Lahir",
                                 value: Text(
                                   DateTimeUtils.dateToDayMonthYear(
@@ -136,8 +144,9 @@ class AccountSettingView extends GetView<AccountSettingController> {
                                 title: "Status Perkawinan",
                                 value: Text(
                                   Marital.getMaritalFromId(
-                                    data.maritalStatusId,
-                                  )!.name,
+                                        data.maritalStatusId,
+                                      )?.name ??
+                                      "-",
                                   style: TextStyleTheme.PARAGRAPH_5,
                                 ),
                               ),
@@ -146,8 +155,9 @@ class AccountSettingView extends GetView<AccountSettingController> {
                                 title: "Pendidikan Terakhir",
                                 value: Text(
                                   Education.getEducationFromId(
-                                    data.lastEducationId,
-                                  )!.name,
+                                        data.lastEducationId,
+                                      )?.name ??
+                                      "-",
                                   style: TextStyleTheme.PARAGRAPH_5,
                                 ),
                               ),
@@ -164,8 +174,9 @@ class AccountSettingView extends GetView<AccountSettingController> {
                                 title: "Agama",
                                 value: Text(
                                   Religion.getReligionFromId(
-                                    data.religionId,
-                                  )!.name,
+                                        data.religionId,
+                                      )?.name ??
+                                      "-",
                                   style: TextStyleTheme.PARAGRAPH_5,
                                 ),
                               ),
