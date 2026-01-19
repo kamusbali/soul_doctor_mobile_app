@@ -47,7 +47,7 @@ packages:
       path: "."
       ref: HEAD
       resolved-ref: "9bdea525a3a0f7113294d8d81042eaa502879d81"
-      url: "git@github.com:AgusDharmaUDEL93/async_dropdown.git"
+      url: "https://github.com/AgusDharmaUDEL93/async_dropdown.git"
     source: git
     version: "0.0.1"
   auto_size_text:
