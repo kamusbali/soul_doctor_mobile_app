@@ -10,10 +10,9 @@ export PATH="$PATH:$HOME/flutter/bin"
 flutter precache --ios
 flutter pub get
 
-echo "🧩 Install CocoaPods 1.17+ (Xcode 26 fix)"
-brew update
-brew install cocoapods@1.17 || brew upgrade cocoapods
-export PATH="/usr/local/opt/cocoapods@1.17/bin:$PATH"
+echo "🧩 Install CocoaPods HEAD (Xcode 26 fix)"
+brew uninstall cocoapods || true
+brew install --HEAD cocoapods
 
 pod --version
 
