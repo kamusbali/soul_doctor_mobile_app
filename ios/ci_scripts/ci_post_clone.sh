@@ -8,30 +8,40 @@
 #!/bin/sh
 set -e
 
-echo "=== Xcode Cloud Flutter Production Build ==="
+cd $CI_PRIMARY_REPOSITORY_PATH
 
-# ===== Download Flutter SDK =====
-FLUTTER_VERSION="3.19.0"
-curl -L -o flutter.zip \
-https://storage.googleapis.com/flutter_infra_release/releases/stable/macos/flutter_macos_${FLUTTER_VERSION}-stable.zip
+echo "📦 Installing Flutter..."
+git clone https://github.com/flutter/flutter.git --depth 1 -b stable $HOME/flutter
+export PATH="$PATH:$HOME/flutter/bin"
 
-unzip -q flutter.zip
-export PATH="$PATH:$(pwd)/flutter/bin"
-
-flutter --version
-
-# ===== Install Dart packages =====
+flutter precache --ios
 flutter pub get
 
-# ===== Build iOS Production Flavor =====
+echo "🍫 Installing CocoaPods..."
+HOMEBREW_NO_AUTO_UPDATE=1 brew install cocoapods
+cd ios && pod install
+cd ..
+
+echo "📝 Creating production.env from Xcode Cloud environment variables..."
+mkdir -p conf
+
+cat <<EOF > conf/production.env
+API_URL=$API_URL
+SUPABASE_URL=$SUPABASE_URL
+SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY
+SENTRY_DSN=$SENTRY_DSN
+EOF
+
+echo "✅ production.env created"
+
+echo "🚀 Building Flutter iOS (production flavor, production entrypoint)..."
+
 flutter build ios \
   --flavor production \
   -t lib/main_production.dart \
-  --dart-define=ENV=production \
-  --no-codesign
+  --dart-define=ENV=production
 
-# ===== Install CocoaPods =====
-cd ios
-pod install --repo-update
+echo "✅ Flutter production build finished"
 
-echo "=== Build Preparation Done ==="
+exit 0
+
