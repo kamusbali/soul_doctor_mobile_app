@@ -10,9 +10,8 @@ export PATH="$PATH:$HOME/flutter/bin"
 flutter precache --ios
 flutter pub get
 
-echo "🧩 Install CocoaPods (Xcode 26 compatible)"
-gem install cocoapods --pre
-pod --version
+echo "🧩 Using system CocoaPods"
+pod --version   # <-- ini pakai CocoaPods bawaan Xcode Cloud
 
 cd ios
 pod install --repo-update
@@ -20,10 +19,7 @@ cd ..
 
 echo "📝 Create production.env"
 mkdir -p conf
-
-cat <<EOF > conf/production.env
-BASE_URL=$BASE_URL
-EOF
+echo "BASE_URL=$BASE_URL" > conf/production.env
 
 echo "🚀 Build Flutter production flavor"
 flutter build ios \
@@ -31,5 +27,5 @@ flutter build ios \
   -t lib/main_production.dart \
   --dart-define=ENV=production
 
-echo "✅ CI Post Clone Finished"
+echo "✅ CI finished"
 exit 0
