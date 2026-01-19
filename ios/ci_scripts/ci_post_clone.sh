@@ -11,7 +11,7 @@ flutter precache --ios
 flutter pub get
 
 echo "🧩 Install CocoaPods (Xcode 26 compatible)"
-sudo gem install cocoapods --pre
+gem install cocoapods --pre
 pod --version
 
 cd ios
