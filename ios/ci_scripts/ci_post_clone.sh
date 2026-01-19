@@ -11,8 +11,9 @@ flutter precache --ios
 flutter pub get
 
 echo "🧩 Install CocoaPods HEAD (Xcode 26 fix)"
-brew uninstall cocoapods || true
-brew install --HEAD cocoapods
+HOMEBREW_NO_AUTO_UPDATE=1
+brew install cocoapods
+
 
 pod --version
 
