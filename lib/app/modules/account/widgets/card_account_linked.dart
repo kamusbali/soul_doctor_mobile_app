@@ -45,7 +45,7 @@ class CardAccountLinked extends StatelessWidget {
                     ),
                   )
                 : CirclePhotoProfile(
-                    image: NetworkImage(Dummy.photoProfile()),
+                    image: AssetImage(Dummy.photoProfile()),
                     height: 64,
                     width: 64,
                   ),

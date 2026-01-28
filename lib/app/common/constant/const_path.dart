@@ -20,4 +20,6 @@ abstract class ConstPath {
       "assets/img/illustration_result_good.png";
   static const ILLUSTRATION_RESULT_BAD_PATH =
       "assets/img/illustration_result_bad.png";
+
+      static const AVATAR_DEFAULT_PATH = "assets/img/avatar";
 }

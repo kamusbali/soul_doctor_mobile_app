@@ -44,7 +44,7 @@ class CardPatient extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       CirclePhotoProfile(
-                        image: NetworkImage(Dummy.photoProfile()),
+                        image: AssetImage(Dummy.photoProfile()),
                         width: 50,
                       ),
                       SizedBox(width: SpacingTheme.SPACING_4),

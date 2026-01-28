@@ -1,4 +1,8 @@
+import 'dart:math';
+
+import 'package:soul_doctor/app/common/constant/const_path.dart';
+
 abstract class Dummy {
-  static String photoProfile([int? number]) =>
-      "https://avatar.iran.liara.run/public/${number?.toString() ?? "boy"}";
+  static String photoProfile() =>
+      "${ConstPath.AVATAR_DEFAULT_PATH}/${Random().nextInt(20) + 1}.png";
 }
