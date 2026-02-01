@@ -1,77 +1,65 @@
 workflows:
-  ios-release:
-    name: iOS release
+  default-workflow:
+    name: Default Workflow
+    max_build_duration: 60
+
     instance_type: mac_mini_m2
-    max_build_duration: 120
-    integrations:
-      app_store_connect: codemagic
-    environment:
-      ios_signing:
-        distribution_type: app_store
-        bundle_identifier: io.flutter.app.FlutterApplication
-      vars:
-        XCODE_WORKSPACE: "ios/Runner.xcworkspace"
-        APP_STORE_APP_ID: 1555555551 # <-- Put the app id number here. This is found in App Store Connect > App > General > App Information
-        XCODE_SCHEME: _ # <-- Put Your Xcode scheme here
-        BUNDLE_ID: io.flutter.app.FlutterApplication
-        ENTRY_POINT: _ # <-- Put Your Entry point to your flutter application here
-      flutter: stable
-      xcode: latest
-      cocoapods: default
+
     triggering:
       events:
         - push
       branch_patterns:
-        - pattern: "main"
+        - pattern: main
           include: true
-          source: true
+
+    environment:
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+
+      vars:
+        BASE_URL: $BASE_URL
+
     scripts:
-      - name: Copy environment files
+      - name: Post clone script (create production.env)
         script: |
-          echo "🔧 Creating production.env from Codemagic environment variable..." # Pastikan folder conf ada
-          mkdir - p conf # Tulis isi env dari variable Codemagic ke file
-          echo "$BASE_URL" > conf / production.env # Optional: pastikan file terbentuk
-          echo "✅ production.env created at conf/production.env"
-      - name: Get Flutter Packages
+          echo "Creating production.env from Codemagic environment variable..."
+          mkdir -p conf
+          echo "$BASE_URL" > conf/production.env
+          echo "production.env created at conf/production.env"
+
+      - name: Flutter pub get
         script: |
-          flutter packages pub get
-      - name: Pod install
+          flutter pub get
+
+      - name: Build Android AAB (production)
         script: |
-          find . -name "Podfile" -execdir pod install \;
-      - name: Set up code signing settings on Xcode project
+          flutter build appbundle \
+            --release \
+            --flavor production \
+            -t lib/main_production.dart
+
+      - name: Build iOS (production)
         script: |
-          xcode-project use-profiles
-      - name: Flutter build ipa and automatic versioning
-        script: |
-          flutter build ipa --release \
-          --build-name=1.0.0 \
-          --build-number=$(($(app-store-connect get-latest-testflight-build-number "$APP_STORE_ID") + 1)) \
-          --export-options-plist=/Users/builder/export_options.plist \
-          --flavor="$XCODE_SCHEME" \
-          -t "$ENTRY_POINT"
+          flutter build ipa \
+            --release \
+            --flavor production \
+            -t lib/main_production.dart
+
     artifacts:
+      - build/app/outputs/**/*.aab
       - build/ios/ipa/*.ipa
-      - /tmp/xcodebuild_logs/*.log
-      - flutter_drive.log
-      - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.dSYM
+      - build/**/mapping.txt
+
     publishing:
+      app_store_connect:
+        api_key: CICD_Code_Magic_Agus
+        submit_to_testflight: false
+        submit_to_app_store: false
+
       email:
         recipients:
-          - user_1@example.com
-          - user_2@example.com
+          - agusdharmaudel@gmail.com
         notify:
           success: true
           failure: true
-      app_store_connect:
-        auth: integration
-
-        # Configuration related to TestFlight (optional)
-        # Note: This action is performed during post-processing.
-        submit_to_testflight: true
-        beta_groups: # Specify the names of beta tester groups that will get access to the build once it has passed beta review.
-          - group name 1
-          - group name 2
-
-        # Configuration related to App Store (optional)
-        # Note: This action is performed during post-processing.
-        submit_to_app_store: false
