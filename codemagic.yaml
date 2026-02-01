@@ -53,7 +53,9 @@ workflows:
 
     publishing:
       app_store_connect:
-        api_key: CICD_Code_Magic_Agus
+        api_key: $APP_STORE_CONNECT_API_KEY
+        key_id: $APP_STORE_CONNECT_KEY_ID
+        issuer_id: $APP_STORE_CONNECT_ISSUER_ID
         submit_to_testflight: false
         submit_to_app_store: false
 
