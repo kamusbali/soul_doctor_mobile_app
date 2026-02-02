@@ -25,6 +25,7 @@ workflows:
         script: |
           echo "Creating production.env from Codemagic environment variable..."
           mkdir -p conf
+          echo "$BASE_URL"
           echo "$BASE_URL" > conf/production.env
           echo "production.env created at conf/production.env"
 
