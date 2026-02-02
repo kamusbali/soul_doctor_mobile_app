@@ -15,14 +15,11 @@ workflows:
       flutter: stable
       xcode: latest
       cocoapods: default
-      ios_signing:
-        distribution_type: app_store
-        bundle_identifier: dev.putuwaw.soul-doctor
       groups:
         - soul_doctor_env
         - soul_doctor_publishing
       vars:
-        APP_ID: $APP_STORE_APP_ID 
+        APP_ID: $APP_STORE_APP_ID
 
     scripts:
       - name: Post clone script (create production.env)
@@ -37,12 +34,12 @@ workflows:
         script: |
           flutter pub get
 
-      - name: Build Android AAB (production)
-        script: |
-          flutter build appbundle \
-            --release \
-            --flavor production \
-            -t lib/main_production.dart
+      # - name: Build Android AAB (production)
+      #   script: |
+      #     flutter build appbundle \
+      #       --release \
+      #       --flavor production \
+      #       -t lib/main_production.dart
 
       - name: Build iOS (production)
         script: |
