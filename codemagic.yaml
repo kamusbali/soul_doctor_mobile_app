@@ -44,6 +44,7 @@ workflows:
       - name: Build iOS (production)
         script: |
           flutter build ipa \
+            --release \
             --flavor production \
             -t lib/main_production.dart
 
