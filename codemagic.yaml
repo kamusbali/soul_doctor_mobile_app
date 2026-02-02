@@ -13,7 +13,6 @@ workflows:
       app_store_connect: CI CD Code Magic Agus
     environment:
       ios_signing:
-        distribution_type: app_store
         bundle_identifier: dev.putuwaw.soul-doctor
       flutter: stable
       xcode: latest
