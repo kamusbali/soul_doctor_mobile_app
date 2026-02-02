@@ -15,8 +15,14 @@ workflows:
       flutter: stable
       xcode: latest
       cocoapods: default
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: dev.putuwaw.soul_doctor
       groups:
         - soul_doctor_env
+        - soul_doctor_publishing
+      vars:
+        APP_ID: $APP_STORE_APP_ID 
 
     scripts:
       - name: Post clone script (create production.env)
