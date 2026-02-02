@@ -15,7 +15,6 @@ workflows:
       xcode: latest
       cocoapods: default
       groups:
-        - appstore_credentials
         - soul_doctor_env
 
     scripts:
