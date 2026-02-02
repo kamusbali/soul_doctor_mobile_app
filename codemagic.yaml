@@ -2,9 +2,7 @@ workflows:
   default-workflow:
     name: Default Workflow
     max_build_duration: 60
-
     instance_type: mac_mini_m2
-
     triggering:
       events:
         - push
@@ -16,20 +14,17 @@ workflows:
       flutter: stable
       xcode: latest
       cocoapods: default
-
-      vars:
-        BASE_URL: $BASE_URL
-
       groups:
         - appstore_credentials
+        - soul_doctor_env
 
     scripts:
       - name: Post clone script (create production.env)
         script: |
           echo "Creating production.env from Codemagic environment variable..."
           mkdir -p conf
-          echo "$BASE_URL"
-          echo "$BASE_URL" > conf/production.env
+          echo $BASE_URL
+          echo $BASE_URL > conf/production.env
           echo "production.env created at conf/production.env"
 
       - name: Flutter pub get
