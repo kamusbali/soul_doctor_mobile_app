@@ -17,7 +17,7 @@ workflows:
       cocoapods: default
       ios_signing:
         distribution_type: app_store
-        bundle_identifier: dev.putuwaw.soul_doctor
+        bundle_identifier: dev.putuwaw.soul-doctor
       groups:
         - soul_doctor_env
         - soul_doctor_publishing
