@@ -9,7 +9,8 @@ workflows:
       branch_patterns:
         - pattern: main
           include: true
-
+    integrations:
+      app_store_connect: CI CD Code Magic Agus
     environment:
       flutter: stable
       xcode: latest
@@ -51,11 +52,7 @@ workflows:
 
     publishing:
       app_store_connect:
-        api_key: $APP_STORE_CONNECT_API_KEY
-        key_id: $APP_STORE_CONNECT_PRIVATE_KEY
-        issuer_id: $APP_STORE_CONNECT_ISSUER_ID
-        submit_to_testflight: false
-        submit_to_app_store: false
+        auth: integration
 
       email:
         recipients:
