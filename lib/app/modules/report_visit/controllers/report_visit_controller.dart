@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:soul_doctor/app/common/resource.dart';
+import 'package:soul_doctor/app/domain/model/after_sleep_condition.dart';
+import 'package:soul_doctor/app/domain/model/comunication.dart';
 import 'package:soul_doctor/app/domain/model/visit_result_status.dart';
 import 'package:soul_doctor/app/domain/use_case/auth_use_cases/auth_use_cases.dart';
 import 'package:soul_doctor/app/domain/use_case/visit_use_cases/visit_use_cases.dart';
@@ -10,6 +12,9 @@ import 'package:soul_doctor/app/helpers/ui_feedback_utils.dart';
 import 'package:soul_doctor/app/modules/report_visit/settings/report_visit_settings.dart';
 
 import '../../../core/error/error_type.dart';
+import '../../../domain/model/medicine_condition.dart';
+import '../../../domain/model/pemuput_upacara.dart';
+import '../../../domain/model/self_care.dart';
 import '../../../routes/app_pages.dart';
 
 class ReportVisitController extends GetxController {
@@ -36,6 +41,35 @@ class ReportVisitController extends GetxController {
   final TextEditingController visitResultStatusController =
       TextEditingController();
   Rx<String?> visitResultStatusErrorText = (null as String?).obs;
+
+  AfterSleepCondition? selectedAfterSleepCondition;
+  final TextEditingController afterSleepConditionController =
+      TextEditingController();
+  Rx<String?> afterSleepConditionErrorText = (null as String?).obs;
+
+  MedicineCondition? selectedMedicineCondition;
+  final TextEditingController medicineConditionController =
+      TextEditingController();
+  Rx<String?> medicineConditionErrorText = (null as String?).obs;
+
+  Comunication? selectedComunication;
+  final TextEditingController comunicationController = TextEditingController();
+  Rx<String?> comunicationErrorText = (null as String?).obs;
+
+  SelfCare? selectedSelfCare;
+  final TextEditingController selfCareController = TextEditingController();
+  Rx<String?> selfCareErrorText = (null as String?).obs;
+
+  bool? selectedDoingCeremony;
+  final TextEditingController doingCeremonyController = TextEditingController();
+  Rx<String?> doingCeremonyErrorText = (null as String?).obs;
+
+  final TextEditingController ceremonyNameController = TextEditingController();
+
+  PemuputUpacara? selectedPemuputUpacara;
+  final TextEditingController pemuputUpacaraController =
+      TextEditingController();
+  Rx<String?> pemuputUpacaraErrorText = (null as String?).obs;
 
   bool? selectedSideEffect;
   final TextEditingController sideEffectController = TextEditingController();
@@ -172,6 +206,18 @@ class ReportVisitController extends GetxController {
       images: pictures.isEmpty ? null : pictures,
       sideEffect: selectedSideEffect,
       resultStatusId: selectedVisitResultStatus,
+      sleepHour: reportVisitSettings.isHasData
+          ? null
+          : int.tryParse(afterSleepConditionController.text),
+      afterSleepCondition: selectedAfterSleepCondition,
+      medicineCondition: selectedMedicineCondition,
+      communication: selectedComunication,
+      selfCare: selectedSelfCare,
+      doingCeremony: selectedDoingCeremony,
+      ceremonyName: ceremonyNameController.text.isEmpty
+          ? null
+          : ceremonyNameController.text,
+      pemuputUpcara: selectedPemuputUpacara,
     );
 
     response.fold(
@@ -230,6 +276,32 @@ class ReportVisitController extends GetxController {
 
   void onChangeVisitResultStatusValue(VisitResultStatus visitResultStatus) {
     selectedVisitResultStatus = visitResultStatus;
+  }
+
+  void onChangeAfterSleepConditionValue(
+    AfterSleepCondition afterSleepCondition,
+  ) {
+    selectedAfterSleepCondition = afterSleepCondition;
+  }
+
+  void onChangeMedicineConditionValue(MedicineCondition medicineCondition) {
+    selectedMedicineCondition = medicineCondition;
+  }
+
+  void onChangeComunicationValue(Comunication comunication) {
+    selectedComunication = comunication;
+  }
+
+  void onChangeSelfCareValue(SelfCare selfCare) {
+    selectedSelfCare = selfCare;
+  }
+
+  void onChangeDoingCeremonyValue(bool doingCeremony) {
+    selectedDoingCeremony = doingCeremony;
+  }
+
+  void onChangePemuputUpacaraValue(PemuputUpacara pemuputUpacara) {
+    selectedPemuputUpacara = pemuputUpacara;
   }
 
   void onChangeSideEffect(bool sideEffect) {

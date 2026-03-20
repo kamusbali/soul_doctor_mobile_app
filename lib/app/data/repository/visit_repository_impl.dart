@@ -6,10 +6,15 @@ import 'package:soul_doctor/app/data/source/remote/dto/request/accept_visit_requ
 import 'package:soul_doctor/app/data/source/remote/dto/request/assign_visit_request.dart';
 import 'package:soul_doctor/app/data/source/remote/dto/request/reject_visit_request.dart';
 import 'package:soul_doctor/app/data/source/remote/provider/visit_provider.dart';
+import 'package:soul_doctor/app/domain/model/after_sleep_condition.dart';
+import 'package:soul_doctor/app/domain/model/comunication.dart';
+import 'package:soul_doctor/app/domain/model/medicine_condition.dart';
+import 'package:soul_doctor/app/domain/model/pemuput_upacara.dart';
 import 'package:soul_doctor/app/domain/model/visit_result_status.dart';
 import 'package:soul_doctor/app/domain/repository/visit_repository.dart';
 
 import '../../core/error/error_type.dart';
+import '../../domain/model/self_care.dart';
 import '../source/remote/dto/common/response_wrapper.dart';
 
 class VisitRepositoryImpl implements VisitRepository {
@@ -69,6 +74,14 @@ class VisitRepositoryImpl implements VisitRepository {
     String? medicationHistory,
     String? psychiatricStatus,
     List<XFile>? images,
+    int? sleepHour,
+    AfterSleepCondition? afterSleepCondition,
+    MedicineCondition? medicineCondition,
+    Comunication? communication,
+    SelfCare? selfCare,
+    bool? doingCeremony,
+    String? ceremonyName,
+    PemuputUpacara? pemuputUpcara,
   }) async {
     try {
       print(images?.map((e) => e.path));

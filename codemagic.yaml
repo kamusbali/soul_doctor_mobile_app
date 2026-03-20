@@ -37,12 +37,6 @@ workflows:
         script: |
           flutter pub get
 
-      # - name: Build Android AAB (production)
-      #   script: |
-      #     flutter build appbundle \
-      #       --release \
-      #       --flavor production \
-      #       -t lib/main_production.dart
 
       - name: Set up code signing settings on Xcode project
         script: |

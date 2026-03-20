@@ -44,6 +44,14 @@ class VisitProvider {
     String? medicationHistory,
     String? psychiatricStatus,
     List<MultipartFile>? images,
+    int? sleepHour,
+    int? afterSleepConditionId,
+    int? medicineConditionId,
+    int? communicationId,
+    int? selfCareId,
+    bool? doingCeremony,
+    String? ceremonyName,
+    int? pemuputUpacaraId,
   }) async {
     try {
       FormData formData = FormData.fromMap({
@@ -58,6 +66,16 @@ class VisitProvider {
         "medication_history": medicationHistory,
         "psychiatric_status": psychiatricStatus,
         "images": images,
+        "result_status_id": resultStatusId,
+        "side_effect": sideEffect,
+        "sleep_hour": sleepHour,
+        "after_sleep_condition_id": afterSleepConditionId,
+        "medicine_condition_id": medicineConditionId,
+        "communication_id": communicationId,
+        "self_care_id": selfCareId,
+        "doing_ceremony": doingCeremony,
+        "ceremony_name": ceremonyName,
+        "pemuput_upacara_id": pemuputUpacaraId,
       });
 
       var response = await _dio.post(ApiUrl.visitsReport, data: formData);

@@ -276,6 +276,18 @@ class VisitDetailView extends GetView<VisitDetailController> {
                             ),
                           ),
                         ),
+                        if (data.visitResult!.images.isNotEmpty)
+                        ItemInformation(
+                          title: "Foto Hasil Visit",
+                          value: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              children: data.visitResult!.images
+                                  .map((e) => Image.network(e, height: 200))
+                                  .toList(),
+                            ),
+                          ),
+                        ),
                     ],
                   ),
                 if (data.state == ConsultationStatus.completed)

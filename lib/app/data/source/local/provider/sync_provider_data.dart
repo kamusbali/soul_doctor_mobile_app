@@ -56,6 +56,14 @@ class SyncProviderData {
     String? medicationHistory,
     String? psychiatricStatus,
     List<XFile>? images,
+    int? sleepHour,
+    int? afterSleepConditionId,
+    int? medicineConditionId,
+    int? communicationId,
+    int? selfCareId,
+    bool? doingCeremony,
+    String? ceremonyName,
+    int? pemuputUpacaraId,
   }) async {
     final List<Uint8List> listImageBytes = [];
     if (images != null) {
@@ -76,6 +84,14 @@ class SyncProviderData {
       medicationHistory: medicationHistory,
       psychiatricStatus: psychiatricStatus,
       images: listImageBytes,
+      sleepHour: sleepHour,
+      afterSleepConditionId: afterSleepConditionId,
+      medicineConditionId: medicineConditionId,
+      communicationId: communicationId,
+      selfCareId: selfCareId,
+      doingCeremony: doingCeremony,
+      ceremonyName: ceremonyName,
+      pemuputUpacaraId: pemuputUpacaraId,
     );
 
     await _visitReportBox.put(visitId, data.toJson());

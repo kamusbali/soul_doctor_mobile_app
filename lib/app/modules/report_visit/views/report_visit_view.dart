@@ -1,10 +1,16 @@
 import 'package:amicons/amicons.dart';
 import 'package:async_dropdown/async_dropdown.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'package:get/get.dart';
 import 'package:soul_doctor/app/common/resource.dart';
 import 'package:soul_doctor/app/core/theme/color_theme.dart';
+import 'package:soul_doctor/app/domain/model/after_sleep_condition.dart';
+import 'package:soul_doctor/app/domain/model/comunication.dart';
+import 'package:soul_doctor/app/domain/model/medicine_condition.dart';
+import 'package:soul_doctor/app/domain/model/pemuput_upacara.dart';
+import 'package:soul_doctor/app/domain/model/self_care.dart';
 import 'package:soul_doctor/app/domain/model/visit_result_status.dart';
 import 'package:soul_doctor/app/helpers/validators.dart';
 
@@ -316,47 +322,6 @@ class ReportVisitView extends GetView<ReportVisitController> {
                           child: Column(
                             spacing: SpacingTheme.SPACING_8,
                             children: [
-                              TextFormField(
-                                controller: controller.observation,
-                                validator: (value) =>
-                                    Validators.onNotEmptyValidation(
-                                      value,
-                                      "Hasil Observasi",
-                                    ),
-                                decoration: InputDecoration(
-                                  border: OutlineInputBorder(),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                      color: ColorTheme.NEUTRAL_500,
-                                    ),
-                                  ),
-                                  hintText: "Hasil Observasi",
-                                  filled: true,
-                                  fillColor: ColorTheme.NEUTRAL_100,
-                                ),
-                                maxLines: 5,
-                              ),
-                              TextFormField(
-                                readOnly: true,
-                                onTap: () {
-                                  controller.onAddPicture();
-                                },
-                                decoration: InputDecoration(
-                                  border: OutlineInputBorder(),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                      color: ColorTheme.NEUTRAL_500,
-                                    ),
-                                  ),
-                                  hintText: "Foto (Optional)",
-                                  filled: true,
-                                  fillColor: ColorTheme.NEUTRAL_100,
-                                  suffixIcon: Icon(
-                                    Amicons.flaticon_cloud_upload_rounded,
-                                    color: ColorTheme.NEUTRAL_700,
-                                  ),
-                                ),
-                              ),
                               if (controller.reportVisitSettings.isHasData)
                                 Obx(
                                   () => StaticDropdownTextField<bool>(
@@ -410,7 +375,7 @@ class ReportVisitView extends GetView<ReportVisitController> {
                                               color: ColorTheme.NEUTRAL_500,
                                             ),
                                           ),
-                                          labelText: "Keterangan",
+                                          labelText: "Perkembangan",
                                           filled: true,
                                           errorText: controller
                                               .visitResultStatusErrorText
@@ -436,6 +401,326 @@ class ReportVisitView extends GetView<ReportVisitController> {
                                               return visitResultStatus.name;
                                             },
                                       ),
+                                ),
+
+                              TextFormField(
+                                validator: (value) =>
+                                    Validators.onNotEmptyValidation(
+                                      value,
+                                      "Jumlah Jam Tidur",
+                                    ),
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.allow(
+                                    RegExp(r'[0-9]'),
+                                  ),
+                                ],
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: ColorTheme.NEUTRAL_500,
+                                    ),
+                                  ),
+                                  hintText: "Jumlah Jam Tidur",
+                                  filled: true,
+                                  fillColor: ColorTheme.NEUTRAL_100,
+                                ),
+                              ),
+                              if (controller.reportVisitSettings.isHasData)
+                                Obx(
+                                  () =>
+                                      StaticDropdownTextField<
+                                        AfterSleepCondition
+                                      >(
+                                        controller: controller
+                                            .afterSleepConditionController,
+                                        decoration: InputDecoration(
+                                          border: OutlineInputBorder(),
+                                          enabledBorder: OutlineInputBorder(
+                                            borderSide: BorderSide(
+                                              color: ColorTheme.NEUTRAL_500,
+                                            ),
+                                          ),
+                                          labelText: "Kondisi Setelah Tidur",
+                                          filled: true,
+                                          errorText: controller
+                                              .afterSleepConditionErrorText
+                                              .value,
+                                          fillColor: ColorTheme.NEUTRAL_100,
+                                          alignLabelWithHint: true,
+                                        ),
+                                        childWidget: (data) => Padding(
+                                          padding: EdgeInsetsGeometry.symmetric(
+                                            horizontal: SpacingTheme.SPACING_8,
+                                            vertical: SpacingTheme.SPACING_4,
+                                          ),
+                                          child: Text(
+                                            data.name,
+                                            style: TextStyleTheme.PARAGRAPH_5,
+                                          ),
+                                        ),
+                                        items: AfterSleepCondition.values,
+                                        onSelectData: controller
+                                            .onChangeAfterSleepConditionValue,
+                                        onSetTextFieldLabel:
+                                            (afterSleepCondition) {
+                                              return afterSleepCondition.name;
+                                            },
+                                      ),
+                                ),
+                              if (controller.reportVisitSettings.isHasData)
+                                Obx(
+                                  () =>
+                                      StaticDropdownTextField<
+                                        MedicineCondition
+                                      >(
+                                        controller: controller
+                                            .medicineConditionController,
+                                        decoration: InputDecoration(
+                                          border: OutlineInputBorder(),
+                                          enabledBorder: OutlineInputBorder(
+                                            borderSide: BorderSide(
+                                              color: ColorTheme.NEUTRAL_500,
+                                            ),
+                                          ),
+                                          labelText: "Jumlah Obat",
+                                          filled: true,
+                                          errorText: controller
+                                              .medicineConditionErrorText
+                                              .value,
+                                          fillColor: ColorTheme.NEUTRAL_100,
+                                          alignLabelWithHint: true,
+                                        ),
+                                        childWidget: (data) => Padding(
+                                          padding: EdgeInsetsGeometry.symmetric(
+                                            horizontal: SpacingTheme.SPACING_8,
+                                            vertical: SpacingTheme.SPACING_4,
+                                          ),
+                                          child: Text(
+                                            data.name,
+                                            style: TextStyleTheme.PARAGRAPH_5,
+                                          ),
+                                        ),
+                                        items: MedicineCondition.values,
+                                        onSelectData: controller
+                                            .onChangeMedicineConditionValue,
+                                        onSetTextFieldLabel:
+                                            (medicineCondition) {
+                                              return medicineCondition.name;
+                                            },
+                                      ),
+                                ),
+                              if (controller.reportVisitSettings.isHasData)
+                                Obx(
+                                  () => StaticDropdownTextField<Comunication>(
+                                    controller: controller
+                                        .afterSleepConditionController,
+                                    decoration: InputDecoration(
+                                      border: OutlineInputBorder(),
+                                      enabledBorder: OutlineInputBorder(
+                                        borderSide: BorderSide(
+                                          color: ColorTheme.NEUTRAL_500,
+                                        ),
+                                      ),
+                                      labelText: "Komunikasi",
+                                      filled: true,
+                                      errorText: controller
+                                          .afterSleepConditionErrorText
+                                          .value,
+                                      fillColor: ColorTheme.NEUTRAL_100,
+                                      alignLabelWithHint: true,
+                                    ),
+                                    childWidget: (data) => Padding(
+                                      padding: EdgeInsetsGeometry.symmetric(
+                                        horizontal: SpacingTheme.SPACING_8,
+                                        vertical: SpacingTheme.SPACING_4,
+                                      ),
+                                      child: Text(
+                                        data.name,
+                                        style: TextStyleTheme.PARAGRAPH_5,
+                                      ),
+                                    ),
+                                    items: Comunication.values,
+                                    onSelectData:
+                                        controller.onChangeComunicationValue,
+                                    onSetTextFieldLabel: (comunication) {
+                                      return comunication.name;
+                                    },
+                                  ),
+                                ),
+                              if (controller.reportVisitSettings.isHasData)
+                                Obx(
+                                  () => StaticDropdownTextField<SelfCare>(
+                                    controller: controller.selfCareController,
+                                    decoration: InputDecoration(
+                                      border: OutlineInputBorder(),
+                                      enabledBorder: OutlineInputBorder(
+                                        borderSide: BorderSide(
+                                          color: ColorTheme.NEUTRAL_500,
+                                        ),
+                                      ),
+                                      labelText: "Perawatan Diri",
+                                      filled: true,
+                                      errorText:
+                                          controller.selfCareErrorText.value,
+                                      fillColor: ColorTheme.NEUTRAL_100,
+                                      alignLabelWithHint: true,
+                                    ),
+                                    childWidget: (data) => Padding(
+                                      padding: EdgeInsetsGeometry.symmetric(
+                                        horizontal: SpacingTheme.SPACING_8,
+                                        vertical: SpacingTheme.SPACING_4,
+                                      ),
+                                      child: Text(
+                                        data.name,
+                                        style: TextStyleTheme.PARAGRAPH_5,
+                                      ),
+                                    ),
+                                    items: SelfCare.values,
+                                    onSelectData:
+                                        controller.onChangeSelfCareValue,
+                                    onSetTextFieldLabel: (selfCare) {
+                                      return selfCare.name;
+                                    },
+                                  ),
+                                ),
+                              TextFormField(
+                                controller: controller.observation,
+                                validator: (value) =>
+                                    Validators.onNotEmptyValidation(
+                                      value,
+                                      "Hasil Observasi",
+                                    ),
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: ColorTheme.NEUTRAL_500,
+                                    ),
+                                  ),
+                                  hintText: "Hasil Observasi",
+                                  filled: true,
+                                  fillColor: ColorTheme.NEUTRAL_100,
+                                ),
+                                maxLines: 5,
+                              ),
+                              TextFormField(
+                                readOnly: true,
+                                onTap: () {
+                                  controller.onAddPicture();
+                                },
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: ColorTheme.NEUTRAL_500,
+                                    ),
+                                  ),
+                                  hintText: "Foto (Optional)",
+                                  filled: true,
+                                  fillColor: ColorTheme.NEUTRAL_100,
+                                  suffixIcon: Icon(
+                                    Amicons.flaticon_cloud_upload_rounded,
+                                    color: ColorTheme.NEUTRAL_700,
+                                  ),
+                                ),
+                              ),
+
+                              if (controller.reportVisitSettings.isHasData)
+                                Obx(
+                                  () => StaticDropdownTextField<bool>(
+                                    controller:
+                                        controller.doingCeremonyController,
+                                    decoration: InputDecoration(
+                                      border: OutlineInputBorder(),
+                                      enabledBorder: OutlineInputBorder(
+                                        borderSide: BorderSide(
+                                          color: ColorTheme.NEUTRAL_500,
+                                        ),
+                                      ),
+                                      labelText:
+                                          "Melaksanakan Upacara dalam 3 bulan terakhir?",
+                                      filled: true,
+                                      errorText: controller
+                                          .doingCeremonyErrorText
+                                          .value,
+                                      fillColor: ColorTheme.NEUTRAL_100,
+                                      alignLabelWithHint: true,
+                                    ),
+                                    childWidget: (data) => Padding(
+                                      padding: EdgeInsetsGeometry.symmetric(
+                                        horizontal: SpacingTheme.SPACING_8,
+                                        vertical: SpacingTheme.SPACING_4,
+                                      ),
+                                      child: Text(
+                                        data ? "Ada" : "Tidak Ada",
+                                        style: TextStyleTheme.PARAGRAPH_5,
+                                      ),
+                                    ),
+                                    items: [true, false],
+                                    onSelectData:
+                                        controller.onChangeDoingCeremonyValue,
+                                    onSetTextFieldLabel: (doingCeremony) {
+                                      if (doingCeremony) {
+                                        return "Ada";
+                                      }
+                                      return "Tidak Ada";
+                                    },
+                                  ),
+                                ),
+                              TextFormField(
+                                controller: controller.ceremonyNameController,
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: ColorTheme.NEUTRAL_500,
+                                    ),
+                                  ),
+                                  hintText: "Nama Upacara",
+                                  filled: true,
+                                  fillColor: ColorTheme.NEUTRAL_100,
+                                ),
+                                maxLines: 5,
+                              ),
+
+                              if (controller.reportVisitSettings.isHasData)
+                                Obx(
+                                  () => StaticDropdownTextField<PemuputUpacara>(
+                                    controller:
+                                        controller.pemuputUpacaraController,
+                                    decoration: InputDecoration(
+                                      border: OutlineInputBorder(),
+                                      enabledBorder: OutlineInputBorder(
+                                        borderSide: BorderSide(
+                                          color: ColorTheme.NEUTRAL_500,
+                                        ),
+                                      ),
+                                      labelText: "Pemuput Upacara",
+                                      filled: true,
+                                      errorText: controller
+                                          .pemuputUpacaraErrorText
+                                          .value,
+                                      fillColor: ColorTheme.NEUTRAL_100,
+                                      alignLabelWithHint: true,
+                                    ),
+                                    childWidget: (data) => Padding(
+                                      padding: EdgeInsetsGeometry.symmetric(
+                                        horizontal: SpacingTheme.SPACING_8,
+                                        vertical: SpacingTheme.SPACING_4,
+                                      ),
+                                      child: Text(
+                                        data.name,
+                                        style: TextStyleTheme.PARAGRAPH_5,
+                                      ),
+                                    ),
+                                    items: PemuputUpacara.values,
+                                    onSelectData:
+                                        controller.onChangePemuputUpacaraValue,
+                                    onSetTextFieldLabel: (pemuputUpacara) {
+                                      return pemuputUpacara.name;
+                                    },
+                                  ),
                                 ),
                               SizedBox(height: SpacingTheme.SPACING_2),
                               Obx(
