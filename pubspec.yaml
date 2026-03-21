@@ -42,7 +42,7 @@ dependencies:
   page_transition: ^2.2.1
   auto_size_text: ^3.0.0
   amicons: ^1.0.1
-  google_fonts: ^6.3.0
+  google_fonts: ^8.0.2
   package_info_plus: ^8.3.1
   flutter_local_notifications: ^19.4.1
   get_storage: ^2.1.1
