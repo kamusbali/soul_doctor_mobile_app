@@ -20,7 +20,7 @@ class ListUserData extends StatelessWidget {
         Row(
           children: [
             CirclePhotoProfile(
-              image: AssetImage(Dummy.photoProfile()),
+              image: AssetImage(Dummy.photoProfile(role: user.role)),
               height: 64,
               width: 64,
             ),

@@ -6,15 +6,19 @@ import 'package:soul_doctor/app/core/theme/color_theme.dart';
 import 'package:soul_doctor/app/core/theme/spacing_theme.dart';
 import 'package:soul_doctor/app/core/theme/text_style_theme.dart';
 
+import '../../../domain/model/role.dart';
+
 class AccordionAccountLinked extends StatefulWidget {
   const AccordionAccountLinked({
     super.key,
     this.isPatient = false,
     this.onAddPatient,
     required this.items,
+    required this.role,
   });
 
   final bool isPatient;
+  final Role role;
 
   final void Function()? onAddPatient;
 
@@ -122,6 +126,7 @@ class _AccordionAccountLinkedState extends State<AccordionAccountLinked>
                         isAddCard: true,
                         title: "Tambah Pasien Asuhan",
                         onTap: widget.onAddPatient,
+                        role: widget.role,
                       ),
                     Expanded(
                       child: SingleChildScrollView(
@@ -135,6 +140,7 @@ class _AccordionAccountLinkedState extends State<AccordionAccountLinked>
                                 (element) => CardAccountLinked(
                                   title: element.title,
                                   onTap: element.onTap,
+                                  role: widget.role,
                                 ),
                               )
                               .toList(),

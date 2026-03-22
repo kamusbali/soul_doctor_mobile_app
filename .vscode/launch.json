@@ -25,7 +25,7 @@
             "type": "dart",
             "program": "lib/main_production.dart",
             "args": [
-                "-t", "lib/main_production.dart", "--flavor",  "roduction"
+                "-t", "lib/main_production.dart", "--flavor",  "production"
             ]
         }
     ]

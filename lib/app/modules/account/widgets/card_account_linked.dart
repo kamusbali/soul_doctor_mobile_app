@@ -5,6 +5,7 @@ import 'package:soul_doctor/app/common/constant/dummy.dart';
 import 'package:soul_doctor/app/core/theme/color_theme.dart';
 import 'package:soul_doctor/app/core/theme/spacing_theme.dart';
 import 'package:soul_doctor/app/core/theme/text_style_theme.dart';
+import 'package:soul_doctor/app/domain/model/role.dart';
 import 'package:soul_doctor/app/widgets/avatar/circle_photo_profile.dart';
 
 class CardAccountLinked extends StatelessWidget {
@@ -13,12 +14,14 @@ class CardAccountLinked extends StatelessWidget {
     this.isAddCard = false,
     this.onTap,
     required this.title,
+    required this.role,
   });
 
   final bool isAddCard;
   final void Function()? onTap;
 
   final String title;
+  final Role role;
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +48,7 @@ class CardAccountLinked extends StatelessWidget {
                     ),
                   )
                 : CirclePhotoProfile(
-                    image: AssetImage(Dummy.photoProfile()),
+                    image: AssetImage(Dummy.photoProfile(role: role)),
                     height: 64,
                     width: 64,
                   ),

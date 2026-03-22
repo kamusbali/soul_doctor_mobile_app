@@ -5,6 +5,7 @@ import 'package:soul_doctor/app/common/constant/dummy.dart';
 import 'package:soul_doctor/app/core/theme/color_theme.dart';
 import 'package:soul_doctor/app/core/theme/spacing_theme.dart';
 import 'package:soul_doctor/app/core/theme/text_style_theme.dart';
+import 'package:soul_doctor/app/domain/model/role.dart';
 import 'package:soul_doctor/app/widgets/avatar/circle_photo_profile.dart';
 import 'package:soul_doctor/app/widgets/chip/chip_tag_consultation.dart';
 import 'package:soul_doctor/app/widgets/chip/chip_tag_consultation_item.dart';
@@ -15,11 +16,13 @@ class CardPatient extends StatelessWidget {
     required this.name,
     required this.age,
     required this.onTap,
+    required this.role,
   });
 
   final String name;
   final int age;
   final void Function() onTap;
+  final Role role;
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +47,7 @@ class CardPatient extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       CirclePhotoProfile(
-                        image: AssetImage(Dummy.photoProfile()),
+                        image: AssetImage(Dummy.photoProfile(role: role)),
                         width: 50,
                       ),
                       SizedBox(width: SpacingTheme.SPACING_4),

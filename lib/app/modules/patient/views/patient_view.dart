@@ -181,6 +181,7 @@ class PatientView extends GetView<PatientController> {
                                     (e) => CardPatient(
                                       name: e.name,
                                       age: e.summary.age,
+                                      role: Role.patient,
                                       onTap: () {
                                         if (controller.user.value.data?.role ==
                                             Role.caregiver) {

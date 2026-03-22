@@ -50,6 +50,7 @@ class AccountView extends GetView<AccountController> {
                                   null) ...[
                             AccordionAccountLinked(
                               isPatient: true,
+                              role: Role.caregiver,
                               items: [
                                 AccordionAccountLinkedItem(
                                   title: controller
@@ -66,6 +67,7 @@ class AccountView extends GetView<AccountController> {
                           if (controller.user.value.data?.role ==
                               Role.caregiver) ...[
                             AccordionAccountLinked(
+                              role: Role.patient,
                               onAddPatient: () {
                                 Get.toNamed(Routes.CREATE_PATIENT)?.then((_) {
                                   controller.onInit();
