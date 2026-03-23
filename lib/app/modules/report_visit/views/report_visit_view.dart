@@ -402,30 +402,30 @@ class ReportVisitView extends GetView<ReportVisitController> {
                                             },
                                       ),
                                 ),
-
-                              TextFormField(
-                                validator: (value) =>
-                                    Validators.onNotEmptyValidation(
-                                      value,
-                                      "Jumlah Jam Tidur",
+                              if (controller.reportVisitSettings.isHasData)
+                                TextFormField(
+                                  validator: (value) =>
+                                      Validators.onNotEmptyValidation(
+                                        value,
+                                        "Jumlah Jam Tidur",
+                                      ),
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.allow(
+                                      RegExp(r'[0-9]'),
                                     ),
-                                inputFormatters: [
-                                  FilteringTextInputFormatter.allow(
-                                    RegExp(r'[0-9]'),
-                                  ),
-                                ],
-                                decoration: InputDecoration(
-                                  border: OutlineInputBorder(),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                      color: ColorTheme.NEUTRAL_500,
+                                  ],
+                                  decoration: InputDecoration(
+                                    border: OutlineInputBorder(),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                        color: ColorTheme.NEUTRAL_500,
+                                      ),
                                     ),
+                                    hintText: "Jumlah Jam Tidur",
+                                    filled: true,
+                                    fillColor: ColorTheme.NEUTRAL_100,
                                   ),
-                                  hintText: "Jumlah Jam Tidur",
-                                  filled: true,
-                                  fillColor: ColorTheme.NEUTRAL_100,
                                 ),
-                              ),
                               if (controller.reportVisitSettings.isHasData)
                                 Obx(
                                   () =>
@@ -668,21 +668,22 @@ class ReportVisitView extends GetView<ReportVisitController> {
                                     },
                                   ),
                                 ),
-                              TextFormField(
-                                controller: controller.ceremonyNameController,
-                                decoration: InputDecoration(
-                                  border: OutlineInputBorder(),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                      color: ColorTheme.NEUTRAL_500,
+                              if (controller.reportVisitSettings.isHasData)
+                                TextFormField(
+                                  controller: controller.ceremonyNameController,
+                                  decoration: InputDecoration(
+                                    border: OutlineInputBorder(),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                        color: ColorTheme.NEUTRAL_500,
+                                      ),
                                     ),
+                                    hintText: "Nama Upacara",
+                                    filled: true,
+                                    fillColor: ColorTheme.NEUTRAL_100,
                                   ),
-                                  hintText: "Nama Upacara",
-                                  filled: true,
-                                  fillColor: ColorTheme.NEUTRAL_100,
+                                  maxLines: 5,
                                 ),
-                                maxLines: 5,
-                              ),
 
                               if (controller.reportVisitSettings.isHasData)
                                 Obx(
