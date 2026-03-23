@@ -66,17 +66,19 @@ class VisitProvider {
         "medication_history": medicationHistory,
         "psychiatric_status": psychiatricStatus,
         "images": images,
-        "result_status_id": resultStatusId,
+        "result_status_id": resultStatusId ?? 2,
         "side_effect": sideEffect,
         "sleep_hour": sleepHour,
-        "after_sleep_condition_id": afterSleepConditionId,
-        "medicine_condition_id": medicineConditionId,
-        "communication_id": communicationId,
-        "self_care_id": selfCareId,
+        "after_sleep_condition_id": afterSleepConditionId ?? 3,
+        "medicine_condition_id": medicineConditionId ?? 1,
+        "communication_id": communicationId ?? 1,
+        "self_care_id": selfCareId ?? 1,
         "doing_ceremony": doingCeremony,
         "ceremony_name": ceremonyName,
-        "pemuput_upacara_id": pemuputUpacaraId,
+        "pemuput_upacara_id": pemuputUpacaraId ?? 1,
       });
+
+      print("Ini Data : ${formData.fields}");
 
       var response = await _dio.post(ApiUrl.visitsReport, data: formData);
       var result = ResponseWrapper.fromJson(response.data, (json) => null);
