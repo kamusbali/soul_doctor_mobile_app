@@ -146,6 +146,73 @@ class ConsultationRequestDetailView
                               style: TextStyleTheme.PARAGRAPH_5,
                             ),
                           ),
+
+                        if (data.visitResult!.sleepHour != null)
+                          ItemInformation(
+                            title: "Jumlah Jam Tidur",
+                            value: Text(
+                              data.visitResult!.sleepHour.toString(),
+                              style: TextStyleTheme.PARAGRAPH_5,
+                            ),
+                          ),
+                        if (data.visitResult!.afterSleepCondition != null)
+                          ItemInformation(
+                            title: "Kondisi Setelah Tidur",
+                            value: Text(
+                              data.visitResult!.afterSleepCondition!.name,
+                              style: TextStyleTheme.PARAGRAPH_5,
+                            ),
+                          ),
+                        if (data.visitResult!.medicineCondition != null)
+                          ItemInformation(
+                            title: "Jumlah Obat",
+                            value: Text(
+                              data.visitResult!.medicineCondition!.name,
+                              style: TextStyleTheme.PARAGRAPH_5,
+                            ),
+                          ),
+                        if (data.visitResult!.communication != null)
+                          ItemInformation(
+                            title: "Komunikasi",
+                            value: Text(
+                              data.visitResult!.communication!.name,
+                              style: TextStyleTheme.PARAGRAPH_5,
+                            ),
+                          ),
+                        if (data.visitResult!.selfCare != null)
+                          ItemInformation(
+                            title: "Perawatan Diri",
+                            value: Text(
+                              data.visitResult!.selfCare!.name,
+                              style: TextStyleTheme.PARAGRAPH_5,
+                            ),
+                          ),
+                        if (data.visitResult!.doingCeremony != null)
+                          ItemInformation(
+                            title: "Pelaksanaan Upacara",
+                            value: Text(
+                              data.visitResult!.doingCeremony!
+                                  ? "Iya"
+                                  : "Tidak",
+                              style: TextStyleTheme.PARAGRAPH_5,
+                            ),
+                          ),
+                        if (data.visitResult!.doingCeremony != null)
+                          ItemInformation(
+                            title: "Nama Upacara",
+                            value: Text(
+                              data.visitResult!.ceremonyName!,
+                              style: TextStyleTheme.PARAGRAPH_5,
+                            ),
+                          ),
+                        if (data.visitResult!.pemuputUpacara != null)
+                          ItemInformation(
+                            title: "Pemuput Upacara",
+                            value: Text(
+                              data.visitResult!.pemuputUpacara!.name,
+                              style: TextStyleTheme.PARAGRAPH_5,
+                            ),
+                          ),
                         if (data.visitResult!.images.isNotEmpty)
                           ItemInformation(
                             title: "Foto Hasil Visit",
