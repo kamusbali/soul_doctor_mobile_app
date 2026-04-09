@@ -404,6 +404,7 @@ class ReportVisitView extends GetView<ReportVisitController> {
                                 ),
                               if (controller.reportVisitSettings.isHasData)
                                 TextFormField(
+                                  controller: controller.sleepHourController,
                                   validator: (value) =>
                                       Validators.onNotEmptyValidation(
                                         value,
@@ -414,6 +415,7 @@ class ReportVisitView extends GetView<ReportVisitController> {
                                       RegExp(r'[0-9]'),
                                     ),
                                   ],
+                                  keyboardType: TextInputType.number,
                                   decoration: InputDecoration(
                                     border: OutlineInputBorder(),
                                     enabledBorder: OutlineInputBorder(
@@ -513,8 +515,8 @@ class ReportVisitView extends GetView<ReportVisitController> {
                               if (controller.reportVisitSettings.isHasData)
                                 Obx(
                                   () => StaticDropdownTextField<Comunication>(
-                                    controller: controller
-                                        .afterSleepConditionController,
+                                    controller:
+                                        controller.comunicationController,
                                     decoration: InputDecoration(
                                       border: OutlineInputBorder(),
                                       enabledBorder: OutlineInputBorder(
@@ -525,7 +527,7 @@ class ReportVisitView extends GetView<ReportVisitController> {
                                       labelText: "Komunikasi",
                                       filled: true,
                                       errorText: controller
-                                          .afterSleepConditionErrorText
+                                          .comunicationErrorText
                                           .value,
                                       fillColor: ColorTheme.NEUTRAL_100,
                                       alignLabelWithHint: true,
@@ -548,6 +550,7 @@ class ReportVisitView extends GetView<ReportVisitController> {
                                     },
                                   ),
                                 ),
+
                               if (controller.reportVisitSettings.isHasData)
                                 Obx(
                                   () => StaticDropdownTextField<SelfCare>(

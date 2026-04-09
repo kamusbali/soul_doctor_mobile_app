@@ -7,6 +7,7 @@ import 'package:soul_doctor/app/domain/model/role.dart';
 import 'package:soul_doctor/app/helpers/date_time_utils.dart';
 import 'package:soul_doctor/app/helpers/ui_feedback_utils.dart';
 import 'package:soul_doctor/app/modules/consultation_request_detail/settings/consultation_request_detail_settings.dart';
+import 'package:soul_doctor/app/modules/report_daily/settings/report_daily_settings.dart';
 import 'package:soul_doctor/app/widgets/card/card_consultation.dart';
 import 'package:soul_doctor/app/widgets/chip/chip_tag_consultation_item.dart';
 import 'package:soul_doctor/app/widgets/loading/loading_view.dart';
@@ -60,69 +61,107 @@ class UserHomeView extends GetView<UserHomeController> {
                   ),
                 ),
                 SizedBox(height: SpacingTheme.SPACING_8),
-                Row(
-                  children: [
-                    Expanded(
-                      child: CardFeature(
-                        title: 'Ajukan Konsultasi',
-                        body:
-                            'Minta bantuan tenaga medis  jika Anda memiliki keluhan lebih lanjut.',
-                        imageAssetPath:
-                            ConstPath.CARD_ILLUSTRATION_CONSULTATION_PATH,
-                        backgroundColor: ColorTheme.EUCALYPTUS_500,
-                        onTap: () {
-                          if (controller.user.value.data != null) {
-                            if (controller.user.value.data?.role ==
-                                Role.patient) {
-                              Get.toNamed(Routes.ADD_CONSULTATION)?.then((_) {
-                                controller.onInit();
-                              });
-                              return;
-                            } else {
-                              Get.toNamed(Routes.ADD_VISIT_REQUEST)?.then((_) {
-                                controller.onInit();
-                              });
-                              return;
-                            }
-                          }
-
-                          UiFeedbackUtils.showDialog(
-                            title: "Masuk Dulu untuk Lanjut",
+                SizedBox(
+                  width: Get.width,
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Obx(
+                      () => Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          if (controller.user.value.data?.role ==
+                                  Role.patient ||
+                              controller.user.value.data?.role ==
+                                  Role.caregiver)
+                            CardFeature(
+                              title: 'Catatan Harian',
+                              body:
+                                  'Catat perasaan dan kondisi harianmu untuk membantu proses pemulihan.',
+                              imageAssetPath:
+                                  ConstPath.CARD_ILLUSTRATION_DAILY_REPORT_PATH,
+                              backgroundColor: ColorTheme.GAMBOGE_400,
+                              onTap: () {
+                                Get.toNamed(
+                                  Routes.REPORT_DAILY,
+                                  arguments: ReportDailySettings(
+                                    patientId:
+                                        controller.user.value.data?.role ==
+                                            Role.patient
+                                        ? controller.user.value.data?.id
+                                        : null,
+                                  ),
+                                )?.then((_) {
+                                  controller.onInit();
+                                });
+                              },
+                            ),
+                          SizedBox(width: SpacingTheme.SPACING_4),
+                          CardFeature(
+                            title: 'Ajukan Konsultasi',
                             body:
-                                "Untuk menggunakan fitur ini, kamu perlu masuk ke akunmu atau daftarkan akun terlebih dahulu.",
-                            imagePath:
-                                ConstPath.DIALOG_ILLUSTRATION_UNAUTHORIZE_PATH,
-                            onPrimaryPressed: () {
-                              Get.back();
-                              Get.toNamed(Routes.LOGIN);
+                                'Minta bantuan tenaga medis  jika Anda memiliki keluhan lebih lanjut.',
+                            imageAssetPath:
+                                ConstPath.CARD_ILLUSTRATION_CONSULTATION_PATH,
+                            backgroundColor: ColorTheme.EUCALYPTUS_500,
+                            onTap: () {
+                              if (controller.user.value.data != null) {
+                                if (controller.user.value.data?.role ==
+                                    Role.patient) {
+                                  Get.toNamed(Routes.ADD_CONSULTATION)?.then((
+                                    _,
+                                  ) {
+                                    controller.onInit();
+                                  });
+                                  return;
+                                } else {
+                                  Get.toNamed(Routes.ADD_VISIT_REQUEST)?.then((
+                                    _,
+                                  ) {
+                                    controller.onInit();
+                                  });
+                                  return;
+                                }
+                              }
+
+                              UiFeedbackUtils.showDialog(
+                                title: "Masuk Dulu untuk Lanjut",
+                                body:
+                                    "Untuk menggunakan fitur ini, kamu perlu masuk ke akunmu atau daftarkan akun terlebih dahulu.",
+                                imagePath: ConstPath
+                                    .DIALOG_ILLUSTRATION_UNAUTHORIZE_PATH,
+                                onPrimaryPressed: () {
+                                  Get.back();
+                                  Get.toNamed(Routes.LOGIN);
+                                },
+                                primaryButtonText: "Masuk",
+                                onSecondaryPressed: () {
+                                  Get.back();
+                                  Get.toNamed(Routes.REGISTER);
+                                },
+                                secondaryButtonText: "Daftar",
+                              );
                             },
-                            primaryButtonText: "Masuk",
-                            onSecondaryPressed: () {
-                              Get.back();
-                              Get.toNamed(Routes.REGISTER);
+                          ),
+                          SizedBox(width: SpacingTheme.SPACING_4),
+                          CardFeature(
+                            title: 'Periksa Mental',
+                            body:
+                                'Deteksi gangguan mental hanya dengan menjawab beberapa pertanyaan.',
+                            imageAssetPath: ConstPath
+                                .CARD_ILLUSTRATION_CHECK_MENTAL_CONDITION_PATH,
+                            backgroundColor: ColorTheme.COBALT_400,
+                            onTap: () {
+                              Get.toNamed(Routes.ASSESSMENT_QUESTION)?.then((
+                                _,
+                              ) {
+                                controller.onInit();
+                              });
                             },
-                            secondaryButtonText: "Daftar",
-                          );
-                        },
+                          ),
+                        ],
                       ),
                     ),
-                    SizedBox(width: SpacingTheme.SPACING_4),
-                    Expanded(
-                      child: CardFeature(
-                        title: 'Periksa Mental',
-                        body:
-                            'Deteksi gangguan mental hanya dengan menjawab beberapa pertanyaan.',
-                        imageAssetPath: ConstPath
-                            .CARD_ILLUSTRATION_CHECK_MENTAL_CONDITION_PATH,
-                        backgroundColor: ColorTheme.COBALT_400,
-                        onTap: () {
-                          Get.toNamed(Routes.ASSESSMENT_QUESTION)?.then((_) {
-                            controller.onInit();
-                          });
-                        },
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
                 SizedBox(height: SpacingTheme.SPACING_11),
                 SizedBox(

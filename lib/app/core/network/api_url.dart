@@ -25,4 +25,6 @@ abstract class ApiUrl {
   static final patients = "/patients";
 
   static final volunteer = "/volunteers";
+
+  static final dailyReport = "/daily-reports";
 }

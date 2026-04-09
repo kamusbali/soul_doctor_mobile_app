@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:soul_doctor/app/data/source/remote/provider/auth_provider.dart';
 import 'package:soul_doctor/app/data/source/remote/provider/consultation_provider.dart';
+import 'package:soul_doctor/app/data/source/remote/provider/daily_report_provider.dart';
 import 'package:soul_doctor/app/data/source/remote/provider/diagnosis_provider.dart';
 import 'package:soul_doctor/app/data/source/remote/provider/patient_provider.dart';
 import 'package:soul_doctor/app/data/source/remote/provider/profile_provider.dart';
@@ -18,5 +19,6 @@ class ProviderInjection {
     Get.put(VisitProvider());
     Get.put(VolunteerProvider());
     Get.put(ScreeningProvider());
+    Get.put(DailyReportProvider());
   }
 }

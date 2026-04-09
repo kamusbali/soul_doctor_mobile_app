@@ -9,12 +9,15 @@ import 'package:soul_doctor/app/data/repository/visit_repository_impl.dart';
 import 'package:soul_doctor/app/data/repository/volunteer_repository_impl.dart';
 import 'package:soul_doctor/app/domain/repository/auth_repository.dart';
 import 'package:soul_doctor/app/domain/repository/consultation_repository.dart';
+import 'package:soul_doctor/app/domain/repository/daily_report_repository.dart';
 import 'package:soul_doctor/app/domain/repository/diagnosis_repository.dart';
 import 'package:soul_doctor/app/domain/repository/patient_repository.dart';
 import 'package:soul_doctor/app/domain/repository/profile_repository.dart';
 import 'package:soul_doctor/app/domain/repository/screening_repository.dart';
 import 'package:soul_doctor/app/domain/repository/visit_repository.dart';
 import 'package:soul_doctor/app/domain/repository/volunteer_repository.dart';
+
+import '../data/repository/daily_report_repository_impl.dart';
 
 class RepositoryInjection {
   static void inject() {
@@ -48,6 +51,10 @@ class RepositoryInjection {
     );
     Get.lazyPut<ScreeningRepository>(
       () => ScreeningRepositoryImpl(Get.find()),
+      fenix: true,
+    );
+    Get.lazyPut<DailyReportRepository>(
+      () => DailyReportRepositoryImpl(Get.find()),
       fenix: true,
     );
   }

@@ -37,6 +37,7 @@ abstract class Routes {
   static const CAREGIVER_WRAPPER = _Paths.CAREGIVER_WRAPPER;
   static const VOLUNTEER_WRAPPER = _Paths.VOLUNTEER_WRAPPER;
   static const DOCTOR_WRAPPER = _Paths.DOCTOR_WRAPPER;
+  static const REPORT_DAILY = _Paths.REPORT_DAILY;
 }
 
 abstract class _Paths {
@@ -75,4 +76,5 @@ abstract class _Paths {
   static const CAREGIVER_WRAPPER = '/caregiver-wrapper';
   static const VOLUNTEER_WRAPPER = '/volunteer-wrapper';
   static const DOCTOR_WRAPPER = '/doctor-wrapper';
+  static const REPORT_DAILY = '/report-daily';
 }

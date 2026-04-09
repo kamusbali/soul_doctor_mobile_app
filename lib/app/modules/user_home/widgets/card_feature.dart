@@ -27,7 +27,7 @@ class CardFeature extends StatelessWidget {
       onTap: onTap,
       child: Container(
         height: 250,
-        width: 250,
+        width: 180,
         decoration: BoxDecoration(
           color: backgroundColor,
           borderRadius: BorderRadius.circular(SpacingTheme.SPACING_10),

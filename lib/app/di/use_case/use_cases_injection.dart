@@ -1,5 +1,6 @@
 import 'package:soul_doctor/app/di/use_case/auth_use_cases_injection.dart';
 import 'package:soul_doctor/app/di/use_case/consultation_use_cases_injection.dart';
+import 'package:soul_doctor/app/di/use_case/daily_report_use_cases_injection.dart';
 import 'package:soul_doctor/app/di/use_case/diagnosis_use_cases_injection.dart';
 import 'package:soul_doctor/app/di/use_case/patient_use_cases_injection.dart';
 import 'package:soul_doctor/app/di/use_case/profile_use_cases_injection.dart';
@@ -17,5 +18,6 @@ class UseCasesInjection {
     VisitUseCasesInjection.inject();
     VolunteerUseCasesInjection.inject();
     ScreeningUseCasesInjection.inject();
+    DailyReportUseCasesInjection.inject();
   }
 }

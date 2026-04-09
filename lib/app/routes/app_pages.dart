@@ -48,6 +48,8 @@ import '../modules/patient_wrapper/bindings/patient_wrapper_binding.dart';
 import '../modules/patient_wrapper/views/patient_wrapper_view.dart';
 import '../modules/register/bindings/register_binding.dart';
 import '../modules/register/views/register_view.dart';
+import '../modules/report_daily/bindings/report_daily_binding.dart';
+import '../modules/report_daily/views/report_daily_view.dart';
 import '../modules/report_visit/bindings/report_visit_binding.dart';
 import '../modules/report_visit/views/report_visit_view.dart';
 import '../modules/splash_screen/bindings/splash_screen_binding.dart';
@@ -254,6 +256,11 @@ class AppPages {
         PatientBinding(),
         AccountBinding(),
       ],
+    ),
+    GetPage(
+      name: _Paths.REPORT_DAILY,
+      page: () => const ReportDailyView(),
+      binding: ReportDailyBinding(),
     ),
   ];
 }

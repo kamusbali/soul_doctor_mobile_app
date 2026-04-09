@@ -111,6 +111,14 @@ class VisitRepositoryImpl implements VisitRepository {
         images: listMultipartImage,
         sideEffect: sideEffect,
         resultStatusId: resultStatusId?.id,
+        sleepHour: sleepHour,
+        afterSleepConditionId: afterSleepCondition?.id,
+        medicineConditionId: medicineCondition?.id,
+        communicationId: communication?.id,
+        selfCareId: selfCare?.id,
+        doingCeremony: doingCeremony,
+        ceremonyName: ceremonyName,
+        pemuputUpacaraId: pemuputUpcara?.id,
       );
 
       return Right(true);

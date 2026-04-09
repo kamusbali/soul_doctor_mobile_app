@@ -12,6 +12,9 @@ abstract class ConstPath {
       "$_imageDirectory/card_illustration_check_mental_condition.png";
   static var CARD_ILLUSTRATION_CONSULTATION_PATH =
       "$_imageDirectory/card_illustration_consultation.png";
+  static var CARD_ILLUSTRATION_DAILY_REPORT_PATH =
+      "$_imageDirectory/card_illustration_daily_report.png";
+      
   static var BACKGROUND_HEADER_PATH = "$_imageDirectory/background_header.png";
   static var DIALOG_ILLUSTRATION_UNAUTHORIZE_PATH =
       "$_imageDirectory/dialog_illustration_unauthorize.png";

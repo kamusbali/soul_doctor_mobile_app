@@ -1,29 +1,36 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:soul_doctor/app/common/resource.dart';
-import 'package:soul_doctor/app/domain/model/after_sleep_condition.dart';
-import 'package:soul_doctor/app/domain/model/comunication.dart';
-import 'package:soul_doctor/app/domain/model/visit_result_status.dart';
-import 'package:soul_doctor/app/domain/use_case/auth_use_cases/auth_use_cases.dart';
-import 'package:soul_doctor/app/domain/use_case/visit_use_cases/visit_use_cases.dart';
-import 'package:soul_doctor/app/helpers/ui_feedback_utils.dart';
-import 'package:soul_doctor/app/modules/report_visit/settings/report_visit_settings.dart';
+import 'package:soul_doctor/app/domain/model/patient.dart';
+import 'package:soul_doctor/app/domain/use_case/daily_report_use_cases/daily_report_use_cases.dart';
+import 'package:soul_doctor/app/domain/use_case/patient_use_cases/patient_use_cases.dart';
+import 'package:soul_doctor/app/modules/report_daily/settings/report_daily_settings.dart';
 
+import '../../../common/resource.dart';
 import '../../../core/error/error_type.dart';
-import '../../../domain/model/medicine_condition.dart';
+import '../../../domain/model/after_sleep_condition.dart';
+import '../../../domain/model/comunication.dart';
+import '../../../domain/model/medicine_condition.dart' show MedicineCondition;
 import '../../../domain/model/pemuput_upacara.dart';
 import '../../../domain/model/self_care.dart';
+import '../../../domain/model/visit_result_status.dart';
+import '../../../domain/use_case/auth_use_cases/auth_use_cases.dart';
+import '../../../helpers/ui_feedback_utils.dart';
 import '../../../routes/app_pages.dart';
 
-class ReportVisitController extends GetxController {
-  final VisitUseCases _visitUseCases;
+class ReportDailyController extends GetxController {
+  final DailyReportUseCases _dailyReportUseCases;
   final AuthUseCases _authUseCases;
+  final PatientUseCases _patientUseCases;
 
-  ReportVisitController(this._visitUseCases, this._authUseCases);
+  ReportDailyController(
+    this._dailyReportUseCases,
+    this._authUseCases,
+    this._patientUseCases,
+  );
 
-  ReportVisitSettings reportVisitSettings = Get.arguments;
+  ReportDailySettings reportDailySettings = Get.arguments;
 
   var currentForm = 0.obs;
 
@@ -38,6 +45,10 @@ class ReportVisitController extends GetxController {
   final psychiatricStatusController = TextEditingController();
 
   final sleepHourController = TextEditingController();
+
+  Patient? selectedPatient;
+  Rx<String?> selectedPatientErrorText = (null as String?).obs;
+  final patientController = TextEditingController();
 
   VisitResultStatus? selectedVisitResultStatus;
   final TextEditingController visitResultStatusController =
@@ -87,10 +98,6 @@ class ReportVisitController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-
-    if (reportVisitSettings.isHasData) {
-      onChangeCurrentForm(1);
-    }
   }
 
   @override
@@ -153,7 +160,7 @@ class ReportVisitController extends GetxController {
   }
 
   void onChangeCurrentForm(int value) {
-    if (value == 1 && !reportVisitSettings.isHasData) {
+    if (value == 1) {
       if (!historyPatientFormKey.currentState!.validate()) {
         UiFeedbackUtils.showSnackbar(
           "Data Riwayat Tidak Lengkap",
@@ -168,8 +175,16 @@ class ReportVisitController extends GetxController {
 
   void onSendVisitReportData() async {
     if (!observationFormKey.currentState!.validate() ||
-        (reportVisitSettings.isHasData && selectedSideEffect == null) ||
-        (reportVisitSettings.isHasData && selectedVisitResultStatus == null)) {
+        (selectedSideEffect == null) ||
+        (selectedVisitResultStatus == null) ||
+        (selectedAfterSleepCondition == null) ||
+        (selectedMedicineCondition == null) ||
+        (selectedComunication == null) ||
+        (selectedSelfCare == null) ||
+        (selectedDoingCeremony == null) ||
+        (selectedDoingCeremony == true &&
+            (selectedPemuputUpacara == null ||
+                ceremonyNameController.text.isEmpty))) {
       UiFeedbackUtils.showSnackbar(
         "Data Riwayat Tidak Lengkap",
         "Silahkan lengkapi data riwayat!",
@@ -178,44 +193,28 @@ class ReportVisitController extends GetxController {
     }
 
     addReportStatus.value = Resource.loading();
-    var response = await _visitUseCases.reportVolunteerUseCase.execute(
-      visitId: reportVisitSettings.visitId,
+    var response = await _dailyReportUseCases.reportDailyUseCase.execute(
+      patientId: reportDailySettings.patientId != null
+          ? reportDailySettings.patientId!
+          : selectedPatient!.id,
       observation: observation.text,
-      cooperation: reportVisitSettings.isHasData
-          ? null
-          : cooperationController.text,
-      mainDisease: reportVisitSettings.isHasData
-          ? null
-          : mainDiseaseController.text,
-      autoanamnesis: reportVisitSettings.isHasData
-          ? null
-          : autoanamnesisController.text,
-      diseaseHistory: reportVisitSettings.isHasData
-          ? null
-          : diseaseHistoryController.text,
-      familyHistory: reportVisitSettings.isHasData
-          ? null
-          : familyHistoryController.text,
-      heteroanamnesis: reportVisitSettings.isHasData
-          ? null
-          : heteroanamnesisController.text,
-      medicationHistory: reportVisitSettings.isHasData
-          ? null
-          : medicationHistoryController.text,
-      psychiatricStatus: reportVisitSettings.isHasData
-          ? null
-          : psychiatricStatusController.text,
+      cooperation: cooperationController.text,
+      mainDisease: mainDiseaseController.text,
+      autoanamnesis: autoanamnesisController.text,
+      diseaseHistory: diseaseHistoryController.text,
+      familyHistory: familyHistoryController.text,
+      heteroanamnesis: heteroanamnesisController.text,
+      medicationHistory: medicationHistoryController.text,
+      psychiatricStatus: psychiatricStatusController.text,
       images: pictures.isEmpty ? null : pictures,
-      sideEffect: selectedSideEffect,
-      resultStatusId: selectedVisitResultStatus,
-      sleepHour: reportVisitSettings.isHasData
-          ? null
-          : int.tryParse(sleepHourController.text),
-      afterSleepCondition: selectedAfterSleepCondition,
-      medicineCondition: selectedMedicineCondition,
-      communication: selectedComunication,
-      selfCare: selectedSelfCare,
-      doingCeremony: selectedDoingCeremony,
+      sideEffect: selectedSideEffect!,
+      resultStatusId: selectedVisitResultStatus!,
+      sleepHour: int.tryParse(sleepHourController.text)!,
+      afterSleepCondition: selectedAfterSleepCondition!,
+      medicineCondition: selectedMedicineCondition!,
+      communication: selectedComunication!,
+      selfCare: selectedSelfCare!,
+      doingCeremony: selectedDoingCeremony!,
       ceremonyName: ceremonyNameController.text.isEmpty
           ? null
           : ceremonyNameController.text,
@@ -308,5 +307,30 @@ class ReportVisitController extends GetxController {
 
   void onChangeSideEffect(bool sideEffect) {
     selectedSideEffect = sideEffect;
+  }
+
+  void onChangePatient(Patient patient) {
+    selectedPatient = patient;
+  }
+
+  Future<List<Patient>> getPatient() async {
+    var response = await _patientUseCases.getPatientUseCase.execute();
+
+    List<Patient> patients = [];
+
+    response.fold(
+      (failure) {
+        throw Exception(failure.message);
+      },
+      (success) {
+        patients = success;
+      },
+    );
+
+    return patients;
+  }
+
+  void onChangeSelectedPatient(Patient patient) {
+    selectedPatient = patient;
   }
 }
