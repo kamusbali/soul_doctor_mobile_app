@@ -149,33 +149,36 @@ class ReportDailyView extends GetView<ReportDailyController> {
                           child: Column(
                             spacing: SpacingTheme.SPACING_8,
                             children: [
-                              AsyncDropdownTextField<Patient>(
-                                childWidget: (data) => Padding(
-                                  padding: const EdgeInsets.all(16.0),
-                                  child: Text(data.name),
-                                ),
-                                onSelectData:
-                                    controller.onChangeSelectedPatient,
-                                onSetTextFieldLabel: (selectedData) {
-                                  return selectedData.name;
-                                },
-                                decoration: InputDecoration(
-                                  border: OutlineInputBorder(),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                      color: ColorTheme.NEUTRAL_500,
-                                    ),
+                              if (controller.reportDailySettings.patientId ==
+                                  null)
+                                AsyncDropdownTextField<Patient>(
+                                  childWidget: (data) => Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: Text(data.name),
                                   ),
-                                  hintText: "Nama Pasien*",
-                                  errorText:
-                                      controller.selectedPatientErrorText.value,
-                                  filled: true,
-                                  fillColor: ColorTheme.NEUTRAL_100,
+                                  onSelectData:
+                                      controller.onChangeSelectedPatient,
+                                  onSetTextFieldLabel: (selectedData) {
+                                    return selectedData.name;
+                                  },
+                                  decoration: InputDecoration(
+                                    border: OutlineInputBorder(),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                        color: ColorTheme.NEUTRAL_500,
+                                      ),
+                                    ),
+                                    hintText: "Nama Pasien*",
+                                    errorText: controller
+                                        .selectedPatientErrorText
+                                        .value,
+                                    filled: true,
+                                    fillColor: ColorTheme.NEUTRAL_100,
+                                  ),
+                                  getItems: (String keyword) async {
+                                    return await controller.getPatient();
+                                  },
                                 ),
-                                getItems: (String keyword) async {
-                                  return await controller.getPatient();
-                                },
-                              ),
                               TextFormField(
                                 controller: controller.cooperationController,
                                 validator: (value) =>

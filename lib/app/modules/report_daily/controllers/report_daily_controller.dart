@@ -267,7 +267,11 @@ class ReportDailyController extends GetxController {
           primaryButtonText: "Okay",
           onPrimaryPressed: () {
             Get.back();
-            Get.offAllNamed(Routes.VOLUNTEER_WRAPPER);
+            if (reportDailySettings.patientId == null) {
+              Get.offAllNamed(Routes.CAREGIVER_WRAPPER);
+              return;
+            }
+            Get.offAllNamed(Routes.PATIENT_WRAPPER);
           },
         );
         addReportStatus.value = Resource.success(success);
