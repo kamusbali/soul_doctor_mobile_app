@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:soul_doctor/app/data/source/remote/dto/response/daily_report_response_dto.dart';
 
 import '../../../../core/network/api_url.dart';
 import '../../../../core/network/dio_client.dart';
@@ -55,8 +56,6 @@ class DailyReportProvider {
         "pemuput_upacara_id": pemuputUpacaraId ?? 1,
       });
 
-      print("Ini Data : ${formData.fields}");
-
       var response = await _dio.post(ApiUrl.dailyReport, data: formData);
       var result = ResponseWrapper.fromJson(response.data, (json) => null);
       return result;
@@ -68,5 +67,25 @@ class DailyReportProvider {
     //   "message": "visit report created successfully",
     //   "data": null,
     // }, (json) => null);
+  }
+
+  Future<ResponseWrapper<DailyReportResponseDto>> getDailyReports({
+    required String patiendId,
+    int page = 1,
+    int limit = 999,
+  }) async {
+    try {
+      var response = await _dio.get(
+        "${ApiUrl.dailyReport}/$patiendId",
+        queryParameters: {"p": page, "pp": limit},
+      );
+      var result = ResponseWrapper.fromJson(
+        response.data,
+        (json) => DailyReportResponseDto.fromJson(json as Map<String, dynamic>),
+      );
+      return result;
+    } catch (e) {
+      rethrow;
+    }
   }
 }

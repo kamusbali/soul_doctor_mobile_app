@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:soul_doctor/app/domain/use_case/daily_report_use_cases/daily_report_use_cases.dart';
+import 'package:soul_doctor/app/domain/use_case/daily_report_use_cases/markdown_patient_daily_report_use_case.dart';
 import 'package:soul_doctor/app/domain/use_case/daily_report_use_cases/report_daily_use_case.dart';
 
 class DailyReportUseCasesInjection {
@@ -8,9 +9,16 @@ class DailyReportUseCasesInjection {
       () => ReportDailyUseCase(Get.find()),
       fenix: true,
     );
+    Get.lazyPut<MarkdownPatientDailyReportUseCase>(
+      () => MarkdownPatientDailyReportUseCase(Get.find()),
+      fenix: true,
+    );
 
     Get.lazyPut<DailyReportUseCases>(
-      () => DailyReportUseCases(reportDailyUseCase: Get.find()),
+      () => DailyReportUseCases(
+        reportDailyUseCase: Get.find(),
+        markdownPatientDailyReportUseCase: Get.find(),
+      ),
       fenix: true,
     );
   }

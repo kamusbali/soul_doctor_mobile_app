@@ -1,12 +1,18 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:soul_doctor/app/domain/use_case/auth_use_cases/auth_use_cases.dart';
+import 'package:soul_doctor/app/domain/use_case/daily_report_use_cases/daily_report_use_cases.dart';
+import 'package:soul_doctor/app/domain/use_case/patient_use_cases/patient_use_cases.dart';
 import 'package:soul_doctor/app/domain/use_case/profile_use_cases/profile_use_cases.dart';
 import 'package:soul_doctor/app/helpers/ui_feedback_utils.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../common/resource.dart';
+import '../../../core/theme/color_theme.dart';
+import '../../../core/theme/spacing_theme.dart';
+import '../../../core/theme/text_style_theme.dart';
 import '../../../domain/model/compact_user.dart';
 import '../../../domain/model/role.dart';
 import '../../../domain/model/session_data.dart';
@@ -15,8 +21,15 @@ import '../../../routes/app_pages.dart';
 class AccountController extends GetxController {
   final AuthUseCases _authUseCases;
   final ProfileUseCases _profileUseCases;
+  final DailyReportUseCases _dailyReportUseCases;
+  final PatientUseCases _patientUseCases;
 
-  AccountController(this._authUseCases, this._profileUseCases);
+  AccountController(
+    this._authUseCases,
+    this._profileUseCases,
+    this._dailyReportUseCases,
+    this._patientUseCases,
+  );
 
   var version = "".obs;
 
@@ -115,6 +128,108 @@ class AccountController extends GetxController {
           "Berhasil menyalin nomor telp",
         );
         Get.back();
+      },
+    );
+  }
+
+  Future<void> onCopyDailyReport() async {
+    if (compactUser.value.data?.role == Role.patient) {
+      var sessionDataResponse = await _authUseCases.getSessionDataUseCases
+          .execute();
+
+      var response = await _dailyReportUseCases
+          .markdownPatientDailyReportUseCase
+          .execute(patientId: sessionDataResponse?.id ?? "");
+
+      response.fold(
+        (failure) {
+          UiFeedbackUtils.showSnackbar("Error", failure.message);
+        },
+        (markdown) async {
+          await Clipboard.setData(ClipboardData(text: markdown));
+          UiFeedbackUtils.showSnackbar(
+            "Berhasil",
+            "Laporan harian berhasil disalin dalam format markdown",
+          );
+        },
+      );
+      return;
+    }
+    var patientList = await _patientUseCases.getPatientUseCase.execute();
+
+    patientList.fold(
+      (failure) {
+        UiFeedbackUtils.showSnackbar("Error", failure.message);
+      },
+      (success) {
+        Get.bottomSheet(
+          Container(
+            width: Get.width,
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+            decoration: BoxDecoration(
+              color: ColorTheme.SURFACE,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+            ),
+            child: SafeArea(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: SpacingTheme.SPACING_4,
+                children: [
+                  Text("Pilih Pasien", style: TextStyleTheme.BODY_2),
+                  SizedBox(height: SpacingTheme.SPACING_4),
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: success
+                        .map(
+                          (e) => InkWell(
+                            onTap: () async {
+                              var response = await _dailyReportUseCases
+                                  .markdownPatientDailyReportUseCase
+                                  .execute(patientId: e.id);
+
+                              response.fold(
+                                (failure) {
+                                  UiFeedbackUtils.showSnackbar(
+                                    "Error",
+                                    failure.message,
+                                  );
+                                },
+                                (markdown) async {
+                                  await Clipboard.setData(
+                                    ClipboardData(text: markdown),
+                                  );
+                                  UiFeedbackUtils.showSnackbar(
+                                    "Berhasil",
+                                    "Laporan harian berhasil disalin dalam format markdown",
+                                  );
+                                  Get.back();
+                                },
+                              );
+                              Get.back();
+                            },
+                            child: Container(
+                              width: Get.width,
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 12,
+                              ),
+                              decoration: BoxDecoration(
+                                color: ColorTheme.NEUTRAL_100,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Text(e.name, style: TextStyleTheme.BODY_2),
+                            ),
+                          ),
+                        )
+                        .toList(),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          isScrollControlled: true,
+        );
       },
     );
   }

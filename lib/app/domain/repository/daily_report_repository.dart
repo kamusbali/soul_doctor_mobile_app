@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../core/error/failure.dart';
+import '../../data/source/remote/dto/response/daily_report_response_dto.dart';
 import '../model/after_sleep_condition.dart';
 import '../model/comunication.dart';
 import '../model/medicine_condition.dart';
@@ -32,5 +33,11 @@ abstract class DailyReportRepository {
     required bool doingCeremony,
     String? ceremonyName,
     PemuputUpacara? pemuputUpcara,
+  });
+
+  Future<Either<Failure, DailyReportResponseDto>> getDailyReports({
+    required String patiendId,
+    int page = 1,
+    int limit = 999,
   });
 }

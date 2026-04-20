@@ -138,9 +138,9 @@ class AccountView extends GetView<AccountController> {
                     Divider(),
                     SizedBox(height: SpacingTheme.SPACING_6),
                     ListAccount(
-                      icon: Amicons.lucide_headset,
-                      title: 'Bantuan',
-                      onTap: controller.onNeedHelp,
+                      icon: Amicons.remix_passport,
+                      title: 'Salin Catatan Harian',
+                      onTap: controller.onCopyDailyReport,
                     ),
                   ],
                 ),

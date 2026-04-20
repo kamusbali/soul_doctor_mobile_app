@@ -71,7 +71,7 @@ class InputProfileView extends GetView<InputProfileController> {
                                 style: TextStyleTheme.PARAGRAPH_5,
                               ),
                             ),
-                            items: Role.values.toList(),
+                            items: [Role.patient, Role.caregiver],
                             onSelectData: controller.onChangeRoleValue,
                             onSetTextFieldLabel: (role) {
                               return role.name;
@@ -116,10 +116,8 @@ class InputProfileView extends GetView<InputProfileController> {
                         ),
                         TextFormField(
                           controller: controller.nikController,
-                          validator: (value) => Validators.onNotEmptyValidation(
-                            value,
-                            "NIK",
-                          ),
+                          validator: (value) =>
+                              Validators.onNotEmptyValidation(value, "NIK"),
                           decoration: InputDecoration(
                             border: OutlineInputBorder(),
                             enabledBorder: OutlineInputBorder(

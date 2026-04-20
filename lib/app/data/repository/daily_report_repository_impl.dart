@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:image_picker/image_picker.dart';
 
 import 'package:soul_doctor/app/core/error/failure.dart';
+import 'package:soul_doctor/app/data/source/remote/dto/response/daily_report_response_dto.dart';
 import 'package:soul_doctor/app/data/source/remote/provider/daily_report_provider.dart';
 import 'package:soul_doctor/app/domain/model/after_sleep_condition.dart';
 import 'package:soul_doctor/app/domain/model/comunication.dart';
@@ -99,6 +100,45 @@ class DailyReportRepositoryImpl implements DailyReportRepository {
         return Left(
           Failure(networkErrorMessage.message ?? "Unexpected Error Occured"),
         );
+      }
+      return Left(Failure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, DailyReportResponseDto>> getDailyReports({
+    required String patiendId,
+    int page = 1,
+    int limit = 999,
+  }) async {
+    try {
+      var response = await _dailyReportProvider.getDailyReports(
+        patiendId: patiendId,
+        page: page,
+        limit: limit,
+      );
+      return Right(response.data!);
+    } catch (e) {
+      if (e is DioException) {
+        try {
+          var networkErrorMessage = ResponseWrapper.fromJson(
+            (e).response?.data,
+            (_) {},
+          );
+          if (networkErrorMessage.status == 401) {
+            return Left(
+              Failure(
+                networkErrorMessage.message.toString(),
+                errorType: ErrorType.sessionExpired,
+              ),
+            );
+          }
+          return Left(
+            Failure(networkErrorMessage.message ?? "Unexpected Error Occured"),
+          );
+        } catch (e) {
+          return Left(Failure("Error dalam melakukan konversi"));
+        }
       }
       return Left(Failure(e.toString()));
     }
