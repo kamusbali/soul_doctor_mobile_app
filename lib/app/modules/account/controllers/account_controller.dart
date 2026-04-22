@@ -199,11 +199,11 @@ class AccountController extends GetxController {
                                   await Clipboard.setData(
                                     ClipboardData(text: markdown),
                                   );
+                                  print("here");
                                   UiFeedbackUtils.showSnackbar(
                                     "Berhasil",
                                     "Laporan harian berhasil disalin dalam format markdown",
                                   );
-                                  Get.back();
                                 },
                               );
                               Get.back();
