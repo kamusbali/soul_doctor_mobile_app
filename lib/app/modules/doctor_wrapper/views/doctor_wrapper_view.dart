@@ -144,7 +144,7 @@ class DoctorWrapperView extends GetView<DoctorWrapperController> {
                       onTap: () async {
                         try {
                           if (!await launchUrl(
-                            Uri.parse("https://wa.me/+62361467553"),
+                            Uri.parse("https://wa.me/+62816295779"),
                           )) {
                             UiFeedbackUtils.showSnackbar(
                               "Error",

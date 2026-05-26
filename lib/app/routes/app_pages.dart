@@ -6,6 +6,8 @@ import '../modules/account_setting/bindings/account_setting_binding.dart';
 import '../modules/account_setting/views/account_setting_view.dart';
 import '../modules/add_consultation/bindings/add_consultation_binding.dart';
 import '../modules/add_consultation/views/add_consultation_view.dart';
+import '../modules/add_edit_reminder_calendar/bindings/add_edit_reminder_calendar_binding.dart';
+import '../modules/add_edit_reminder_calendar/views/add_edit_reminder_calendar_view.dart';
 import '../modules/add_visit_request/bindings/add_visit_request_binding.dart';
 import '../modules/add_visit_request/views/add_visit_request_view.dart';
 import '../modules/assessment_question/bindings/assessment_question_binding.dart';
@@ -48,8 +50,14 @@ import '../modules/patient_wrapper/bindings/patient_wrapper_binding.dart';
 import '../modules/patient_wrapper/views/patient_wrapper_view.dart';
 import '../modules/register/bindings/register_binding.dart';
 import '../modules/register/views/register_view.dart';
+import '../modules/reminder_calendar/bindings/reminder_calendar_binding.dart';
+import '../modules/reminder_calendar/views/reminder_calendar_view.dart';
 import '../modules/report_daily/bindings/report_daily_binding.dart';
 import '../modules/report_daily/views/report_daily_view.dart';
+import '../modules/report_daily_patient/bindings/report_daily_patient_binding.dart';
+import '../modules/report_daily_patient/views/report_daily_patient_view.dart';
+import '../modules/report_daily_patient_detail/bindings/report_daily_patient_detail_binding.dart';
+import '../modules/report_daily_patient_detail/views/report_daily_patient_detail_view.dart';
 import '../modules/report_visit/bindings/report_visit_binding.dart';
 import '../modules/report_visit/views/report_visit_view.dart';
 import '../modules/splash_screen/bindings/splash_screen_binding.dart';
@@ -261,6 +269,26 @@ class AppPages {
       name: _Paths.REPORT_DAILY,
       page: () => const ReportDailyView(),
       binding: ReportDailyBinding(),
+    ),
+    GetPage(
+      name: _Paths.REPORT_DAILY_PATIENT,
+      page: () => const ReportDailyPatientView(),
+      binding: ReportDailyPatientBinding(),
+    ),
+    GetPage(
+      name: _Paths.REPORT_DAILY_PATIENT_DETAIL,
+      page: () => const ReportDailyPatientDetailView(),
+      binding: ReportDailyPatientDetailBinding(),
+    ),
+    GetPage(
+      name: _Paths.REMINDER_CALENDAR,
+      page: () => const ReminderCalendarView(),
+      binding: ReminderCalendarBinding(),
+    ),
+    GetPage(
+      name: _Paths.ADD_EDIT_REMINDER_CALENDAR,
+      page: () => const AddEditReminderCalendarView(),
+      binding: AddEditReminderCalendarBinding(),
     ),
   ];
 }

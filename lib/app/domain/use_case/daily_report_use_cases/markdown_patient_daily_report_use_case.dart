@@ -36,7 +36,7 @@ class MarkdownPatientDailyReportUseCase {
           if (report.doingCeremony! && report.ceremonyName != null) {
             markdown += "**Nama Upacara:** ${report.ceremonyName}\n\n";
             markdown +=
-                "**Pemuput Upacara:** ${report.pemuputUpacaraId.name}\n\n";
+                "**Pemuput Upacara:** ${report.pemuputUpacara.name}\n\n";
           }
         }
       }

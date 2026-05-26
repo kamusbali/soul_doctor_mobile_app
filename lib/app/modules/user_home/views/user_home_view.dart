@@ -167,6 +167,109 @@ class UserHomeView extends GetView<UserHomeController> {
                 SizedBox(
                   width: Get.width,
                   child: Text(
+                    "Fitur Lainnya",
+                    style: TextStyleTheme.BODY_2.copyWith(
+                      color: ColorTheme.TEXT_100,
+                    ),
+                  ),
+                ),
+                SizedBox(height: SpacingTheme.SPACING_8),
+                Obx(
+                  () =>
+                      controller.user.value.data?.role == Role.patient ||
+                          controller.user.value.data?.role == Role.caregiver
+                      ? InkWell(
+                          onTap: () {
+                            if (controller.user.value.data?.role ==
+                                Role.patient) {
+                              Get.toNamed(
+                                Routes.REPORT_DAILY_PATIENT_DETAIL,
+                                arguments: controller.user.value.data?.id,
+                              );
+                            } else if (controller.user.value.data?.role ==
+                                Role.caregiver) {
+                              Get.toNamed(Routes.REPORT_DAILY_PATIENT);
+                            }
+                          },
+                          child: Container(
+                            width: Get.width,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
+                            decoration: BoxDecoration(
+                              color: ColorTheme.COBALT_400,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Lihat Catatan Harian",
+                                  style: TextStyleTheme.BODY_2.copyWith(
+                                    color: ColorTheme.NEUTRAL_100,
+                                  ),
+                                ),
+                                SizedBox(height: SpacingTheme.SPACING_4),
+                                Text(
+                                  "Lihat catatan harian yang telah kamu buat untuk memantau perkembanganmu.",
+                                  style: TextStyleTheme.PARAGRAPH_5.copyWith(
+                                    color: ColorTheme.NEUTRAL_400,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        )
+                      : SizedBox(),
+                ),
+
+                SizedBox(height: SpacingTheme.SPACING_8),
+                Obx(
+                  () =>
+                      controller.user.value.data?.role == Role.patient ||
+                          controller.user.value.data?.role == Role.caregiver
+                      ? InkWell(
+                          onTap: () {
+                            Get.toNamed(Routes.REMINDER_CALENDAR);
+                          },
+                          child: Container(
+                            width: Get.width,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
+                            decoration: BoxDecoration(
+                              color: ColorTheme.PERSIAN_BLUE_400,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Pengingat Harian",
+                                  style: TextStyleTheme.BODY_2.copyWith(
+                                    color: ColorTheme.NEUTRAL_100,
+                                  ),
+                                ),
+                                SizedBox(height: SpacingTheme.SPACING_4),
+                                Text(
+                                  "Atur pengingat harian untuk membantu tetap konsisten dalam menjalani proses pemulihan.",
+                                  style: TextStyleTheme.PARAGRAPH_5.copyWith(
+                                    color: ColorTheme.NEUTRAL_400,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        )
+                      : SizedBox(),
+                ),
+
+                SizedBox(height: SpacingTheme.SPACING_11),
+                SizedBox(
+                  width: Get.width,
+                  child: Text(
                     "Konsultasi Mendatang",
                     style: TextStyleTheme.BODY_2.copyWith(
                       color: ColorTheme.TEXT_100,

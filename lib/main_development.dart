@@ -20,8 +20,6 @@ void main() async {
 
   await dotenv.load(fileName: config.environment.path);
 
-  Injection.execute();
-
   final appDocumentDirectory = await getApplicationDocumentsDirectory();
   Hive.init(appDocumentDirectory.path);
 
@@ -29,9 +27,12 @@ void main() async {
   await Hive.openBox('consultation');
   await Hive.openBox('consultation_detail');
   await Hive.openBox('visit_report');
+  await Hive.openBox('reminder_calendar');
 
   // await Hive.openBox<Map<String, dynamic>>('consultation_detail');
   // await Hive.openBox<Map<String, dynamic>>('visit_report');
+
+  Injection.execute();
 
   Workmanager().initialize(syncServiceStart);
   Workmanager().registerPeriodicTask(

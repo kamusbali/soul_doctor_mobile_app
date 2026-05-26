@@ -18,6 +18,8 @@ import 'package:soul_doctor/app/domain/repository/visit_repository.dart';
 import 'package:soul_doctor/app/domain/repository/volunteer_repository.dart';
 
 import '../data/repository/daily_report_repository_impl.dart';
+import '../data/repository/reminder_calendar_repository_impl.dart';
+import '../domain/repository/reminder_calendar_repository.dart';
 
 class RepositoryInjection {
   static void inject() {
@@ -55,6 +57,10 @@ class RepositoryInjection {
     );
     Get.lazyPut<DailyReportRepository>(
       () => DailyReportRepositoryImpl(Get.find()),
+      fenix: true,
+    );
+    Get.lazyPut<ReminderCalendarRepository>(
+      () => ReminderCalendarRepositoryImpl(Get.find()),
       fenix: true,
     );
   }

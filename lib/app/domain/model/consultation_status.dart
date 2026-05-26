@@ -42,15 +42,17 @@ enum ConsultationStatus {
   Color getColor(Role? role) {
     switch (this) {
       case ConsultationStatus.created:
-        return role == Role.doctor
-            ? ColorTheme.COBALT_200
-            : ColorTheme.GAMBOGE_200;
+        return ColorTheme.COBALT_200;
+      // return role == Role.doctor
+      //     ? ColorTheme.COBALT_200
+      //     : ColorTheme.GAMBOGE_200;
       case ConsultationStatus.waitingVolunteer:
         return ColorTheme.GAMBOGE_200;
       case ConsultationStatus.scheduled:
-        return role == Role.doctor
-            ? ColorTheme.PERSIAN_BLUE_200
-            : ColorTheme.COBALT_200;
+        return ColorTheme.PERSIAN_BLUE_200;
+      // return role == Role.doctor
+      //     ? ColorTheme.PERSIAN_BLUE_200
+      //     : ColorTheme.COBALT_200;
       case ConsultationStatus.needDiagnosis:
         return ColorTheme.DEEP_LEMON_200;
       case ConsultationStatus.completed:

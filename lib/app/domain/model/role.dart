@@ -35,18 +35,20 @@ enum Role {
   List<ConsultationStatus> get status {
     switch (this) {
       case Role.patient || Role.caregiver:
-        return [
-          ConsultationStatus.created,
-          ConsultationStatus.scheduled,
-          ConsultationStatus.completed,
-        ];
+        return ConsultationStatus.values;
+      // return [
+      //   ConsultationStatus.created,
+      //   ConsultationStatus.scheduled,
+      //   ConsultationStatus.completed,
+      // ];
 
       case Role.volunteer:
-        return [
-          ConsultationStatus.waitingVolunteer,
-          ConsultationStatus.scheduled,
-          ConsultationStatus.completed,
-        ];
+        return ConsultationStatus.values;
+      // return [
+      //   ConsultationStatus.waitingVolunteer,
+      //   ConsultationStatus.scheduled,
+      //   ConsultationStatus.completed,
+      // ];
       case Role.doctor:
         return ConsultationStatus.values;
     }

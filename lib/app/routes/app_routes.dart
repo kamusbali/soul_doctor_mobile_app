@@ -38,6 +38,10 @@ abstract class Routes {
   static const VOLUNTEER_WRAPPER = _Paths.VOLUNTEER_WRAPPER;
   static const DOCTOR_WRAPPER = _Paths.DOCTOR_WRAPPER;
   static const REPORT_DAILY = _Paths.REPORT_DAILY;
+  static const REPORT_DAILY_PATIENT = _Paths.REPORT_DAILY_PATIENT;
+  static const REPORT_DAILY_PATIENT_DETAIL = _Paths.REPORT_DAILY_PATIENT_DETAIL;
+  static const REMINDER_CALENDAR = _Paths.REMINDER_CALENDAR;
+  static const ADD_EDIT_REMINDER_CALENDAR = _Paths.ADD_EDIT_REMINDER_CALENDAR;
 }
 
 abstract class _Paths {
@@ -77,4 +81,8 @@ abstract class _Paths {
   static const VOLUNTEER_WRAPPER = '/volunteer-wrapper';
   static const DOCTOR_WRAPPER = '/doctor-wrapper';
   static const REPORT_DAILY = '/report-daily';
+  static const REPORT_DAILY_PATIENT = '/report-daily-patient';
+  static const REPORT_DAILY_PATIENT_DETAIL = '/report-daily-patient-detail';
+  static const REMINDER_CALENDAR = '/reminder-calendar';
+  static const ADD_EDIT_REMINDER_CALENDAR = '/add-edit-reminder-calendar';
 }

@@ -104,7 +104,7 @@ extension DailyReportItemResponseDtoConversion on DailyReportItemResponseDto {
       selfCare: SelfCare.values.firstWhere((e) => e.id == selfCareId),
       doingCeremony: doingCeremony,
       ceremonyName: ceremonyName,
-      pemuputUpacaraId: PemuputUpacara.values.firstWhere(
+      pemuputUpacara: PemuputUpacara.values.firstWhere(
         (e) => e.id == pemuputUpacaraId,
       ),
       images: images,

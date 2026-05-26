@@ -6,7 +6,7 @@ import 'package:soul_doctor/app/domain/model/self_care.dart';
 import 'package:soul_doctor/app/domain/model/visit_result_status.dart';
 
 class DailyReportItem {
-  String observation;
+  String? observation;
   bool sideEffect;
   VisitResultStatus resultStatus;
   int sleepHour;
@@ -16,7 +16,7 @@ class DailyReportItem {
   SelfCare selfCare;
   bool? doingCeremony;
   String? ceremonyName;
-  PemuputUpacara pemuputUpacaraId;
+  PemuputUpacara pemuputUpacara;
   List<String>? images;
   DateTime reportDate;
   String reporter;
@@ -32,7 +32,7 @@ class DailyReportItem {
     required this.selfCare,
     this.doingCeremony,
     this.ceremonyName,
-    required this.pemuputUpacaraId,
+    required this.pemuputUpacara,
     this.images,
     required this.reportDate,
     required this.reporter,
