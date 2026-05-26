@@ -27,6 +27,7 @@ void main() async {
   await Hive.openBox('consultation_detail');
   await Hive.openBox('visit_report');
   await Hive.openBox('reminder_calendar');
+  await Hive.openBox('patient');
 
   Injection.execute();
 

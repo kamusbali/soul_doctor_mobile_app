@@ -7,6 +7,8 @@ import 'dart:convert';
 import 'package:soul_doctor/app/data/source/remote/dto/response/patient_item_summary_response_dto.dart';
 import 'package:soul_doctor/app/domain/model/patient.dart';
 
+import '../../../local/dto/patient_local_dto.dart';
+
 PatientItemResponseDto patientItemResponseDtoFromJson(String str) =>
     PatientItemResponseDto.fromJson(json.decode(str));
 
@@ -42,6 +44,14 @@ extension PatientItemResponseDtoConversion on PatientItemResponseDto {
       id: id!,
       name: name!,
       summary: summary!.toPatientItemSummary(),
+    );
+  }
+
+  PatientLocalDto toPatientLocalDto() {
+    return PatientLocalDto(
+      id: id,
+      name: name,
+      summary: summary?.toPatientSummaryLocalDto(),
     );
   }
 }

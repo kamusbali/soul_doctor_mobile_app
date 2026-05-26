@@ -6,6 +6,8 @@ import 'dart:convert';
 
 import 'package:soul_doctor/app/domain/model/patient_item_summary.dart';
 
+import '../../../local/dto/patient_summary_local_dto.dart';
+
 PatientItemSummaryResponseDto patientItemSummaryResponseDtoFromJson(
   String str,
 ) => PatientItemSummaryResponseDto.fromJson(json.decode(str));
@@ -42,6 +44,14 @@ extension PatientItemSummaryResponseDtoConversion
       age: age!,
       gender: gender!,
       hasCaregiver: hasCaregiver!,
+    );
+  }
+
+  PatientSummaryLocalDto toPatientSummaryLocalDto() {
+    return PatientSummaryLocalDto(
+      age: age,
+      gender: gender,
+      hasCaregiver: hasCaregiver,
     );
   }
 }

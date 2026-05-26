@@ -36,7 +36,7 @@ class RepositoryInjection {
       fenix: true,
     );
     Get.lazyPut<PatientRepository>(
-      () => PatientRepositoryImpl(Get.find()),
+      () => PatientRepositoryImpl(Get.find(), Get.find()),
       fenix: true,
     );
     Get.lazyPut<ProfileRepository>(

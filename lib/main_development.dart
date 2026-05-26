@@ -28,6 +28,7 @@ void main() async {
   await Hive.openBox('consultation_detail');
   await Hive.openBox('visit_report');
   await Hive.openBox('reminder_calendar');
+  await Hive.openBox('patient');
 
   // await Hive.openBox<Map<String, dynamic>>('consultation_detail');
   // await Hive.openBox<Map<String, dynamic>>('visit_report');

@@ -9,6 +9,7 @@ import 'package:soul_doctor/app/data/source/remote/provider/visit_provider.dart'
 import 'package:soul_doctor/app/data/source/remote/provider/volunteer_provider.dart';
 import 'package:soul_doctor/app/data/source/static/provider.dart/screening_provider.dart';
 
+import '../data/source/local/provider/patient_local_provider.dart';
 import '../data/source/local/provider/reminder_calendar_provider.dart';
 
 class ProviderInjection {
@@ -23,5 +24,6 @@ class ProviderInjection {
     Get.put(ScreeningProvider());
     Get.put(DailyReportProvider());
     Get.put(ReminderCalendarProvider());
+    Get.put(PatientLocalProvider());
   }
 }
