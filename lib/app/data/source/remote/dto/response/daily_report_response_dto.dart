@@ -6,7 +6,6 @@ import 'dart:convert';
 
 import 'package:soul_doctor/app/data/source/remote/dto/response/daily_report_item_response_dto.dart';
 import 'package:soul_doctor/app/data/source/remote/dto/response/pagination_response_dto.dart';
-import 'package:soul_doctor/app/domain/model/daily_report_item.dart';
 
 DailyReportResponseDto dailyReportResponseDtoFromJson(String str) =>
     DailyReportResponseDto.fromJson(json.decode(str));

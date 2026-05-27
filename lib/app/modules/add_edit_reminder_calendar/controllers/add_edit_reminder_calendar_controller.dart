@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 import '../../../common/resource.dart';
+import '../../../domain/model/repeat_calendar_reminder.dart';
 import '../../../domain/use_case/reminder_calendar_use_cases/reminder_calendar_use_cases.dart';
 import '../../../helpers/ui_feedback_utils.dart';
 import '../settings/add_edit_reminder_calendar_settings.dart';
@@ -18,6 +19,11 @@ class AddEditReminderCalendarController extends GetxController {
   final titleController = TextEditingController();
   final dateTimeController = TextEditingController();
   final descriptionController = TextEditingController();
+
+  RepeatCalendarReminder? selectedRepeatInterval;
+  final TextEditingController repeatIntervalController =
+      TextEditingController();
+  Rx<String?> repeatIntervalErrorText = (null as String?).obs;
 
   DateTime? selectedDateTime;
 
@@ -42,6 +48,10 @@ class AddEditReminderCalendarController extends GetxController {
     super.onClose();
   }
 
+  void onChangeRepeatIntervalValue(RepeatCalendarReminder repeatInterval) {
+    selectedRepeatInterval = repeatInterval;
+  }
+
   void onSetCurrentData() {
     if (addEditReminderCalendarSettings.calendarReminder != null) {
       var calendarReminder = addEditReminderCalendarSettings.calendarReminder!;
@@ -51,6 +61,8 @@ class AddEditReminderCalendarController extends GetxController {
       dateTimeController.text = DateFormat(
         "dd-MM-yyyy HH:mm",
       ).format(calendarReminder.dateTime);
+      selectedRepeatInterval = calendarReminder.repeatInterval;
+      repeatIntervalController.text = selectedRepeatInterval!.name;
     }
   }
 
@@ -86,12 +98,7 @@ class AddEditReminderCalendarController extends GetxController {
     if (titleController.text.isEmpty &&
         selectedDateTime == null &&
         dateTimeController.text.isEmpty &&
-        // selectedConsultationType == null &&
         !formKey.currentState!.validate()) {
-      // if (selectedConsultationType == null) {
-      //   selectedConsultationTypeErrorText.value =
-      //       "Jenis Konsultasi tidak boleh kosong";
-      // }
       UiFeedbackUtils.showSnackbar(
         "Data belom lengkap",
         "Silahkan lengkapi form sebelum menambah pengingat!",
@@ -107,6 +114,8 @@ class AddEditReminderCalendarController extends GetxController {
           title: titleController.text,
           description: descriptionController.text,
           dateTime: selectedDateTime!,
+          repeatInterval: selectedRepeatInterval ?? RepeatCalendarReminder.none,
+          isDoneDateTime: [],
         );
 
     response.fold(
@@ -142,7 +151,6 @@ class AddEditReminderCalendarController extends GetxController {
     if (titleController.text.isEmpty &&
         selectedDateTime == null &&
         dateTimeController.text.isEmpty &&
-        // selectedConsultationType == null &&
         !formKey.currentState!.validate()) {
       // if (selectedConsultationType == null) {
       //   selectedConsultationTypeErrorText.value =
@@ -164,6 +172,12 @@ class AddEditReminderCalendarController extends GetxController {
           title: titleController.text,
           description: descriptionController.text,
           dateTime: selectedDateTime!,
+          repeatInterval:
+              selectedRepeatInterval ??
+              addEditReminderCalendarSettings.calendarReminder!.repeatInterval,
+          isDoneDateTime:
+              addEditReminderCalendarSettings.calendarReminder!.isDoneDateTime,
+          isSynced: addEditReminderCalendarSettings.calendarReminder!.isSynced,
         );
 
     response.fold(
@@ -191,6 +205,53 @@ class AddEditReminderCalendarController extends GetxController {
         );
 
         UiFeedbackUtils.showSnackbar("Error", "Gagal mengedit pengingat");
+      },
+    );
+  }
+
+  void onDeleteReminderCalendar() async {
+    UiFeedbackUtils.showDialog(
+      title: "Anda yakin ingin menghapus pengingat ini?",
+      body: "Tindakan ini tidak dapat dibatalkan",
+      primaryButtonText: "Okay",
+      secondaryButtonText: "Batal",
+      onPrimaryPressed: () async {
+        Get.back();
+        addEditReminderCalendarState.value = Resource.loading();
+
+        var response = await _reminderCalendarUseCases
+            .deleteReminderCalendarUseCase
+            .execute(addEditReminderCalendarSettings.calendarReminder!.id);
+
+        response.fold(
+          (failure) {
+            addEditReminderCalendarState.value = Resource.error(
+              failure.message,
+            );
+            UiFeedbackUtils.showSnackbar("Error", failure.message);
+          },
+          (success) {
+            if (success) {
+              addEditReminderCalendarState.value = Resource.success(success);
+              UiFeedbackUtils.showDialog(
+                title: "Sukses",
+                body: "Sukses menghapus pengingat",
+                primaryButtonText: "Okay",
+                onPrimaryPressed: () {
+                  Get.back();
+                  Get.back();
+                },
+              );
+              return;
+            }
+
+            addEditReminderCalendarState.value = Resource.error(
+              "Gagal menghapus pengingat",
+            );
+
+            UiFeedbackUtils.showSnackbar("Error", "Gagal menghapus pengingat");
+          },
+        );
       },
     );
   }

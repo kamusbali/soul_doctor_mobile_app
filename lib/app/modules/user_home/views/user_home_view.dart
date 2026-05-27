@@ -18,6 +18,7 @@ import 'package:soul_doctor/app/core/theme/spacing_theme.dart';
 import 'package:soul_doctor/app/core/theme/text_style_theme.dart';
 import 'package:soul_doctor/app/widgets/header/basic_header.dart';
 
+import '../../report_daily_patient_detail/settings/report_daily_patient_detail_settings.dart';
 import '../controllers/user_home_controller.dart';
 import '../widgets/card_feature.dart';
 
@@ -184,11 +185,16 @@ class UserHomeView extends GetView<UserHomeController> {
                                 Role.patient) {
                               Get.toNamed(
                                 Routes.REPORT_DAILY_PATIENT_DETAIL,
-                                arguments: controller.user.value.data?.id,
+                                arguments: ReportDailyPatientDetailSettings(
+                                  id: controller.user.value.data!.id,
+                                ),
                               );
                             } else if (controller.user.value.data?.role ==
                                 Role.caregiver) {
-                              Get.toNamed(Routes.REPORT_DAILY_PATIENT);
+                              Get.toNamed(
+                                Routes.REPORT_DAILY_PATIENT,
+                                arguments: ReportDailySettings(),
+                              );
                             }
                           },
                           child: Container(

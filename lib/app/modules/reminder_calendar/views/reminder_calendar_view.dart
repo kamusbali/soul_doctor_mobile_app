@@ -76,12 +76,63 @@ class ReminderCalendarView extends GetView<ReminderCalendarController> {
                                   controller.onInit();
                                 });
                               },
-                              title: Text(reminder.title),
+                              leading: Checkbox(
+                                value: reminder.isDoneDateTime.contains(
+                                  DateTime(
+                                    controller.selectedDate.year,
+                                    controller.selectedDate.month,
+                                    controller.selectedDate.day,
+                                  ),
+                                ),
+                                onChanged: (value) => controller
+                                    .onChangeReminderStatus(reminder, value),
+                              ),
+                              title: Text(
+                                reminder.title,
+                                style: TextStyle(
+                                  decoration:
+                                      reminder.isDoneDateTime.contains(
+                                        DateTime(
+                                          controller.selectedDate.year,
+                                          controller.selectedDate.month,
+                                          controller.selectedDate.day,
+                                        ),
+                                      )
+                                      ? TextDecoration.lineThrough
+                                      : TextDecoration.none,
+                                ),
+                              ),
                               subtitle: reminder.description != null
-                                  ? Text(reminder.description!)
+                                  ? Text(
+                                      reminder.description!,
+                                      style: TextStyle(
+                                        decoration:
+                                            reminder.isDoneDateTime.contains(
+                                              DateTime(
+                                                controller.selectedDate.year,
+                                                controller.selectedDate.month,
+                                                controller.selectedDate.day,
+                                              ),
+                                            )
+                                            ? TextDecoration.lineThrough
+                                            : TextDecoration.none,
+                                      ),
+                                    )
                                   : null,
                               trailing: Text(
-                                "${reminder.dateTime.hour}:${reminder.dateTime.minute}",
+                                "${reminder.dateTime.hour}:${reminder.dateTime.minute.toString().padLeft(2, '0')}",
+                                style: TextStyle(
+                                  decoration:
+                                      reminder.isDoneDateTime.contains(
+                                        DateTime(
+                                          controller.selectedDate.year,
+                                          controller.selectedDate.month,
+                                          controller.selectedDate.day,
+                                        ),
+                                      )
+                                      ? TextDecoration.lineThrough
+                                      : TextDecoration.none,
+                                ),
                               ),
                             );
                           },

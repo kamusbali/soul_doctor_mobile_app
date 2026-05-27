@@ -4,13 +4,20 @@ import 'package:hive/hive.dart';
 import '../../../../core/error/failure.dart';
 import '../dto/calendar_reminder_local_dto.dart';
 
-class ReminderCalendarProvider {
+class ReminderCalendarLocalProvider {
+  ReminderCalendarLocalProvider._internal();
+  static final ReminderCalendarLocalProvider _instance =
+      ReminderCalendarLocalProvider._internal();
+  static ReminderCalendarLocalProvider get instance => _instance;
+
   final Box _consultationBox = Hive.box('reminder_calendar');
 
   Future<void> addReminderCalendarData({
     required String title,
     required String description,
     required DateTime dateTime,
+    required int repeatInterval,
+    required List<DateTime> isDoneDateTime,
   }) async {
     print("Menambah data reminder calendar");
 
@@ -21,6 +28,9 @@ class ReminderCalendarProvider {
         title: title,
         description: description,
         dateTime: dateTime,
+        repeatInterval: repeatInterval,
+        isSynced: false,
+        isDoneDateTime: isDoneDateTime,
       ).toJson(),
     );
   }
@@ -49,9 +59,14 @@ class ReminderCalendarProvider {
     required String id,
     required String title,
     required String description,
+    required bool isSynced,
+    required int repeatInterval,
     required DateTime dateTime,
+    required List<DateTime> isDoneDateTime,
   }) async {
-    print("Memperbarui data reminder calendar dengan id: $id");
+    print(
+      "Memperbarui data reminder calendar dengan id: $id dan title: $title, description: $description, dateTime: $dateTime, repeatInterval: $repeatInterval, isDoneDateTime: $isDoneDateTime",
+    );
 
     await _consultationBox.put(
       id,
@@ -59,7 +74,10 @@ class ReminderCalendarProvider {
         id: id,
         title: title,
         description: description,
+        isSynced: isSynced,
+        repeatInterval: repeatInterval,
         dateTime: dateTime,
+        isDoneDateTime: isDoneDateTime,
       ).toJson(),
     );
   }

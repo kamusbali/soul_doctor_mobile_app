@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 
 import '../../../core/error/failure.dart';
+import '../../model/repeat_calendar_reminder.dart';
 import '../../repository/reminder_calendar_repository.dart';
 
 class UpdateReminderCalendarUseCase {
@@ -13,12 +14,18 @@ class UpdateReminderCalendarUseCase {
     required String title,
     required String description,
     required DateTime dateTime,
+    required RepeatCalendarReminder repeatInterval,
+    required List<DateTime> isDoneDateTime,
+    required bool isSynced,
   }) async {
     return await _reminderCalendarRepository.updateReminderCalendar(
       id: id,
       title: title,
       description: description,
       dateTime: dateTime,
+      repeatInterval: repeatInterval,
+      isDoneDateTime: isDoneDateTime,
+      isSynced: isSynced,
     );
   }
 }
