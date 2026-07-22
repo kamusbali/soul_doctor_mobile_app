@@ -238,18 +238,18 @@ platform :android do
       expected_environment: "staging"
     )
 
-    upload_to_play_store(
-      package_name: android_package_name,
-      json_key: google_play_json_key,
-      aab: android_aab_path(flavor),
+    # upload_to_play_store(
+    #   package_name: android_package_name,
+    #   json_key: google_play_json_key,
+    #   aab: android_aab_path(flavor),
 
-      track: "internal",
-      release_status: "completed",
+    #   track: "internal",
+    #   release_status: "completed",
 
-      skip_upload_metadata: true,
-      skip_upload_images: true,
-      skip_upload_screenshots: true
-    )
+    #   skip_upload_metadata: true,
+    #   skip_upload_images: true,
+    #   skip_upload_screenshots: true
+    # )
   end
 
   ############################################################
@@ -277,17 +277,17 @@ platform :android do
       expected_environment: "production"
     )
 
-    upload_to_play_store(
-      package_name: android_package_name,
-      json_key: google_play_json_key,
-      aab: android_aab_path(flavor),
+    # upload_to_play_store(
+    #   package_name: android_package_name,
+    #   json_key: google_play_json_key,
+    #   aab: android_aab_path(flavor),
 
-      track: "production",
-      release_status: "draft",
+    #   track: "production",
+    #   release_status: "draft",
 
-      skip_upload_metadata: true,
-      skip_upload_images: true,
-      skip_upload_screenshots: true
-    )
+    #   skip_upload_metadata: true,
+    #   skip_upload_images: true,
+    #   skip_upload_screenshots: true
+    # )
   end
 end
