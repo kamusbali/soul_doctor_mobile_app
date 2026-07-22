@@ -5,14 +5,14 @@ on:
     branches:
       - dev
       - staging
-      - production
+      - main
       - "release/**"
 
   pull_request:
     branches:
       - dev
       - staging
-      - production
+      - main
       - "release/**"
 
 permissions:
@@ -116,7 +116,7 @@ jobs:
               echo "build_ios=true" >> "$GITHUB_OUTPUT"
               ;;
 
-            production)
+            main)
               echo "environment_name=production" >> "$GITHUB_OUTPUT"
               echo "env_file=conf/production.env" >> "$GITHUB_OUTPUT"
               echo "fastlane_lane=production" >> "$GITHUB_OUTPUT"
@@ -281,7 +281,7 @@ jobs:
       ########################################################
 
       - name: Setup Google Play Credentials
-        if: github.ref_name == 'staging' || github.ref_name == 'production'
+        if: github.ref_name == 'staging' || github.ref_name == 'main'
         shell: bash
         env:
           GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_BASE64: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_BASE64 }}
