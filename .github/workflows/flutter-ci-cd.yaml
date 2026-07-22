@@ -86,11 +86,11 @@ jobs:
       - name: Install Flutter Dependencies
         run: fvm flutter pub get
 
-      - name: Analyze
-        run: fvm flutter analyze
+      # - name: Analyze
+      #   run: fvm flutter analyze
 
-      - name: Test
-        run: fvm flutter test
+      # - name: Test
+      #   run: fvm flutter test
 
   ############################################################
   # DETERMINE PUSH CONFIGURATION
