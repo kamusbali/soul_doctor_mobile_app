@@ -1,0 +1,5 @@
+package_name(ENV["ANDROID_PACKAGE_NAME"])
+
+if ENV["GOOGLE_PLAY_JSON_KEY_PATH"]
+  json_key_file(ENV["GOOGLE_PLAY_JSON_KEY_PATH"])
+end

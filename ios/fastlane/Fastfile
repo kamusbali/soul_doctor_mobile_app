@@ -1,0 +1,199 @@
+require "shellwords"
+
+default_platform(:ios)
+
+PROJECT_ROOT = File.expand_path("../..", __dir__)
+
+platform :ios do
+  ############################################################
+  # HELPERS
+  ############################################################
+
+  def environment_file
+    env_file = ENV["ENV_FILE"]
+
+    if env_file.nil? || env_file.empty?
+      UI.user_error!("ENV_FILE is not configured")
+    end
+
+    unless File.exist?(env_file)
+      UI.user_error!("Environment file not found: #{env_file}")
+    end
+
+    env_file
+  end
+
+  def build_number
+    number = ENV["BUILD_NUMBER"]
+
+    if number.nil? || number.empty?
+      UI.user_error!("BUILD_NUMBER is not configured")
+    end
+
+    number
+  end
+
+  def run_flutter(command)
+    Dir.chdir(PROJECT_ROOT) do
+      sh("fvm flutter #{command}")
+    end
+  end
+
+  def app_store_api_key
+    key_id = ENV["APP_STORE_CONNECT_API_KEY_ID"]
+    issuer_id = ENV["APP_STORE_CONNECT_ISSUER_ID"]
+    key_content = ENV["APP_STORE_CONNECT_API_KEY_CONTENT"]
+
+    if key_id.nil? || key_id.empty?
+      UI.user_error!("APP_STORE_CONNECT_API_KEY_ID is missing")
+    end
+
+    if issuer_id.nil? || issuer_id.empty?
+      UI.user_error!("APP_STORE_CONNECT_ISSUER_ID is missing")
+    end
+
+    if key_content.nil? || key_content.empty?
+      UI.user_error!("APP_STORE_CONNECT_API_KEY_CONTENT is missing")
+    end
+
+    app_store_connect_api_key(
+      key_id: key_id,
+      issuer_id: issuer_id,
+      key_content: key_content,
+      is_key_content_base64: true,
+      duration: 1_200,
+      in_house: false
+    )
+  end
+
+  def setup_signing(api_key)
+    match(
+      type: "appstore",
+      readonly: is_ci,
+      api_key: api_key,
+
+      app_identifier: ENV["IOS_BUNDLE_IDENTIFIER"],
+      team_id: ENV["APPLE_DEVELOPER_TEAM_ID"],
+
+      git_url: ENV["MATCH_GIT_URL"]
+    )
+  end
+
+  def build_ios(api_key)
+    env_file = Shellwords.escape(environment_file)
+    number = Shellwords.escape(build_number)
+
+    setup_signing(api_key)
+
+    UI.message("Building iOS")
+    UI.message("Environment file: #{environment_file}")
+    UI.message("Build number: #{build_number}")
+
+    run_flutter("clean")
+    run_flutter("pub get")
+
+    run_flutter(
+      "build ipa " \
+      "--release " \
+      "--dart-define-from-file=#{env_file} " \
+      "--build-number=#{number}"
+    )
+  end
+
+  def ipa_path
+    ipa_files = Dir[
+      File.join(
+        PROJECT_ROOT,
+        "build",
+        "ios",
+        "ipa",
+        "*.ipa"
+      )
+    ]
+
+    if ipa_files.empty?
+      UI.user_error!("IPA file not found in build/ios/ipa")
+    end
+
+    ipa_files.first
+  end
+
+  ############################################################
+  # DEVELOPMENT
+  ############################################################
+
+  desc "Build iOS without code signing for development validation"
+  lane :development do
+    env_file = Shellwords.escape(environment_file)
+
+    run_flutter("clean")
+    run_flutter("pub get")
+
+    run_flutter(
+      "build ios " \
+      "--release " \
+      "--no-codesign " \
+      "--dart-define-from-file=#{env_file}"
+    )
+  end
+
+  ############################################################
+  # STAGING
+  ############################################################
+
+  desc "Build iOS staging without TestFlight upload"
+  lane :staging do
+    api_key = app_store_api_key
+    build_ios(api_key)
+  end
+
+  desc "Build and upload iOS staging to TestFlight"
+  lane :deploy_staging do
+    api_key = app_store_api_key
+
+    build_ios(api_key)
+
+    upload_to_testflight(
+      api_key: api_key,
+      ipa: ipa_path,
+
+      skip_waiting_for_build_processing: true
+    )
+  end
+
+  ############################################################
+  # RELEASE CANDIDATE
+  ############################################################
+
+  desc "Build iOS production candidate without store upload"
+  lane :release do
+    api_key = app_store_api_key
+    build_ios(api_key)
+  end
+
+  ############################################################
+  # PRODUCTION
+  ############################################################
+
+  desc "Build and upload iOS production to App Store Connect"
+  lane :production do
+    api_key = app_store_api_key
+
+    build_ios(api_key)
+
+    upload_to_app_store(
+      api_key: api_key,
+      ipa: ipa_path,
+
+      # Binary masuk ke App Store Connect,
+      # tetapi belum otomatis dikirim ke review.
+      submit_for_review: false,
+      automatic_release: false,
+
+      skip_metadata: true,
+      skip_screenshots: true,
+
+      force: true
+    )
+  end
+end

@@ -1,0 +1,162 @@
+require "shellwords"
+
+default_platform(:android)
+
+PROJECT_ROOT = File.expand_path("../..", __dir__)
+
+platform :android do
+  ############################################################
+  # HELPERS
+  ############################################################
+
+  def environment_file
+    env_file = ENV["ENV_FILE"]
+
+    if env_file.nil? || env_file.empty?
+      UI.user_error!("ENV_FILE is not configured")
+    end
+
+    unless File.exist?(env_file)
+      UI.user_error!("Environment file not found: #{env_file}")
+    end
+
+    env_file
+  end
+
+  def build_number
+    number = ENV["BUILD_NUMBER"]
+
+    if number.nil? || number.empty?
+      UI.user_error!("BUILD_NUMBER is not configured")
+    end
+
+    number
+  end
+
+  def run_flutter(command)
+    Dir.chdir(PROJECT_ROOT) do
+      sh("fvm flutter #{command}")
+    end
+  end
+
+  def build_android
+    env_file = Shellwords.escape(environment_file)
+    number = Shellwords.escape(build_number)
+
+    UI.message("Building Android")
+    UI.message("Environment file: #{environment_file}")
+    UI.message("Build number: #{build_number}")
+
+    run_flutter("clean")
+    run_flutter("pub get")
+
+    run_flutter(
+      "build appbundle " \
+      "--release " \
+      "--dart-define-from-file=#{env_file} " \
+      "--build-number=#{number}"
+    )
+  end
+
+  def android_aab_path
+    path = File.join(
+      PROJECT_ROOT,
+      "build",
+      "app",
+      "outputs",
+      "bundle",
+      "release",
+      "app-release.aab"
+    )
+
+    unless File.exist?(path)
+      UI.user_error!("Android App Bundle not found: #{path}")
+    end
+
+    path
+  end
+
+  def google_play_json_key
+    path = ENV["GOOGLE_PLAY_JSON_KEY_PATH"]
+
+    if path.nil? || path.empty?
+      UI.user_error!("GOOGLE_PLAY_JSON_KEY_PATH is not configured")
+    end
+
+    unless File.exist?(path)
+      UI.user_error!("Google Play JSON key not found: #{path}")
+    end
+
+    path
+  end
+
+  ############################################################
+  # DEVELOPMENT
+  ############################################################
+
+  desc "Build Android development artifact"
+  lane :development do
+    build_android
+  end
+
+  ############################################################
+  # STAGING
+  ############################################################
+
+  desc "Build Android staging artifact"
+  lane :staging do
+    build_android
+  end
+
+  desc "Build and upload Android to Google Play Internal Testing"
+  lane :deploy_staging do
+    build_android
+
+    upload_to_play_store(
+      package_name: ENV["ANDROID_PACKAGE_NAME"],
+      json_key: google_play_json_key,
+      aab: android_aab_path,
+
+      track: "internal",
+      release_status: "completed",
+
+      skip_upload_metadata: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true
+    )
+  end
+
+  ############################################################
+  # RELEASE CANDIDATE
+  ############################################################
+
+  desc "Build Android production candidate without store upload"
+  lane :release do
+    build_android
+  end
+
+  ############################################################
+  # PRODUCTION
+  ############################################################
+
+  desc "Build and upload Android to Google Play Production"
+  lane :production do
+    build_android
+
+    upload_to_play_store(
+      package_name: ENV["ANDROID_PACKAGE_NAME"],
+      json_key: google_play_json_key,
+      aab: android_aab_path,
+
+      track: "production",
+
+      # Binary masuk ke production sebagai draft.
+      # Publish final dilakukan dari Play Console.
+      release_status: "draft",
+
+      skip_upload_metadata: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true
+    )
+  end
+end
