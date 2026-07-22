@@ -355,16 +355,6 @@ jobs:
           echo "Build number: $BUILD_NUMBER"
 
       ########################################################
-      # ANDROID BUILD / DISTRIBUTION
-      ########################################################
-
-      - name: Run Android Fastlane
-        working-directory: android
-        env:
-          FASTLANE_LANE: ${{ needs.prepare.outputs.fastlane_lane }}
-        run: bundle exec fastlane "$FASTLANE_LANE"
-
-      ########################################################
       # IOS BUILD / DISTRIBUTION
       ########################################################
 
@@ -374,6 +364,17 @@ jobs:
         env:
           FASTLANE_LANE: ${{ needs.prepare.outputs.fastlane_lane }}
         run: bundle exec fastlane "$FASTLANE_LANE"
+
+      ########################################################
+      # ANDROID BUILD / DISTRIBUTION
+      ########################################################
+
+      - name: Run Android Fastlane
+        working-directory: android
+        env:
+          FASTLANE_LANE: ${{ needs.prepare.outputs.fastlane_lane }}
+        run: bundle exec fastlane "$FASTLANE_LANE"
+
 
       ########################################################
       # ARTIFACTS
