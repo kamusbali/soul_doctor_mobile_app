@@ -78,7 +78,7 @@ platform :ios do
     values
   end
 
-  def validate_dotenv
+  def validate_dotenv(expected_environment)
     values = parse_dotenv
 
     env_name = values["ENV_NAME"]
@@ -98,6 +98,13 @@ platform :ios do
       )
     end
 
+    unless env_name.downcase == expected_environment.downcase
+      UI.user_error!(
+        "Invalid ENV_NAME. Expected '#{expected_environment}', " \
+        "but received '#{env_name}'."
+      )
+    end
+
     UI.success(".env successfully validated")
     UI.message("Environment: #{env_name}")
   end
@@ -106,6 +113,22 @@ platform :ios do
     Dir.chdir(PROJECT_ROOT) do
       sh("fvm flutter #{command}")
     end
+  end
+
+  def flutter_target(flavor)
+    target = File.join(
+      PROJECT_ROOT,
+      "lib",
+      "main_#{flavor}.dart"
+    )
+
+    unless File.exist?(target)
+      UI.user_error!(
+        "Flutter target was not found: lib/main_#{flavor}.dart"
+      )
+    end
+
+    "lib/main_#{flavor}.dart"
   end
 
   ############################################################
@@ -130,9 +153,7 @@ platform :ios do
       issuer_id: issuer_id,
       key_content: key_content,
 
-      # Secret berisi Base64 dari file AuthKey_*.p8.
       is_key_content_base64: true,
-
       duration: 1_200,
       in_house: false
     )
@@ -174,11 +195,19 @@ platform :ios do
   # BUILD
   ############################################################
 
-  def build_signed_ios(api_key)
-    validate_dotenv
+  def build_signed_ios(
+    api_key:,
+    flavor:,
+    expected_environment:
+  )
+    validate_dotenv(expected_environment)
     setup_signing(api_key)
 
+    target = flutter_target(flavor)
+
     UI.header("Building Signed iOS Application")
+    UI.message("Flavor: #{flavor}")
+    UI.message("Target: #{target}")
     UI.message("Bundle ID: #{ios_bundle_identifier}")
     UI.message("Build number: #{build_number}")
 
@@ -188,14 +217,23 @@ platform :ios do
     run_flutter(
       "build ipa " \
       "--release " \
+      "--flavor #{flavor} " \
+      "--target #{target} " \
       "--build-number=#{build_number}"
     )
   end
 
-  def build_unsigned_ios
-    validate_dotenv
+  def build_unsigned_ios(
+    flavor:,
+    expected_environment:
+  )
+    validate_dotenv(expected_environment)
+
+    target = flutter_target(flavor)
 
     UI.header("Building Unsigned iOS Application")
+    UI.message("Flavor: #{flavor}")
+    UI.message("Target: #{target}")
     UI.message("Bundle ID: #{ios_bundle_identifier}")
     UI.message("Build number: #{build_number}")
 
@@ -206,6 +244,8 @@ platform :ios do
       "build ios " \
       "--release " \
       "--no-codesign " \
+      "--flavor #{flavor} " \
+      "--target #{target} " \
       "--build-number=#{build_number}"
     )
   end
@@ -227,6 +267,13 @@ platform :ios do
       )
     end
 
+    if ipa_files.length > 1
+      UI.important!(
+        "Multiple IPA files were found. " \
+        "Using: #{ipa_files.first}"
+      )
+    end
+
     ipa_files.first
   end
 
@@ -234,9 +281,12 @@ platform :ios do
   # DEVELOPMENT
   ############################################################
 
-  desc "Build unsigned iOS application for development"
+  desc "Build unsigned iOS development application"
   lane :development do
-    build_unsigned_ios
+    build_unsigned_ios(
+      flavor: "development",
+      expected_environment: "development"
+    )
   end
 
   ############################################################
@@ -247,19 +297,26 @@ platform :ios do
   lane :staging do
     api_key = app_store_api_key
 
-    build_signed_ios(api_key)
+    build_signed_ios(
+      api_key: api_key,
+      flavor: "staging",
+      expected_environment: "staging"
+    )
   end
 
   desc "Build and upload iOS staging application to TestFlight"
   lane :deploy_staging do
     api_key = app_store_api_key
 
-    build_signed_ios(api_key)
+    build_signed_ios(
+      api_key: api_key,
+      flavor: "staging",
+      expected_environment: "staging"
+    )
 
     upload_to_testflight(
       api_key: api_key,
       ipa: ipa_path,
-
       skip_waiting_for_build_processing: true
     )
   end
@@ -272,7 +329,11 @@ platform :ios do
   lane :release do
     api_key = app_store_api_key
 
-    build_signed_ios(api_key)
+    build_signed_ios(
+      api_key: api_key,
+      flavor: "production",
+      expected_environment: "production"
+    )
   end
 
   ############################################################
@@ -283,16 +344,17 @@ platform :ios do
   lane :production do
     api_key = app_store_api_key
 
-    build_signed_ios(api_key)
+    build_signed_ios(
+      api_key: api_key,
+      flavor: "production",
+      expected_environment: "production"
+    )
 
     upload_to_app_store(
       api_key: api_key,
       ipa: ipa_path,
 
-      # Tidak otomatis dikirim ke App Review.
       submit_for_review: false,
-
-      # Tidak langsung dirilis setelah disetujui.
       automatic_release: false,
 
       skip_metadata: true,
