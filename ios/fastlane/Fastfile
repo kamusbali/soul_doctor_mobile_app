@@ -1,0 +1,366 @@
+opt_out_usage
+
+default_platform(:ios)
+
+PROJECT_ROOT = File.expand_path("../..", __dir__)
+
+platform :ios do
+  ############################################################
+  # HELPERS
+  ############################################################
+
+  def require_environment_variable(name)
+    value = ENV[name]
+
+    if value.nil? || value.strip.empty?
+      UI.user_error!("#{name} is not configured")
+    end
+
+    value.strip
+  end
+
+  def build_number
+    number = require_environment_variable("BUILD_NUMBER")
+
+    unless number.match?(/^\d+$/)
+      UI.user_error!(
+        "BUILD_NUMBER must contain numbers only. Received: #{number}"
+      )
+    end
+
+    number
+  end
+
+  def ios_bundle_identifier
+    require_environment_variable(
+      "IOS_BUNDLE_IDENTIFIER"
+    )
+  end
+
+  def apple_developer_team_id
+    require_environment_variable(
+      "APPLE_DEVELOPER_TEAM_ID"
+    )
+  end
+
+  def dotenv_path
+    File.join(PROJECT_ROOT, ".env")
+  end
+
+  def parse_dotenv
+    path = dotenv_path
+
+    unless File.exist?(path)
+      UI.user_error!(
+        ".env was not found at #{path}. " \
+        "Generate it in GitHub Actions before running Fastlane."
+      )
+    end
+
+    if File.zero?(path)
+      UI.user_error!(".env is empty: #{path}")
+    end
+
+    values = {}
+
+    File.readlines(path, chomp: true).each do |line|
+      stripped_line = line.strip
+
+      next if stripped_line.empty?
+      next if stripped_line.start_with?("#")
+      next unless stripped_line.include?("=")
+
+      key, value = stripped_line.split("=", 2)
+
+      values[key.strip] = value.to_s.strip
+    end
+
+    values
+  end
+
+  def validate_dotenv(expected_environment)
+    values = parse_dotenv
+
+    env_name = values["ENV_NAME"]
+    base_url = values["BASE_URL"]
+
+    if env_name.nil? || env_name.empty?
+      UI.user_error!("ENV_NAME is missing or empty in .env")
+    end
+
+    if base_url.nil? || base_url.empty?
+      UI.user_error!("BASE_URL is missing or empty in .env")
+    end
+
+    unless base_url.match?(%r{\Ahttps?://.+})
+      UI.user_error!(
+        "BASE_URL must start with http:// or https://"
+      )
+    end
+
+    unless env_name.downcase == expected_environment.downcase
+      UI.user_error!(
+        "Invalid ENV_NAME. Expected '#{expected_environment}', " \
+        "but received '#{env_name}'."
+      )
+    end
+
+    UI.success(".env successfully validated")
+    UI.message("Environment: #{env_name}")
+  end
+
+  def run_flutter(command)
+    Dir.chdir(PROJECT_ROOT) do
+      sh("fvm flutter #{command}")
+    end
+  end
+
+  def flutter_target(flavor)
+    target = File.join(
+      PROJECT_ROOT,
+      "lib",
+      "main_#{flavor}.dart"
+    )
+
+    unless File.exist?(target)
+      UI.user_error!(
+        "Flutter target was not found: lib/main_#{flavor}.dart"
+      )
+    end
+
+    "lib/main_#{flavor}.dart"
+  end
+
+  ############################################################
+  # APP STORE CONNECT
+  ############################################################
+
+  def app_store_api_key
+    key_id = require_environment_variable(
+      "APP_STORE_CONNECT_API_KEY_ID"
+    )
+
+    issuer_id = require_environment_variable(
+      "APP_STORE_CONNECT_ISSUER_ID"
+    )
+
+    key_content = require_environment_variable(
+      "APP_STORE_CONNECT_API_KEY_CONTENT"
+    )
+
+    app_store_connect_api_key(
+      key_id: key_id,
+      issuer_id: issuer_id,
+      key_content: key_content,
+
+      is_key_content_base64: true,
+      duration: 1_200,
+      in_house: false
+    )
+  end
+
+  ############################################################
+  # CODE SIGNING
+  ############################################################
+
+  def setup_signing(api_key)
+    match_options = {
+      type: "appstore",
+      readonly: is_ci,
+      api_key: api_key,
+
+      app_identifier: ios_bundle_identifier,
+      team_id: apple_developer_team_id,
+
+      git_url: require_environment_variable(
+        "MATCH_GIT_URL"
+      )
+    }
+
+    git_authorization = ENV[
+      "MATCH_GIT_BASIC_AUTHORIZATION"
+    ]
+
+    if git_authorization &&
+       !git_authorization.strip.empty?
+
+      match_options[:git_basic_authorization] =
+        git_authorization
+    end
+
+    match(**match_options)
+  end
+
+  ############################################################
+  # BUILD
+  ############################################################
+
+  def build_signed_ios(
+    api_key:,
+    flavor:,
+    expected_environment:
+  )
+    validate_dotenv(expected_environment)
+    setup_signing(api_key)
+
+    target = flutter_target(flavor)
+
+    UI.header("Building Signed iOS Application")
+    UI.message("Flavor: #{flavor}")
+    UI.message("Target: #{target}")
+    UI.message("Bundle ID: #{ios_bundle_identifier}")
+    UI.message("Build number: #{build_number}")
+
+    run_flutter("clean")
+    run_flutter("pub get")
+
+    run_flutter(
+      "build ipa " \
+      "--release " \
+      "--flavor #{flavor} " \
+      "--target #{target} " \
+      "--build-number=#{build_number}"
+    )
+  end
+
+  def build_unsigned_ios(
+    flavor:,
+    expected_environment:
+  )
+    validate_dotenv(expected_environment)
+
+    target = flutter_target(flavor)
+
+    UI.header("Building Unsigned iOS Application")
+    UI.message("Flavor: #{flavor}")
+    UI.message("Target: #{target}")
+    UI.message("Bundle ID: #{ios_bundle_identifier}")
+    UI.message("Build number: #{build_number}")
+
+    run_flutter("clean")
+    run_flutter("pub get")
+
+    run_flutter(
+      "build ios " \
+      "--release " \
+      "--no-codesign " \
+      "--flavor #{flavor} " \
+      "--target #{target} " \
+      "--build-number=#{build_number}"
+    )
+  end
+
+  def ipa_path
+    ipa_files = Dir[
+      File.join(
+        PROJECT_ROOT,
+        "build",
+        "ios",
+        "ipa",
+        "*.ipa"
+      )
+    ]
+
+    if ipa_files.empty?
+      UI.user_error!(
+        "IPA file was not found in build/ios/ipa"
+      )
+    end
+
+    if ipa_files.length > 1
+      UI.important!(
+        "Multiple IPA files were found. " \
+        "Using: #{ipa_files.first}"
+      )
+    end
+
+    ipa_files.first
+  end
+
+  ############################################################
+  # DEVELOPMENT
+  ############################################################
+
+  desc "Build unsigned iOS development application"
+  lane :development do
+    build_unsigned_ios(
+      flavor: "development",
+      expected_environment: "development"
+    )
+  end
+
+  ############################################################
+  # STAGING
+  ############################################################
+
+  desc "Build signed iOS staging application"
+  lane :staging do
+    api_key = app_store_api_key
+
+    build_signed_ios(
+      api_key: api_key,
+      flavor: "staging",
+      expected_environment: "staging"
+    )
+  end
+
+  desc "Build and upload iOS staging application to TestFlight"
+  lane :deploy_staging do
+    api_key = app_store_api_key
+
+    build_signed_ios(
+      api_key: api_key,
+      flavor: "staging",
+      expected_environment: "staging"
+    )
+
+    upload_to_testflight(
+      api_key: api_key,
+      ipa: ipa_path,
+      skip_waiting_for_build_processing: true
+    )
+  end
+
+  ############################################################
+  # RELEASE CANDIDATE
+  ############################################################
+
+  desc "Build signed iOS production candidate without upload"
+  lane :release do
+    api_key = app_store_api_key
+
+    build_signed_ios(
+      api_key: api_key,
+      flavor: "production",
+      expected_environment: "production"
+    )
+  end
+
+  ############################################################
+  # PRODUCTION
+  ############################################################
+
+  desc "Build and upload iOS production application"
+  lane :production do
+    api_key = app_store_api_key
+
+    build_signed_ios(
+      api_key: api_key,
+      flavor: "production",
+      expected_environment: "production"
+    )
+
+    upload_to_app_store(
+      api_key: api_key,
+      ipa: ipa_path,
+
+      submit_for_review: false,
+      automatic_release: false,
+
+      skip_metadata: true,
+      skip_screenshots: true,
+
+      force: true
+    )
+  end
+end

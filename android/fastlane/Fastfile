@@ -1,0 +1,293 @@
+opt_out_usage
+
+default_platform(:android)
+
+PROJECT_ROOT = File.expand_path("../..", __dir__)
+
+platform :android do
+  ############################################################
+  # HELPERS
+  ############################################################
+
+  def require_environment_variable(name)
+    value = ENV[name]
+
+    if value.nil? || value.strip.empty?
+      UI.user_error!("#{name} is not configured")
+    end
+
+    value.strip
+  end
+
+  def build_number
+    number = require_environment_variable("BUILD_NUMBER")
+
+    unless number.match?(/^\d+$/)
+      UI.user_error!(
+        "BUILD_NUMBER must contain numbers only. Received: #{number}"
+      )
+    end
+
+    number
+  end
+
+  def android_package_name
+    package_name = ENV.fetch(
+      "ANDROID_PACKAGE_NAME",
+      "dev.putuwaw.soul_doctor"
+    ).strip
+
+    if package_name.empty?
+      UI.user_error!("ANDROID_PACKAGE_NAME is empty")
+    end
+
+    package_name
+  end
+
+  def dotenv_path
+    File.join(PROJECT_ROOT, ".env")
+  end
+
+  def parse_dotenv
+    path = dotenv_path
+
+    unless File.exist?(path)
+      UI.user_error!(
+        ".env was not found at #{path}. " \
+        "Generate it in GitHub Actions before running Fastlane."
+      )
+    end
+
+    if File.zero?(path)
+      UI.user_error!(".env is empty: #{path}")
+    end
+
+    values = {}
+
+    File.readlines(path, chomp: true).each do |line|
+      stripped_line = line.strip
+
+      next if stripped_line.empty?
+      next if stripped_line.start_with?("#")
+      next unless stripped_line.include?("=")
+
+      key, value = stripped_line.split("=", 2)
+
+      values[key.strip] = value.to_s.strip
+    end
+
+    values
+  end
+
+  def validate_dotenv(expected_environment)
+    values = parse_dotenv
+
+    env_name = values["ENV_NAME"]
+    base_url = values["BASE_URL"]
+
+    if env_name.nil? || env_name.empty?
+      UI.user_error!("ENV_NAME is missing or empty in .env")
+    end
+
+    if base_url.nil? || base_url.empty?
+      UI.user_error!("BASE_URL is missing or empty in .env")
+    end
+
+    unless base_url.match?(%r{\Ahttps?://.+})
+      UI.user_error!(
+        "BASE_URL must start with http:// or https://"
+      )
+    end
+
+    unless env_name.downcase == expected_environment.downcase
+      UI.user_error!(
+        "Invalid ENV_NAME. Expected '#{expected_environment}', " \
+        "but received '#{env_name}'."
+      )
+    end
+
+    UI.success(".env successfully validated")
+    UI.message("Environment: #{env_name}")
+  end
+
+  def run_flutter(command)
+    Dir.chdir(PROJECT_ROOT) do
+      sh("fvm flutter #{command}")
+    end
+  end
+
+  def flutter_target(flavor)
+    target = File.join(
+      PROJECT_ROOT,
+      "lib",
+      "main_#{flavor}.dart"
+    )
+
+    unless File.exist?(target)
+      UI.user_error!(
+        "Flutter target was not found: lib/main_#{flavor}.dart"
+      )
+    end
+
+    "lib/main_#{flavor}.dart"
+  end
+
+  def build_android(flavor:, expected_environment:)
+    validate_dotenv(expected_environment)
+
+    target = flutter_target(flavor)
+
+    UI.header("Building Android")
+    UI.message("Flavor: #{flavor}")
+    UI.message("Target: #{target}")
+    UI.message("Package name: #{android_package_name}")
+    UI.message("Build number: #{build_number}")
+
+    run_flutter("clean")
+    run_flutter("pub get")
+
+    run_flutter(
+      "build appbundle " \
+      "--release " \
+      "--flavor #{flavor} " \
+      "--target #{target} " \
+      "--build-number=#{build_number}"
+    )
+  end
+
+  def android_aab_path(flavor)
+    possible_paths = [
+      File.join(
+        PROJECT_ROOT,
+        "build",
+        "app",
+        "outputs",
+        "bundle",
+        "#{flavor}Release",
+        "app-#{flavor}-release.aab"
+      ),
+      File.join(
+        PROJECT_ROOT,
+        "build",
+        "app",
+        "outputs",
+        "bundle",
+        "#{flavor}Release",
+        "app-release.aab"
+      )
+    ]
+
+    path = possible_paths.find do |candidate|
+      File.exist?(candidate)
+    end
+
+    if path.nil?
+      UI.user_error!(
+        "Android App Bundle was not found.\n" \
+        "Checked paths:\n#{possible_paths.join("\n")}"
+      )
+    end
+
+    path
+  end
+
+  def google_play_json_key
+    path = require_environment_variable(
+      "GOOGLE_PLAY_JSON_KEY_PATH"
+    )
+
+    unless File.exist?(path)
+      UI.user_error!(
+        "Google Play JSON key was not found: #{path}"
+      )
+    end
+
+    path
+  end
+
+  ############################################################
+  # DEVELOPMENT
+  ############################################################
+
+  desc "Build Android development artifact"
+  lane :development do
+    build_android(
+      flavor: "development",
+      expected_environment: "development"
+    )
+  end
+
+  ############################################################
+  # STAGING
+  ############################################################
+
+  desc "Build Android staging artifact"
+  lane :staging do
+    build_android(
+      flavor: "staging",
+      expected_environment: "staging"
+    )
+  end
+
+  desc "Build and upload Android to Google Play Internal Testing"
+  lane :deploy_staging do
+    flavor = "staging"
+
+    build_android(
+      flavor: flavor,
+      expected_environment: "staging"
+    )
+
+    # upload_to_play_store(
+    #   package_name: android_package_name,
+    #   json_key: google_play_json_key,
+    #   aab: android_aab_path(flavor),
+
+    #   track: "internal",
+    #   release_status: "completed",
+
+    #   skip_upload_metadata: true,
+    #   skip_upload_images: true,
+    #   skip_upload_screenshots: true
+    # )
+  end
+
+  ############################################################
+  # RELEASE CANDIDATE
+  ############################################################
+
+  desc "Build Android production candidate without store upload"
+  lane :release do
+    build_android(
+      flavor: "production",
+      expected_environment: "production"
+    )
+  end
+
+  ############################################################
+  # PRODUCTION
+  ############################################################
+
+  desc "Build and upload Android to Google Play Production"
+  lane :production do
+    flavor = "production"
+
+    build_android(
+      flavor: flavor,
+      expected_environment: "production"
+    )
+
+    # upload_to_play_store(
+    #   package_name: android_package_name,
+    #   json_key: google_play_json_key,
+    #   aab: android_aab_path(flavor),
+
+    #   track: "production",
+    #   release_status: "draft",
+
+    #   skip_upload_metadata: true,
+    #   skip_upload_images: true,
+    #   skip_upload_screenshots: true
+    # )
+  end
+end

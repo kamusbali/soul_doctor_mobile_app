@@ -1,0 +1,16 @@
+package_name(
+  ENV.fetch(
+    "ANDROID_PACKAGE_NAME",
+    "dev.putuwaw.soul_doctor"
+  )
+)
+
+google_play_key_path = ENV["GOOGLE_PLAY_JSON_KEY_PATH"]
+
+if google_play_key_path &&
+   !google_play_key_path.strip.empty?
+
+  json_key_file(
+    google_play_key_path
+  )
+end
