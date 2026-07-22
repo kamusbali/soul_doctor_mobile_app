@@ -53,7 +53,7 @@ platform :ios do
     unless File.exist?(path)
       UI.user_error!(
         ".env was not found at #{path}. " \
-        "Generate it in GitHub Actions before running Fastlane."
+        "Generate it before running Fastlane."
       )
     end
 
@@ -98,7 +98,7 @@ platform :ios do
       )
     end
 
-    unless env_name.downcase == expected_environment.downcase
+    unless env_name.casecmp?(expected_environment)
       UI.user_error!(
         "Invalid ENV_NAME. Expected '#{expected_environment}', " \
         "but received '#{env_name}'."
@@ -116,19 +116,19 @@ platform :ios do
   end
 
   def flutter_target(flavor)
-    target = File.join(
+    relative_target = "lib/main_#{flavor}.dart"
+    absolute_target = File.join(
       PROJECT_ROOT,
-      "lib",
-      "main_#{flavor}.dart"
+      relative_target
     )
 
-    unless File.exist?(target)
+    unless File.exist?(absolute_target)
       UI.user_error!(
-        "Flutter target was not found: lib/main_#{flavor}.dart"
+        "Flutter target was not found: #{relative_target}"
       )
     end
 
-    "lib/main_#{flavor}.dart"
+    relative_target
   end
 
   ############################################################
@@ -152,7 +152,6 @@ platform :ios do
       key_id: key_id,
       issuer_id: issuer_id,
       key_content: key_content,
-
       is_key_content_base64: true,
       duration: 1_200,
       in_house: false
@@ -160,13 +159,16 @@ platform :ios do
   end
 
   ############################################################
-  # CODE SIGNING
+  # MATCH OPTIONS
   ############################################################
 
-  def setup_signing(api_key)
-    match_options = {
+  def match_configuration(
+    api_key:,
+    readonly:
+  )
+    options = {
       type: "appstore",
-      readonly: is_ci,
+      readonly: readonly,
       api_key: api_key,
 
       app_identifier: ios_bundle_identifier,
@@ -177,18 +179,25 @@ platform :ios do
       )
     }
 
-    git_authorization = ENV[
-      "MATCH_GIT_BASIC_AUTHORIZATION"
-    ]
+    git_authorization =
+      ENV["MATCH_GIT_BASIC_AUTHORIZATION"]
 
     if git_authorization &&
        !git_authorization.strip.empty?
-
-      match_options[:git_basic_authorization] =
-        git_authorization
+      options[:git_basic_authorization] =
+        git_authorization.strip
     end
 
-    match(**match_options)
+    options
+  end
+
+  def setup_signing(api_key)
+    match(
+      **match_configuration(
+        api_key: api_key,
+        readonly: is_ci
+      )
+    )
   end
 
   ############################################################
@@ -259,7 +268,7 @@ platform :ios do
         "ipa",
         "*.ipa"
       )
-    ]
+    ].sort
 
     if ipa_files.empty?
       UI.user_error!(
@@ -268,13 +277,35 @@ platform :ios do
     end
 
     if ipa_files.length > 1
-      UI.important!(
+      UI.important(
         "Multiple IPA files were found. " \
         "Using: #{ipa_files.first}"
       )
     end
 
     ipa_files.first
+  end
+
+  ############################################################
+  # INITIAL MATCH SETUP
+  ############################################################
+
+  desc "Create and store App Store certificates and profiles"
+  lane :setup_match do
+    api_key = app_store_api_key
+
+    UI.header("Initializing Fastlane Match")
+    UI.message("Bundle ID: #{ios_bundle_identifier}")
+    UI.message("Team ID: #{apple_developer_team_id}")
+
+    match(
+      **match_configuration(
+        api_key: api_key,
+        readonly: false
+      )
+    )
+
+    UI.success("Fastlane Match initialized successfully")
   end
 
   ############################################################
