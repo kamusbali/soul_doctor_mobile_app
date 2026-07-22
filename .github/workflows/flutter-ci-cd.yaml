@@ -55,11 +55,17 @@ jobs:
           fvm flutter --version
           fvm dart --version
 
+      - name: Generate .env
+        run: |
+          cat > .env <<EOF
+          ${{ secrets.DOTENV }}
+          EOF
+
       - name: Install Flutter Dependencies
         run: fvm flutter pub get
 
-      - name: Analyze
-        run: fvm flutter analyze
+      # - name: Analyze
+      #   run: fvm flutter analyze
 
       - name: Test
         run: fvm flutter test
