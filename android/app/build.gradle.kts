@@ -70,7 +70,7 @@ android {
             resValue("string", "app_name", "[DEV] Harmoni Jiwa")
         }
 
-        create("stagging") {
+        create("staging") {
             dimension = "app"
             manifestPlaceholders["app_name"] = "[STAGE] Harmoni Jiwa"
             resValue("string", "app_name", "[STAGE] Harmoni Jiwa")
