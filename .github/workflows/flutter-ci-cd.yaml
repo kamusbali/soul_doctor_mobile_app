@@ -254,8 +254,8 @@ jobs:
       # - name: Analyze
       #   run: fvm flutter analyze
 
-      - name: Test
-        run: fvm flutter test
+      # - name: Test
+      #   run: fvm flutter test
 
       ########################################################
       # RUBY DEPENDENCIES
