@@ -1,5 +1,14 @@
-package_name(ENV["ANDROID_PACKAGE_NAME"])
+package_name(
+  ENV.fetch(
+    "ANDROID_PACKAGE_NAME",
+    "dev.putuwaw.soul_doctor"
+  )
+)
 
-if ENV["GOOGLE_PLAY_JSON_KEY_PATH"]
-  json_key_file(ENV["GOOGLE_PLAY_JSON_KEY_PATH"])
+if ENV["GOOGLE_PLAY_JSON_KEY_PATH"] &&
+   !ENV["GOOGLE_PLAY_JSON_KEY_PATH"].empty?
+
+  json_key_file(
+    ENV["GOOGLE_PLAY_JSON_KEY_PATH"]
+  )
 end
