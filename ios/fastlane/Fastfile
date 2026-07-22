@@ -1,3 +1,5 @@
+opt_out_usage
+
 default_platform(:ios)
 
 PROJECT_ROOT = File.expand_path("../..", __dir__)
@@ -10,15 +12,23 @@ platform :ios do
   def require_environment_variable(name)
     value = ENV[name]
 
-    if value.nil? || value.empty?
+    if value.nil? || value.strip.empty?
       UI.user_error!("#{name} is not configured")
     end
 
-    value
+    value.strip
   end
 
   def build_number
-    require_environment_variable("BUILD_NUMBER")
+    number = require_environment_variable("BUILD_NUMBER")
+
+    unless number.match?(/^\d+$/)
+      UI.user_error!(
+        "BUILD_NUMBER must contain numbers only. Received: #{number}"
+      )
+    end
+
+    number
   end
 
   def ios_bundle_identifier
@@ -37,7 +47,7 @@ platform :ios do
     File.join(PROJECT_ROOT, ".env")
   end
 
-  def validate_dotenv
+  def parse_dotenv
     path = dotenv_path
 
     unless File.exist?(path)
@@ -51,17 +61,45 @@ platform :ios do
       UI.user_error!(".env is empty: #{path}")
     end
 
-    content = File.read(path)
+    values = {}
 
-    unless content.match?(/^ENV_NAME=.+$/)
-      UI.user_error!("ENV_NAME is missing from .env")
+    File.readlines(path, chomp: true).each do |line|
+      stripped_line = line.strip
+
+      next if stripped_line.empty?
+      next if stripped_line.start_with?("#")
+      next unless stripped_line.include?("=")
+
+      key, value = stripped_line.split("=", 2)
+
+      values[key.strip] = value.to_s.strip
     end
 
-    unless content.match?(/^BASE_URL=.+$/)
-      UI.user_error!("BASE_URL is missing from .env")
+    values
+  end
+
+  def validate_dotenv
+    values = parse_dotenv
+
+    env_name = values["ENV_NAME"]
+    base_url = values["BASE_URL"]
+
+    if env_name.nil? || env_name.empty?
+      UI.user_error!("ENV_NAME is missing or empty in .env")
     end
 
-    UI.success!(".env successfully validated")
+    if base_url.nil? || base_url.empty?
+      UI.user_error!("BASE_URL is missing or empty in .env")
+    end
+
+    unless base_url.match?(%r{\Ahttps?://.+})
+      UI.user_error!(
+        "BASE_URL must start with http:// or https://"
+      )
+    end
+
+    UI.success(".env successfully validated")
+    UI.message("Environment: #{env_name}")
   end
 
   def run_flutter(command)
@@ -69,6 +107,10 @@ platform :ios do
       sh("fvm flutter #{command}")
     end
   end
+
+  ############################################################
+  # APP STORE CONNECT
+  ############################################################
 
   def app_store_api_key
     key_id = require_environment_variable(
@@ -88,7 +130,7 @@ platform :ios do
       issuer_id: issuer_id,
       key_content: key_content,
 
-      # GitHub Secret berisi hasil Base64 file .p8.
+      # Secret berisi Base64 dari file AuthKey_*.p8.
       is_key_content_base64: true,
 
       duration: 1_200,
@@ -96,8 +138,12 @@ platform :ios do
     )
   end
 
+  ############################################################
+  # CODE SIGNING
+  ############################################################
+
   def setup_signing(api_key)
-    match(
+    match_options = {
       type: "appstore",
       readonly: is_ci,
       api_key: api_key,
@@ -107,19 +153,32 @@ platform :ios do
 
       git_url: require_environment_variable(
         "MATCH_GIT_URL"
-      ),
+      )
+    }
 
-      git_basic_authorization: ENV[
-        "MATCH_GIT_BASIC_AUTHORIZATION"
-      ]
-    )
+    git_authorization = ENV[
+      "MATCH_GIT_BASIC_AUTHORIZATION"
+    ]
+
+    if git_authorization &&
+       !git_authorization.strip.empty?
+
+      match_options[:git_basic_authorization] =
+        git_authorization
+    end
+
+    match(**match_options)
   end
+
+  ############################################################
+  # BUILD
+  ############################################################
 
   def build_signed_ios(api_key)
     validate_dotenv
     setup_signing(api_key)
 
-    UI.header("Building signed iOS application")
+    UI.header("Building Signed iOS Application")
     UI.message("Bundle ID: #{ios_bundle_identifier}")
     UI.message("Build number: #{build_number}")
 
@@ -136,7 +195,7 @@ platform :ios do
   def build_unsigned_ios
     validate_dotenv
 
-    UI.header("Building unsigned iOS application")
+    UI.header("Building Unsigned iOS Application")
     UI.message("Bundle ID: #{ios_bundle_identifier}")
     UI.message("Build number: #{build_number}")
 
@@ -175,7 +234,7 @@ platform :ios do
   # DEVELOPMENT
   ############################################################
 
-  desc "Build unsigned iOS application for development validation"
+  desc "Build unsigned iOS application for development"
   lane :development do
     build_unsigned_ios
   end
@@ -230,11 +289,10 @@ platform :ios do
       api_key: api_key,
       ipa: ipa_path,
 
-      # Upload binary ke App Store Connect,
-      # tetapi belum mengirimkannya ke App Review.
+      # Tidak otomatis dikirim ke App Review.
       submit_for_review: false,
 
-      # Setelah disetujui Apple, aplikasi tidak langsung dirilis.
+      # Tidak langsung dirilis setelah disetujui.
       automatic_release: false,
 
       skip_metadata: true,

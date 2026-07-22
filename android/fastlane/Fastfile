@@ -1,3 +1,5 @@
+opt_out_usage
+
 default_platform(:android)
 
 PROJECT_ROOT = File.expand_path("../..", __dir__)
@@ -10,29 +12,43 @@ platform :android do
   def require_environment_variable(name)
     value = ENV[name]
 
-    if value.nil? || value.empty?
+    if value.nil? || value.strip.empty?
       UI.user_error!("#{name} is not configured")
     end
 
-    value
+    value.strip
   end
 
   def build_number
-    require_environment_variable("BUILD_NUMBER")
+    number = require_environment_variable("BUILD_NUMBER")
+
+    unless number.match?(/^\d+$/)
+      UI.user_error!(
+        "BUILD_NUMBER must contain numbers only. Received: #{number}"
+      )
+    end
+
+    number
   end
 
   def android_package_name
-    ENV.fetch(
+    package_name = ENV.fetch(
       "ANDROID_PACKAGE_NAME",
       "dev.putuwaw.soul_doctor"
-    )
+    ).strip
+
+    if package_name.empty?
+      UI.user_error!("ANDROID_PACKAGE_NAME is empty")
+    end
+
+    package_name
   end
 
   def dotenv_path
     File.join(PROJECT_ROOT, ".env")
   end
 
-  def validate_dotenv
+  def parse_dotenv
     path = dotenv_path
 
     unless File.exist?(path)
@@ -46,17 +62,45 @@ platform :android do
       UI.user_error!(".env is empty: #{path}")
     end
 
-    content = File.read(path)
+    values = {}
 
-    unless content.match?(/^ENV_NAME=.+$/)
-      UI.user_error!("ENV_NAME is missing from .env")
+    File.readlines(path, chomp: true).each do |line|
+      stripped_line = line.strip
+
+      next if stripped_line.empty?
+      next if stripped_line.start_with?("#")
+      next unless stripped_line.include?("=")
+
+      key, value = stripped_line.split("=", 2)
+
+      values[key.strip] = value.to_s.strip
     end
 
-    unless content.match?(/^BASE_URL=.+$/)
-      UI.user_error!("BASE_URL is missing from .env")
+    values
+  end
+
+  def validate_dotenv
+    values = parse_dotenv
+
+    env_name = values["ENV_NAME"]
+    base_url = values["BASE_URL"]
+
+    if env_name.nil? || env_name.empty?
+      UI.user_error!("ENV_NAME is missing or empty in .env")
     end
 
-    UI.success!(".env successfully validated")
+    if base_url.nil? || base_url.empty?
+      UI.user_error!("BASE_URL is missing or empty in .env")
+    end
+
+    unless base_url.match?(%r{\Ahttps?://.+})
+      UI.user_error!(
+        "BASE_URL must start with http:// or https://"
+      )
+    end
+
+    UI.success(".env successfully validated")
+    UI.message("Environment: #{env_name}")
   end
 
   def run_flutter(command)
@@ -69,7 +113,7 @@ platform :android do
     validate_dotenv
 
     UI.header("Building Android")
-    UI.message("Package: #{android_package_name}")
+    UI.message("Package name: #{android_package_name}")
     UI.message("Build number: #{build_number}")
 
     run_flutter("clean")
@@ -94,7 +138,9 @@ platform :android do
     )
 
     unless File.exist?(path)
-      UI.user_error!("Android App Bundle was not found: #{path}")
+      UI.user_error!(
+        "Android App Bundle was not found: #{path}"
+      )
     end
 
     path
@@ -174,8 +220,7 @@ platform :android do
 
       track: "production",
 
-      # Upload ke production sebagai draft.
-      # Publikasi final dilakukan melalui Play Console.
+      # Masuk ke Play Console sebagai draft.
       release_status: "draft",
 
       skip_upload_metadata: true,

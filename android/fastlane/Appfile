@@ -5,10 +5,12 @@ package_name(
   )
 )
 
-if ENV["GOOGLE_PLAY_JSON_KEY_PATH"] &&
-   !ENV["GOOGLE_PLAY_JSON_KEY_PATH"].empty?
+google_play_key_path = ENV["GOOGLE_PLAY_JSON_KEY_PATH"]
+
+if google_play_key_path &&
+   !google_play_key_path.strip.empty?
 
   json_key_file(
-    ENV["GOOGLE_PLAY_JSON_KEY_PATH"]
+    google_play_key_path
   )
 end
