@@ -143,6 +143,31 @@ platform :ios do
     relative_target
   end
 
+  def configure_manual_signing(flavor)
+    configuration = "Release-#{flavor}"
+    profile_name = "match AppStore #{ios_bundle_identifier}"
+
+    UI.header("Configuring Manual Code Signing")
+    UI.message("Configuration: #{configuration}")
+    UI.message("Profile: #{profile_name}")
+
+    update_code_signing_settings(
+      use_automatic_signing: false,
+      path: File.join(
+        PROJECT_ROOT,
+        "ios",
+        "Runner.xcodeproj"
+      ),
+      team_id: apple_developer_team_id,
+      bundle_identifier: ios_bundle_identifier,
+      code_sign_identity: "Apple Distribution",
+      profile_name: profile_name,
+      build_configurations: [
+        configuration
+      ]
+    )
+  end
+
   ############################################################
   # APP STORE CONNECT
   ############################################################
@@ -232,6 +257,8 @@ platform :ios do
       api_key: api_key,
       readonly: true
     )
+    
+    configure_manual_signing(flavor)
 
     target = flutter_target(flavor)
 
