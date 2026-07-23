@@ -336,6 +336,19 @@ jobs:
         run: |
           fvm flutter config --no-enable-swift-package-manager
 
+      - name: Precache Flutter iOS Artifacts
+        if: needs.prepare.outputs.build_ios == 'true'
+        timeout-minutes: 15
+        run: |
+          fvm flutter precache --ios
+
+          FLUTTER_BIN="$(fvm which flutter)"
+          FLUTTER_SDK="$(cd "$(dirname "$FLUTTER_BIN")/.." && pwd)"
+
+          echo "Flutter SDK: $FLUTTER_SDK"
+
+          test -d "$FLUTTER_SDK/bin/cache/artifacts/engine/ios/Flutter.xcframework"
+
       - name: Install Flutter Dependencies
         shell: bash
         run: |
@@ -406,10 +419,9 @@ jobs:
       - name: Install iOS Pods
         if: needs.prepare.outputs.build_ios == 'true'
         working-directory: ios
-        shell: bash
-        timeout-minutes: 10
+        timeout-minutes: 15
         run: |
-          pod install --verbose
+          bundle exec pod install --verbose
 
       ########################################################
       # ANDROID SIGNING
@@ -467,33 +479,33 @@ jobs:
       # GOOGLE PLAY CREDENTIALS
       ########################################################
 
-      - name: Setup Google Play Credentials
-        if: needs.prepare.outputs.upload_google_play == 'true'
-        shell: bash
-        env:
-          GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_BASE64: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_BASE64 }}
-        run: |
-          if [[ -z "$GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_BASE64" ]]; then
-            echo "GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_BASE64 is not configured"
-            exit 1
-          fi
+      # - name: Setup Google Play Credentials
+      #   if: needs.prepare.outputs.upload_google_play == 'true'
+      #   shell: bash
+      #   env:
+      #     GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_BASE64: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_BASE64 }}
+      #   run: |
+      #     if [[ -z "$GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_BASE64" ]]; then
+      #       echo "GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_BASE64 is not configured"
+      #       exit 1
+      #     fi
 
-          mkdir -p "$RUNNER_TEMP/google-play"
+      #     mkdir -p "$RUNNER_TEMP/google-play"
 
-          printf '%s' "$GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_BASE64" \
-            | base64 -D \
-            > "$RUNNER_TEMP/google-play/service-account.json"
+      #     printf '%s' "$GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_BASE64" \
+      #       | base64 -D \
+      #       > "$RUNNER_TEMP/google-play/service-account.json"
 
-          if [[ ! -s "$RUNNER_TEMP/google-play/service-account.json" ]]; then
-            echo "Failed to decode Google Play service account JSON"
-            exit 1
-          fi
+      #     if [[ ! -s "$RUNNER_TEMP/google-play/service-account.json" ]]; then
+      #       echo "Failed to decode Google Play service account JSON"
+      #       exit 1
+      #     fi
 
-          echo \
-            "GOOGLE_PLAY_JSON_KEY_PATH=$RUNNER_TEMP/google-play/service-account.json" \
-            >> "$GITHUB_ENV"
+      #     echo \
+      #       "GOOGLE_PLAY_JSON_KEY_PATH=$RUNNER_TEMP/google-play/service-account.json" \
+      #       >> "$GITHUB_ENV"
 
-          echo "Google Play credentials generated successfully"
+      #     echo "Google Play credentials generated successfully"
 
       ########################################################
       # VALIDATE MATCH ACCESS
