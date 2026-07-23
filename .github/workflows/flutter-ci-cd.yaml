@@ -191,6 +191,36 @@ jobs:
       APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}
 
     steps:
+      - name: Debug Match Secret
+        run: |
+          echo "Length=${#MATCH_GIT_BASIC_AUTHORIZATION}"
+
+          printf "%s" "$MATCH_GIT_BASIC_AUTHORIZATION" \
+            | shasum -a 256
+
+      - name: Validate Match Configuration
+        if: needs.prepare.outputs.build_ios == 'true'
+        shell: bash
+        timeout-minutes: 5
+        run: |
+          set -euo pipefail
+
+          : "${MATCH_GIT_URL:?MATCH_GIT_URL is not configured}"
+          : "${MATCH_GIT_BASIC_AUTHORIZATION:?MATCH_GIT_BASIC_AUTHORIZATION is not configured}"
+
+          MATCH_REPO_URL="${MATCH_GIT_URL%/}"
+          [[ "$MATCH_REPO_URL" == *.git ]] || MATCH_REPO_URL="${MATCH_REPO_URL}.git"
+
+          echo "Match repository: $MATCH_REPO_URL"
+          echo "Authorization length: ${#MATCH_GIT_BASIC_AUTHORIZATION}"
+
+          git \
+            -c credential.helper= \
+            -c "http.extraheader=Authorization: Basic ${MATCH_GIT_BASIC_AUTHORIZATION}" \
+            ls-remote "$MATCH_REPO_URL" HEAD > /dev/null
+
+          echo "Match repository access succeeded"
+
       - name: Checkout
         uses: actions/checkout@v4
 
