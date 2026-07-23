@@ -1,0 +1,517 @@
+opt_out_usage
+
+default_platform(:ios)
+
+PROJECT_ROOT = File.expand_path("../..", __dir__)
+
+platform :ios do
+  ############################################################
+  # ENVIRONMENT HELPERS
+  ############################################################
+
+  def require_environment_variable(name)
+    value = ENV[name]&.strip
+
+    if value.nil? || value.empty?
+      UI.user_error!("#{name} is not configured")
+    end
+
+    value
+  end
+
+  def build_number
+    number = require_environment_variable("BUILD_NUMBER")
+
+    unless number.match?(/\A\d+\z/)
+      UI.user_error!(
+        "BUILD_NUMBER must contain numbers only. Received: #{number}"
+      )
+    end
+
+    number
+  end
+
+  def ios_bundle_identifier
+    require_environment_variable(
+      "IOS_BUNDLE_IDENTIFIER"
+    )
+  end
+
+  def apple_developer_team_id
+    require_environment_variable(
+      "APPLE_DEVELOPER_TEAM_ID"
+    )
+  end
+
+  ############################################################
+  # DOTENV
+  ############################################################
+
+  def dotenv_path
+    File.join(PROJECT_ROOT, ".env")
+  end
+
+  def parse_dotenv
+    path = dotenv_path
+
+    unless File.exist?(path)
+      UI.user_error!(
+        ".env was not found at #{path}. " \
+        "Generate it before running Fastlane."
+      )
+    end
+
+    if File.zero?(path)
+      UI.user_error!(".env is empty: #{path}")
+    end
+
+    values = {}
+
+    File.readlines(path, chomp: true).each do |line|
+      line = line.strip
+
+      next if line.empty?
+      next if line.start_with?("#")
+      next unless line.include?("=")
+
+      key, value = line.split("=", 2)
+
+      values[key.strip] = value.to_s.strip
+    end
+
+    values
+  end
+
+  def validate_dotenv(expected_environment)
+    values = parse_dotenv
+
+    env_name = values["ENV_NAME"]
+    base_url = values["BASE_URL"]
+
+    if env_name.nil? || env_name.empty?
+      UI.user_error!(
+        "ENV_NAME is missing or empty in .env"
+      )
+    end
+
+    if base_url.nil? || base_url.empty?
+      UI.user_error!(
+        "BASE_URL is missing or empty in .env"
+      )
+    end
+
+    unless base_url.match?(%r{\Ahttps?://.+})
+      UI.user_error!(
+        "BASE_URL must start with http:// or https://"
+      )
+    end
+
+    unless env_name.casecmp?(expected_environment)
+      UI.user_error!(
+        "Invalid ENV_NAME. Expected '#{expected_environment}', " \
+        "but received '#{env_name}'."
+      )
+    end
+
+    UI.success(".env successfully validated")
+    UI.message("Environment: #{env_name}")
+  end
+
+  ############################################################
+  # FLUTTER HELPERS
+  ############################################################
+
+  def run_flutter(command)
+    Dir.chdir(PROJECT_ROOT) do
+      sh("fvm flutter #{command}")
+    end
+  end
+
+  def flutter_target(flavor)
+    relative_target = "lib/main_#{flavor}.dart"
+    absolute_target = File.join(
+      PROJECT_ROOT,
+      relative_target
+    )
+
+    unless File.exist?(absolute_target)
+      UI.user_error!(
+        "Flutter target was not found: #{relative_target}"
+      )
+    end
+
+    relative_target
+  end
+
+  ############################################################
+  # APP STORE CONNECT
+  ############################################################
+
+  def app_store_api_key
+    app_store_connect_api_key(
+      key_id: require_environment_variable(
+        "APP_STORE_CONNECT_API_KEY_ID"
+      ),
+      issuer_id: require_environment_variable(
+        "APP_STORE_CONNECT_ISSUER_ID"
+      ),
+      key_content: require_environment_variable(
+        "APP_STORE_CONNECT_API_KEY_CONTENT"
+      ),
+      is_key_content_base64: true,
+      duration: 1_200,
+      in_house: false
+    )
+  end
+
+  ############################################################
+  # FASTLANE MATCH
+  ############################################################
+
+  def match_git_url
+    url = require_environment_variable(
+      "MATCH_GIT_URL"
+    )
+
+    # Menghapus trailing slash.
+    url = url.sub(%r{/+\z}, "")
+
+    # Memastikan URL berakhiran .git.
+    url = "#{url}.git" unless url.end_with?(".git")
+
+    url
+  end
+
+  def match_git_authorization
+    authorization = require_environment_variable(
+      "MATCH_GIT_BASIC_AUTHORIZATION"
+    )
+
+    # Nilai harus berupa Base64 satu baris.
+    unless authorization.match?(/\A[A-Za-z0-9+\/=]+\z/)
+      UI.user_error!(
+        "MATCH_GIT_BASIC_AUTHORIZATION must be a valid " \
+        "single-line Base64 value"
+      )
+    end
+
+    authorization
+  end
+
+  def match_configuration(
+    api_key:,
+    readonly:
+  )
+    {
+      type: "appstore",
+      readonly: readonly,
+      api_key: api_key,
+
+      storage_mode: "git",
+      git_url: match_git_url,
+      git_branch: "master",
+      git_basic_authorization: match_git_authorization,
+
+      app_identifier: ios_bundle_identifier,
+      team_id: apple_developer_team_id,
+
+      shallow_clone: true,
+      clone_branch_directly: true
+    }
+  end
+
+  def setup_signing(
+    api_key:,
+    readonly:
+  )
+    UI.message(
+      "Running Match in readonly mode: #{readonly}"
+    )
+    UI.message(
+      "Match repository: #{match_git_url}"
+    )
+
+    # Membuat temporary keychain pada GitHub Actions.
+    setup_ci if is_ci
+
+    match(
+      **match_configuration(
+        api_key: api_key,
+        readonly: readonly
+      )
+    )
+  end
+
+  ############################################################
+  # MANUAL SIGNING
+  ############################################################
+
+  def configure_manual_signing(flavor)
+    configuration = "Release-#{flavor}"
+    profile_name = "match AppStore #{ios_bundle_identifier}"
+
+    UI.header("Configuring Manual Code Signing")
+    UI.message("Configuration: #{configuration}")
+    UI.message("Profile: #{profile_name}")
+
+    update_code_signing_settings(
+      use_automatic_signing: false,
+      path: File.join(
+        PROJECT_ROOT,
+        "ios",
+        "Runner.xcodeproj"
+      ),
+      team_id: apple_developer_team_id,
+      bundle_identifier: ios_bundle_identifier,
+      code_sign_identity: "Apple Distribution",
+      profile_name: profile_name,
+      build_configurations: [
+        configuration
+      ]
+    )
+  end
+
+  ############################################################
+  # BUILD HELPERS
+  ############################################################
+
+  def build_signed_ios(
+    api_key:,
+    flavor:,
+    expected_environment:
+  )
+    validate_dotenv(expected_environment)
+
+    setup_signing(
+      api_key: api_key,
+      readonly: true
+    )
+
+    configure_manual_signing(flavor)
+
+    target = flutter_target(flavor)
+    number = build_number
+
+    UI.header("Building Signed iOS Application")
+    UI.message("Flavor: #{flavor}")
+    UI.message("Target: #{target}")
+    UI.message("Bundle ID: #{ios_bundle_identifier}")
+    UI.message("Build number: #{number}")
+
+    run_flutter("clean")
+    run_flutter("pub get")
+
+    UI.header("Starting Flutter IPA Build")
+    UI.message(
+      "Xcode archive may take several minutes on GitHub Actions."
+    )
+
+    run_flutter(
+      "build ipa " \
+      "--release " \
+      "--flavor #{flavor} " \
+      "--target #{target} " \
+      "--build-number=#{number} " \
+      "--verbose"
+    )
+
+    UI.success(
+      "Signed iOS #{flavor} application built successfully"
+    )
+  end
+
+  def build_unsigned_ios(
+    flavor:,
+    expected_environment:
+  )
+    validate_dotenv(expected_environment)
+
+    target = flutter_target(flavor)
+    number = build_number
+
+    UI.header("Building Unsigned iOS Application")
+    UI.message("Flavor: #{flavor}")
+    UI.message("Target: #{target}")
+    UI.message("Bundle ID: #{ios_bundle_identifier}")
+    UI.message("Build number: #{number}")
+
+    run_flutter("clean")
+    run_flutter("pub get")
+
+    run_flutter(
+      "build ios " \
+      "--release " \
+      "--no-codesign " \
+      "--flavor #{flavor} " \
+      "--target #{target} " \
+      "--build-number=#{number} " \
+      "--verbose"
+    )
+
+    UI.success(
+      "Unsigned iOS #{flavor} application built successfully"
+    )
+  end
+
+  def ipa_path
+    ipa_directory = File.join(
+      PROJECT_ROOT,
+      "build",
+      "ios",
+      "ipa"
+    )
+
+    ipa_files = Dir[
+      File.join(ipa_directory, "*.ipa")
+    ]
+
+    if ipa_files.empty?
+      UI.user_error!(
+        "IPA file was not found in #{ipa_directory}"
+      )
+    end
+
+    # Memilih IPA terbaru jika ada lebih dari satu.
+    selected_ipa = ipa_files.max_by do |path|
+      File.mtime(path)
+    end
+
+    if ipa_files.length > 1
+      UI.important(
+        "Multiple IPA files were found. " \
+        "Using newest file: #{selected_ipa}"
+      )
+    end
+
+    UI.message("IPA path: #{selected_ipa}")
+
+    selected_ipa
+  end
+
+  ############################################################
+  # INITIAL MATCH SETUP — RUN LOCALLY ONCE
+  ############################################################
+
+  desc "Create and store App Store certificates and profiles"
+  lane :setup_match do
+    api_key = app_store_api_key
+
+    UI.header("Initializing Fastlane Match")
+    UI.message("Bundle ID: #{ios_bundle_identifier}")
+    UI.message("Team ID: #{apple_developer_team_id}")
+    UI.message("Repository: #{match_git_url}")
+
+    setup_signing(
+      api_key: api_key,
+      readonly: false
+    )
+
+    UI.success(
+      "Fastlane Match initialized successfully"
+    )
+  end
+
+  ############################################################
+  # DEVELOPMENT
+  ############################################################
+
+  desc "Build unsigned iOS development application"
+  lane :development do
+    build_unsigned_ios(
+      flavor: "development",
+      expected_environment: "development"
+    )
+  end
+
+  ############################################################
+  # STAGING
+  ############################################################
+
+  desc "Build signed iOS staging application"
+  lane :staging do
+    api_key = app_store_api_key
+
+    build_signed_ios(
+      api_key: api_key,
+      flavor: "staging",
+      expected_environment: "staging"
+    )
+  end
+
+  desc "Build and upload iOS staging application to TestFlight"
+  lane :deploy_staging do
+    api_key = app_store_api_key
+
+    build_signed_ios(
+      api_key: api_key,
+      flavor: "staging",
+      expected_environment: "staging"
+    )
+
+    UI.header("Uploading iOS Application to TestFlight")
+
+    upload_to_testflight(
+      api_key: api_key,
+      ipa: ipa_path,
+
+      skip_waiting_for_build_processing: true,
+      distribute_external: false
+    )
+
+    UI.success(
+      "Staging application uploaded to TestFlight"
+    )
+  end
+
+  ############################################################
+  # RELEASE CANDIDATE
+  ############################################################
+
+  desc "Build signed iOS production candidate"
+  lane :release do
+    api_key = app_store_api_key
+
+    build_signed_ios(
+      api_key: api_key,
+      flavor: "production",
+      expected_environment: "production"
+    )
+  end
+
+  ############################################################
+  # PRODUCTION
+  ############################################################
+
+  desc "Build and upload iOS production application"
+  lane :production do
+    api_key = app_store_api_key
+
+    build_signed_ios(
+      api_key: api_key,
+      flavor: "production",
+      expected_environment: "production"
+    )
+
+    UI.header("Uploading Production Application")
+
+    upload_to_app_store(
+      api_key: api_key,
+      ipa: ipa_path,
+
+      # Binary hanya di-upload ke App Store Connect.
+      submit_for_review: false,
+
+      # Tidak otomatis dipublikasikan setelah disetujui.
+      automatic_release: false,
+
+      skip_metadata: true,
+      skip_screenshots: true,
+
+      force: true
+    )
+
+    UI.success(
+      "Production application uploaded to App Store Connect"
+    )
+  end
+end

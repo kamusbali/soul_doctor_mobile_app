@@ -37,7 +37,7 @@ android {
         applicationId = "dev.putuwaw.soul_doctor"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = 30
+        minSdk = 28
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
@@ -66,16 +66,12 @@ android {
     productFlavors {
         create("development") {
             dimension = "app"
-            applicationIdSuffix = ".dev"
-            versionNameSuffix = "-dev"
             manifestPlaceholders["app_name"] = "[DEV] Harmoni Jiwa"
             resValue("string", "app_name", "[DEV] Harmoni Jiwa")
         }
 
-        create("stagging") {
+        create("staging") {
             dimension = "app"
-            applicationIdSuffix = ".stage"
-            versionNameSuffix = "-stage"
             manifestPlaceholders["app_name"] = "[STAGE] Harmoni Jiwa"
             resValue("string", "app_name", "[STAGE] Harmoni Jiwa")
         }

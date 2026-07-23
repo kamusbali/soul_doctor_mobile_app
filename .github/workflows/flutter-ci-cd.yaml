@@ -1,0 +1,572 @@
+name: Flutter CI/CD
+
+on:
+  push:
+    branches:
+      - dev
+      - staging
+      - main
+      - "release/**"
+  pull_request:
+    branches:
+      - dev
+      - staging
+      - main
+      - "release/**"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: flutter-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ############################################################
+  # PULL REQUEST VALIDATION
+  ############################################################
+  validate:
+    name: Validate Pull Request
+    if: github.event_name == 'pull_request'
+    runs-on: macos-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version-file: .fvmrc
+          cache: true
+
+      - name: Install FVM
+        shell: bash
+        run: |
+          set -euo pipefail
+          dart pub global activate fvm
+          echo "$HOME/.pub-cache/bin" >> "$GITHUB_PATH"
+
+      - name: Install Flutter SDK with FVM
+        shell: bash
+        run: |
+          set -euo pipefail
+          fvm install
+          fvm flutter --version
+          fvm dart --version
+
+      - name: Generate Test .env
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > .env <<'EOF'
+          ENV_NAME=test
+          BASE_URL=https://example.invalid
+          EOF
+
+      - name: Validate Test .env
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          test -s .env || {
+            echo ".env was not generated or is empty"
+            exit 1
+          }
+
+          grep -q '^ENV_NAME=' .env || {
+            echo "ENV_NAME is missing from .env"
+            exit 1
+          }
+
+          grep -q '^BASE_URL=' .env || {
+            echo "BASE_URL is missing from .env"
+            exit 1
+          }
+
+      - name: Install Flutter Dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          fvm flutter pub get
+
+      # Aktifkan kembali setelah source code sudah bersih.
+      # - name: Analyze
+      #   run: fvm flutter analyze
+
+      # - name: Test
+      #   run: fvm flutter test
+
+  ############################################################
+  # DETERMINE BRANCH CONFIGURATION
+  ############################################################
+  prepare:
+    name: Prepare Configuration
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+
+    outputs:
+      environment_name: ${{ steps.config.outputs.environment_name }}
+      ios_lane: ${{ steps.config.outputs.ios_lane }}
+      android_lane: ${{ steps.config.outputs.android_lane }}
+      artifact_name: ${{ steps.config.outputs.artifact_name }}
+      build_ios: ${{ steps.config.outputs.build_ios }}
+
+    steps:
+      - name: Determine Branch Configuration
+        id: config
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          case "$GITHUB_REF_NAME" in
+            dev)
+              echo "environment_name=development" >> "$GITHUB_OUTPUT"
+              echo "ios_lane=development" >> "$GITHUB_OUTPUT"
+              echo "android_lane=development" >> "$GITHUB_OUTPUT"
+              echo "artifact_name=Development" >> "$GITHUB_OUTPUT"
+              echo "build_ios=false" >> "$GITHUB_OUTPUT"
+              ;;
+
+            staging)
+              echo "environment_name=staging" >> "$GITHUB_OUTPUT"
+
+              # iOS dikirim ke TestFlight.
+              echo "ios_lane=deploy_staging" >> "$GITHUB_OUTPUT"
+
+              # Android hanya build karena Google Play credential belum disiapkan.
+              echo "android_lane=staging" >> "$GITHUB_OUTPUT"
+
+              echo "artifact_name=Staging" >> "$GITHUB_OUTPUT"
+              echo "build_ios=true" >> "$GITHUB_OUTPUT"
+              ;;
+
+            release/*)
+              echo "environment_name=release" >> "$GITHUB_OUTPUT"
+              echo "ios_lane=release" >> "$GITHUB_OUTPUT"
+              echo "android_lane=release" >> "$GITHUB_OUTPUT"
+              echo "artifact_name=Release-Candidate" >> "$GITHUB_OUTPUT"
+              echo "build_ios=true" >> "$GITHUB_OUTPUT"
+              ;;
+
+            main)
+              echo "environment_name=production" >> "$GITHUB_OUTPUT"
+
+              # iOS upload ke App Store Connect.
+              echo "ios_lane=production" >> "$GITHUB_OUTPUT"
+
+              # Android sementara hanya build sampai Google Play credential tersedia.
+              echo "android_lane=release" >> "$GITHUB_OUTPUT"
+
+              echo "artifact_name=Production" >> "$GITHUB_OUTPUT"
+              echo "build_ios=true" >> "$GITHUB_OUTPUT"
+              ;;
+
+            *)
+              echo "Unsupported branch: $GITHUB_REF_NAME"
+              exit 1
+              ;;
+          esac
+
+  ############################################################
+  # BUILD AND DISTRIBUTE
+  ############################################################
+  build-and-distribute:
+    name: Build ${{ needs.prepare.outputs.artifact_name }}
+    if: github.event_name == 'push'
+    needs: prepare
+    runs-on: macos-latest
+    timeout-minutes: 60
+
+    environment:
+      name: ${{ needs.prepare.outputs.environment_name }}
+
+    env:
+      BUILD_NUMBER: ${{ github.run_number }}
+      LANG: en_US.UTF-8
+      LC_ALL: en_US.UTF-8
+
+      ANDROID_PACKAGE_NAME: ${{ vars.ANDROID_PACKAGE_NAME }}
+
+      IOS_BUNDLE_IDENTIFIER: ${{ vars.IOS_BUNDLE_IDENTIFIER }}
+      APPLE_DEVELOPER_TEAM_ID: ${{ vars.APPLE_DEVELOPER_TEAM_ID }}
+
+      MATCH_GIT_URL: ${{ vars.MATCH_GIT_URL }}
+      MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+      MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
+
+      APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+      APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+      APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}
+
+    steps:
+      ########################################################
+      # CHECKOUT
+      ########################################################
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # Penting: mencegah GITHUB_TOKEN milik checkout menambahkan
+          # http.https://github.com/.extraheader yang bentrok dengan
+          # MATCH_GIT_BASIC_AUTHORIZATION.
+          persist-credentials: false
+
+      ########################################################
+      # VALIDATE MATCH ACCESS
+      ########################################################
+      - name: Validate Match Repository Access
+        if: needs.prepare.outputs.build_ios == 'true'
+        shell: bash
+        timeout-minutes: 5
+        run: |
+          set -euo pipefail
+
+          : "${MATCH_GIT_URL:?MATCH_GIT_URL is not configured}"
+          : "${MATCH_GIT_BASIC_AUTHORIZATION:?MATCH_GIT_BASIC_AUTHORIZATION is not configured}"
+
+          MATCH_REPO_URL="${MATCH_GIT_URL%/}"
+
+          if [[ "$MATCH_REPO_URL" != *.git ]]; then
+            MATCH_REPO_URL="${MATCH_REPO_URL}.git"
+          fi
+
+          echo "Checking Match repository access: $MATCH_REPO_URL"
+
+          git \
+            -c credential.helper= \
+            -c "http.extraheader=Authorization: Basic ${MATCH_GIT_BASIC_AUTHORIZATION}" \
+            ls-remote "$MATCH_REPO_URL" HEAD \
+            > /dev/null
+
+          echo "Match repository access succeeded"
+
+      ########################################################
+      # FLUTTER & FVM
+      ########################################################
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version-file: .fvmrc
+          cache: true
+
+      - name: Install FVM
+        shell: bash
+        run: |
+          set -euo pipefail
+          dart pub global activate fvm
+          echo "$HOME/.pub-cache/bin" >> "$GITHUB_PATH"
+
+      - name: Install Flutter SDK with FVM
+        shell: bash
+        run: |
+          set -euo pipefail
+          fvm install
+          fvm flutter --version
+          fvm dart --version
+
+      ########################################################
+      # RUBY
+      ########################################################
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+          bundler-cache: false
+
+      - name: Show Ruby Version
+        shell: bash
+        run: |
+          set -euo pipefail
+          ruby --version
+          gem --version
+          bundle --version
+
+      ########################################################
+      # DOTENV
+      ########################################################
+      - name: Generate .env
+        shell: bash
+        env:
+          DOTENV_CONTENT: ${{ secrets.DOTENV }}
+        run: |
+          set -euo pipefail
+
+          if [[ -z "${DOTENV_CONTENT:-}" ]]; then
+            echo "DOTENV secret is not configured"
+            exit 1
+          fi
+
+          printf '%s\n' "$DOTENV_CONTENT" > .env
+
+          test -s .env || {
+            echo ".env was not generated or is empty"
+            exit 1
+          }
+
+      - name: Validate .env
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          grep -q '^ENV_NAME=' .env || {
+            echo "ENV_NAME is missing from .env"
+            exit 1
+          }
+
+          grep -q '^BASE_URL=' .env || {
+            echo "BASE_URL is missing from .env"
+            exit 1
+          }
+
+          grep -Eq '^BASE_URL=https?://.+' .env || {
+            echo "BASE_URL must start with http:// or https://"
+            exit 1
+          }
+
+          echo ".env validation succeeded"
+
+      ########################################################
+      # FLUTTER DEPENDENCIES
+      ########################################################
+      - name: Disable Flutter Swift Package Manager
+        if: needs.prepare.outputs.build_ios == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          fvm flutter config --no-enable-swift-package-manager
+
+      - name: Precache Flutter iOS Artifacts
+        if: needs.prepare.outputs.build_ios == 'true'
+        shell: bash
+        timeout-minutes: 15
+        run: |
+          set -euo pipefail
+          fvm flutter precache --ios
+
+      - name: Install Flutter Dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          fvm flutter pub get
+
+      # - name: Analyze
+      #   run: fvm flutter analyze
+
+      # - name: Test
+      #   run: fvm flutter test
+
+      ########################################################
+      # APP VERSION
+      ########################################################
+      - name: Get App Version
+        id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          FULL_VERSION="$(awk '/^version:/ {print $2; exit}' pubspec.yaml)"
+
+          if [[ -z "$FULL_VERSION" ]]; then
+            echo "Version was not found in pubspec.yaml"
+            exit 1
+          fi
+
+          VERSION_NAME="${FULL_VERSION%%+*}"
+
+          echo "version=$VERSION_NAME" >> "$GITHUB_OUTPUT"
+          echo "Version name: $VERSION_NAME"
+          echo "Build number: $BUILD_NUMBER"
+
+      ########################################################
+      # ANDROID RUBY DEPENDENCIES
+      ########################################################
+      - name: Install Android Gems
+        working-directory: android
+        shell: bash
+        timeout-minutes: 10
+        run: |
+          set -euo pipefail
+          bundle install
+          bundle exec fastlane --version
+
+      ########################################################
+      # IOS RUBY & COCOAPODS DEPENDENCIES
+      ########################################################
+      - name: Install iOS Gems
+        if: needs.prepare.outputs.build_ios == 'true'
+        working-directory: ios
+        shell: bash
+        timeout-minutes: 15
+        run: |
+          set -euo pipefail
+          bundle install
+          bundle exec fastlane --version
+          bundle exec pod --version
+
+      - name: Install iOS Pods
+        if: needs.prepare.outputs.build_ios == 'true'
+        working-directory: ios
+        shell: bash
+        timeout-minutes: 15
+        run: |
+          set -euo pipefail
+          bundle exec pod install --verbose
+
+      ########################################################
+      # ANDROID SIGNING
+      ########################################################
+      - name: Setup Android Signing
+        shell: bash
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+
+          : "${ANDROID_KEYSTORE_BASE64:?ANDROID_KEYSTORE_BASE64 is not configured}"
+          : "${ANDROID_KEYSTORE_PASSWORD:?ANDROID_KEYSTORE_PASSWORD is not configured}"
+          : "${ANDROID_KEY_ALIAS:?ANDROID_KEY_ALIAS is not configured}"
+          : "${ANDROID_KEY_PASSWORD:?ANDROID_KEY_PASSWORD is not configured}"
+
+          mkdir -p android/keystore
+
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" \
+            | base64 -D \
+            > android/keystore/upload-keystore.jks
+
+          test -s android/keystore/upload-keystore.jks || {
+            echo "Failed to decode Android keystore"
+            exit 1
+          }
+
+          cat > android/key.properties <<EOF
+          storePassword=$ANDROID_KEYSTORE_PASSWORD
+          keyPassword=$ANDROID_KEY_PASSWORD
+          keyAlias=$ANDROID_KEY_ALIAS
+          storeFile=../keystore/upload-keystore.jks
+          EOF
+
+      ########################################################
+      # GOOGLE PLAY CREDENTIALS
+      # Tetap dikomentari sampai service account siap.
+      ########################################################
+      # - name: Setup Google Play Credentials
+      #   if: github.ref_name == 'staging' || github.ref_name == 'main'
+      #   shell: bash
+      #   env:
+      #     GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_BASE64: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_BASE64 }}
+      #   run: |
+      #     set -euo pipefail
+      #
+      #     : "${GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_BASE64:?GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_BASE64 is not configured}"
+      #
+      #     mkdir -p "$RUNNER_TEMP/google-play"
+      #
+      #     printf '%s' "$GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_BASE64" \
+      #       | base64 -D \
+      #       > "$RUNNER_TEMP/google-play/service-account.json"
+      #
+      #     test -s "$RUNNER_TEMP/google-play/service-account.json" || {
+      #       echo "Failed to decode Google Play service account JSON"
+      #       exit 1
+      #     }
+      #
+      #     echo "GOOGLE_PLAY_JSON_KEY_PATH=$RUNNER_TEMP/google-play/service-account.json" \
+      #       >> "$GITHUB_ENV"
+
+      ########################################################
+      # RUN IOS FASTLANE
+      ########################################################
+      - name: Run iOS Fastlane
+        if: needs.prepare.outputs.build_ios == 'true'
+        working-directory: ios
+        timeout-minutes: 30
+        env:
+          FASTLANE_LANE: ${{ needs.prepare.outputs.ios_lane }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          bundle exec fastlane "$FASTLANE_LANE"
+
+      ########################################################
+      # SAVE IOS ARTIFACT BEFORE ANDROID CLEAN
+      ########################################################
+      - name: Locate iOS IPA
+        if: needs.prepare.outputs.build_ios == 'true'
+        id: ios_artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          IPA_PATH="$(
+            find "$GITHUB_WORKSPACE/build/ios/ipa"               -maxdepth 1               -type f               -name '*.ipa'               -print               -quit 2>/dev/null || true
+          )"
+
+          if [[ -z "$IPA_PATH" ]]; then
+            echo "IPA was not found after iOS Fastlane."
+            echo "Available iOS build output:"
+            find "$GITHUB_WORKSPACE/build/ios"               -maxdepth 6               -print 2>/dev/null || true
+            exit 1
+          fi
+
+          echo "IPA found: $IPA_PATH"
+          echo "ipa_path=$IPA_PATH" >> "$GITHUB_OUTPUT"
+
+      - name: Upload iOS Artifact
+        if: needs.prepare.outputs.build_ios == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: >-
+            [${{ needs.prepare.outputs.artifact_name }}]
+            iOS-v${{ steps.version.outputs.version }}+
+            ${{ env.BUILD_NUMBER }}
+          path: ${{ steps.ios_artifact.outputs.ipa_path }}
+          if-no-files-found: error
+          retention-days: 14
+
+      ########################################################
+      # RUN ANDROID FASTLANE
+      ########################################################
+      - name: Run Android Fastlane
+        working-directory: android
+        timeout-minutes: 30
+        env:
+          FASTLANE_LANE: ${{ needs.prepare.outputs.android_lane }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          bundle exec fastlane "$FASTLANE_LANE"
+
+      ########################################################
+      # UPLOAD ANDROID ARTIFACT
+      ########################################################
+      - name: Upload Android Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: >-
+            [${{ needs.prepare.outputs.artifact_name }}]
+            Android-v${{ steps.version.outputs.version }}+
+            ${{ env.BUILD_NUMBER }}
+          path: build/app/outputs/bundle/**/*.aab
+          if-no-files-found: error
+          retention-days: 14
+
+      ########################################################
+      # LOGS ON FAILURE
+      ########################################################
+      - name: Upload iOS Logs on Failure
+        if: failure() && needs.prepare.outputs.build_ios == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: iOS-build-logs-${{ github.run_number }}
+          path: |
+            ~/Library/Logs/CocoaPods
+            ~/Library/Developer/Xcode/DerivedData/**/Logs
+            build/ios
+          if-no-files-found: ignore
+          retention-days: 7

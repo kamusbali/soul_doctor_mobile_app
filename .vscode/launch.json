@@ -11,12 +11,12 @@
             ]
         },
         {
-            "name": "Launch Stagging",
+            "name": "Launch Staging",
             "request": "launch",
             "type": "dart",
-            "program": "lib/main_stagging.dart",
+            "program": "lib/main_staging.dart",
             "args": [
-                "-t", "lib/main_stagging.dart", "--flavor",  "stagging"
+                "-t", "lib/main_staging.dart", "--flavor",  "staging"
             ]
         },
         {
