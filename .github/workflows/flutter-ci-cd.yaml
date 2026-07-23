@@ -228,13 +228,15 @@ jobs:
           : "${MATCH_GIT_BASIC_AUTHORIZATION:?MATCH_GIT_BASIC_AUTHORIZATION is not configured}"
 
           MATCH_REPO_URL="${MATCH_GIT_URL%/}"
-          [[ "$MATCH_REPO_URL" == *.git ]] || MATCH_REPO_URL="${MATCH_REPO_URL}.git"
+
+          if [[ "$MATCH_REPO_URL" != *.git ]]; then
+            MATCH_REPO_URL="${MATCH_REPO_URL}.git"
+          fi
 
           echo "Checking Match repository access: $MATCH_REPO_URL"
 
           git \
             -c credential.helper= \
-            -c http.https://github.com/.extraheader= \
             -c "http.extraheader=Authorization: Basic ${MATCH_GIT_BASIC_AUTHORIZATION}" \
             ls-remote "$MATCH_REPO_URL" HEAD \
             > /dev/null
