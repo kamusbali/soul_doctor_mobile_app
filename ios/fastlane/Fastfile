@@ -498,15 +498,13 @@ platform :ios do
       api_key: api_key,
       ipa: ipa_path,
 
-      # Binary hanya di-upload ke App Store Connect.
       submit_for_review: false,
-
-      # Tidak otomatis dipublikasikan setelah disetujui.
       automatic_release: false,
 
       skip_metadata: true,
       skip_screenshots: true,
 
+      run_precheck_before_submit: false,
       force: true
     )
 
