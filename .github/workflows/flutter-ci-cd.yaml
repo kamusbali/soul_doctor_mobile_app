@@ -494,6 +494,42 @@ jobs:
           bundle exec fastlane "$FASTLANE_LANE"
 
       ########################################################
+      # SAVE IOS ARTIFACT BEFORE ANDROID CLEAN
+      ########################################################
+      - name: Locate iOS IPA
+        if: needs.prepare.outputs.build_ios == 'true'
+        id: ios_artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          IPA_PATH="$(
+            find "$GITHUB_WORKSPACE/build/ios/ipa"               -maxdepth 1               -type f               -name '*.ipa'               -print               -quit 2>/dev/null || true
+          )"
+
+          if [[ -z "$IPA_PATH" ]]; then
+            echo "IPA was not found after iOS Fastlane."
+            echo "Available iOS build output:"
+            find "$GITHUB_WORKSPACE/build/ios"               -maxdepth 6               -print 2>/dev/null || true
+            exit 1
+          fi
+
+          echo "IPA found: $IPA_PATH"
+          echo "ipa_path=$IPA_PATH" >> "$GITHUB_OUTPUT"
+
+      - name: Upload iOS Artifact
+        if: needs.prepare.outputs.build_ios == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: >-
+            [${{ needs.prepare.outputs.artifact_name }}]
+            iOS-v${{ steps.version.outputs.version }}+
+            ${{ env.BUILD_NUMBER }}
+          path: ${{ steps.ios_artifact.outputs.ipa_path }}
+          if-no-files-found: error
+          retention-days: 14
+
+      ########################################################
       # RUN ANDROID FASTLANE
       ########################################################
       - name: Run Android Fastlane
@@ -507,7 +543,7 @@ jobs:
           bundle exec fastlane "$FASTLANE_LANE"
 
       ########################################################
-      # UPLOAD ARTIFACTS
+      # UPLOAD ANDROID ARTIFACT
       ########################################################
       - name: Upload Android Artifact
         uses: actions/upload-artifact@v4
@@ -517,18 +553,6 @@ jobs:
             Android-v${{ steps.version.outputs.version }}+
             ${{ env.BUILD_NUMBER }}
           path: build/app/outputs/bundle/**/*.aab
-          if-no-files-found: error
-          retention-days: 14
-
-      - name: Upload iOS Artifact
-        if: needs.prepare.outputs.build_ios == 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          name: >-
-            [${{ needs.prepare.outputs.artifact_name }}]
-            iOS-v${{ steps.version.outputs.version }}+
-            ${{ env.BUILD_NUMBER }}
-          path: build/ios/ipa/*.ipa
           if-no-files-found: error
           retention-days: 14
 
