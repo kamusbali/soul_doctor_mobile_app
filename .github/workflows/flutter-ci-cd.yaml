@@ -404,32 +404,32 @@ jobs:
       ########################################################
       # GOOGLE PLAY CREDENTIALS
       ########################################################
-      - name: Setup Google Play Credentials
-        if: needs.prepare.outputs.upload_google_play == 'true'
-        shell: bash
-        env:
-          GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_BASE64: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_BASE64 }}
-        run: |
-          set -euo pipefail
+      # - name: Setup Google Play Credentials
+      #   if: needs.prepare.outputs.upload_google_play == 'true'
+      #   shell: bash
+      #   env:
+      #     GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_BASE64: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_BASE64 }}
+      #   run: |
+      #     set -euo pipefail
 
-          if [[ -z "${GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_BASE64:-}" ]]; then
-            echo "GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_BASE64 is not configured"
-            exit 1
-          fi
+      #     if [[ -z "${GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_BASE64:-}" ]]; then
+      #       echo "GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_BASE64 is not configured"
+      #       exit 1
+      #     fi
 
-          mkdir -p "$RUNNER_TEMP/google-play"
+      #     mkdir -p "$RUNNER_TEMP/google-play"
 
-          printf '%s' "$GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_BASE64" \
-            | base64 -D \
-            > "$RUNNER_TEMP/google-play/service-account.json"
+      #     printf '%s' "$GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_BASE64" \
+      #       | base64 -D \
+      #       > "$RUNNER_TEMP/google-play/service-account.json"
 
-          test -s "$RUNNER_TEMP/google-play/service-account.json" || {
-            echo "Failed to decode Google Play service account JSON"
-            exit 1
-          }
+      #     test -s "$RUNNER_TEMP/google-play/service-account.json" || {
+      #       echo "Failed to decode Google Play service account JSON"
+      #       exit 1
+      #     }
 
-          echo "GOOGLE_PLAY_JSON_KEY_PATH=$RUNNER_TEMP/google-play/service-account.json" \
-            >> "$GITHUB_ENV"
+      #     echo "GOOGLE_PLAY_JSON_KEY_PATH=$RUNNER_TEMP/google-play/service-account.json" \
+      #       >> "$GITHUB_ENV"
 
       ########################################################
       # VALIDATE MATCH ACCESS
@@ -507,18 +507,3 @@ jobs:
           path: build/ios/ipa/*.ipa
           if-no-files-found: error
           retention-days: 14
-
-      ########################################################
-      # DEBUG LOGS ON FAILURE
-      ########################################################
-      - name: Upload iOS Logs on Failure
-        if: failure() && needs.prepare.outputs.build_ios == 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          name: iOS-build-logs-${{ github.run_number }}
-          path: |
-            ~/Library/Logs/CocoaPods
-            ~/Library/Developer/Xcode/DerivedData/**/Logs
-            build/ios
-          if-no-files-found: ignore
-          retention-days: 7
