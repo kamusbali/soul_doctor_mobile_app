@@ -278,15 +278,7 @@ jobs:
             done <<< "$value"
           done < <(jq -r 'keys[]' <<< "$SECRET_JSON")
 
-          unset SECRET_JSON
-          echo "Development environment loaded from AWS Secrets Manager"
-          echo "======================================"
-          echo "AWS Secret Keys"
-          echo "======================================"
-
           jq -r 'to_entries[] | "\(.key) => \(.value | tostring | length) chars"' <<< "$SECRET_JSON"
-
-          echo "======================================"
 
       - name: Validate Development AWS Environment
         if: needs.prepare.outputs.environment_name == 'development'
