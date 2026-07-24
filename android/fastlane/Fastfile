@@ -10,19 +10,19 @@ platform :android do
   ############################################################
 
   def require_environment_variable(name)
-    value = ENV[name]
+    value = ENV[name]&.strip
 
-    if value.nil? || value.strip.empty?
+    if value.nil? || value.empty?
       UI.user_error!("#{name} is not configured")
     end
 
-    value.strip
+    value
   end
 
   def build_number
     number = require_environment_variable("BUILD_NUMBER")
 
-    unless number.match?(/^\d+$/)
+    unless number.match?(/\A\d+\z/)
       UI.user_error!(
         "BUILD_NUMBER must contain numbers only. Received: #{number}"
       )
@@ -44,22 +44,33 @@ platform :android do
     package_name
   end
 
-  def dotenv_path
-    File.join(PROJECT_ROOT, ".env")
+  ############################################################
+  # DOTENV
+  ############################################################
+
+  def dotenv_path(environment_file)
+    File.join(
+      PROJECT_ROOT,
+      "conf",
+      environment_file
+    )
   end
 
-  def parse_dotenv
-    path = dotenv_path
+  def parse_dotenv(environment_file)
+    path = dotenv_path(environment_file)
 
     unless File.exist?(path)
       UI.user_error!(
-        ".env was not found at #{path}. " \
-        "Generate it in GitHub Actions before running Fastlane."
+        "Environment file was not found at #{path}. " \
+        "Generate conf/#{environment_file} in GitHub Actions " \
+        "before running Fastlane."
       )
     end
 
     if File.zero?(path)
-      UI.user_error!(".env is empty: #{path}")
+      UI.user_error!(
+        "Environment file is empty: #{path}"
+      )
     end
 
     values = {}
@@ -79,36 +90,49 @@ platform :android do
     values
   end
 
-  def validate_dotenv(expected_environment)
-    values = parse_dotenv
+  def validate_dotenv(environment_file)
+    path = dotenv_path(environment_file)
+    values = parse_dotenv(environment_file)
 
     env_name = values["ENV_NAME"]
     base_url = values["BASE_URL"]
 
     if env_name.nil? || env_name.empty?
-      UI.user_error!("ENV_NAME is missing or empty in .env")
+      UI.user_error!(
+        "ENV_NAME is missing or empty in #{path}"
+      )
     end
 
     if base_url.nil? || base_url.empty?
-      UI.user_error!("BASE_URL is missing or empty in .env")
+      UI.user_error!(
+        "BASE_URL is missing or empty in #{path}"
+      )
     end
 
     unless base_url.match?(%r{\Ahttps?://.+})
       UI.user_error!(
-        "BASE_URL must start with http:// or https://"
+        "BASE_URL in #{path} must start with http:// or https://"
       )
     end
 
-    unless env_name.downcase == expected_environment.downcase
+    unresolved_placeholder = values.any? do |_key, value|
+      value.match?(/\$\{.+\}/)
+    end
+
+    if unresolved_placeholder
       UI.user_error!(
-        "Invalid ENV_NAME. Expected '#{expected_environment}', " \
-        "but received '#{env_name}'."
+        "Environment file contains unresolved placeholders: #{path}"
       )
     end
 
-    UI.success(".env successfully validated")
-    UI.message("Environment: #{env_name}")
+    UI.success(
+      "Environment file successfully validated: #{path}"
+    )
   end
+
+  ############################################################
+  # FLUTTER HELPERS
+  ############################################################
 
   def run_flutter(command)
     Dir.chdir(PROJECT_ROOT) do
@@ -117,31 +141,37 @@ platform :android do
   end
 
   def flutter_target(flavor)
-    target = File.join(
+    relative_target = "lib/main_#{flavor}.dart"
+
+    absolute_target = File.join(
       PROJECT_ROOT,
-      "lib",
-      "main_#{flavor}.dart"
+      relative_target
     )
 
-    unless File.exist?(target)
+    unless File.exist?(absolute_target)
       UI.user_error!(
-        "Flutter target was not found: lib/main_#{flavor}.dart"
+        "Flutter target was not found: #{relative_target}"
       )
     end
 
-    "lib/main_#{flavor}.dart"
+    relative_target
   end
 
-  def build_android(flavor:, expected_environment:)
-    validate_dotenv(expected_environment)
+  def build_android(
+    flavor:,
+    environment_file:
+  )
+    validate_dotenv(environment_file)
 
     target = flutter_target(flavor)
+    number = build_number
 
-    UI.header("Building Android")
+    UI.header("Building Android Application")
     UI.message("Flavor: #{flavor}")
     UI.message("Target: #{target}")
+    UI.message("Environment file: conf/#{environment_file}")
     UI.message("Package name: #{android_package_name}")
-    UI.message("Build number: #{build_number}")
+    UI.message("Build number: #{number}")
 
     run_flutter("clean")
     run_flutter("pub get")
@@ -151,9 +181,17 @@ platform :android do
       "--release " \
       "--flavor #{flavor} " \
       "--target #{target} " \
-      "--build-number=#{build_number}"
+      "--build-number=#{number}"
+    )
+
+    UI.success(
+      "Android #{flavor} application built successfully"
     )
   end
+
+  ############################################################
+  # ANDROID ARTIFACT
+  ############################################################
 
   def android_aab_path(flavor)
     possible_paths = [
@@ -188,8 +226,14 @@ platform :android do
       )
     end
 
+    UI.message("Android App Bundle: #{path}")
+
     path
   end
+
+  ############################################################
+  # GOOGLE PLAY
+  ############################################################
 
   def google_play_json_key
     path = require_environment_variable(
@@ -213,7 +257,7 @@ platform :android do
   lane :development do
     build_android(
       flavor: "development",
-      expected_environment: "development"
+      environment_file: "development.env"
     )
   end
 
@@ -225,7 +269,7 @@ platform :android do
   lane :staging do
     build_android(
       flavor: "staging",
-      expected_environment: "staging"
+      environment_file: "staging.env"
     )
   end
 
@@ -235,17 +279,17 @@ platform :android do
 
     build_android(
       flavor: flavor,
-      expected_environment: "staging"
+      environment_file: "staging.env"
     )
 
     # upload_to_play_store(
     #   package_name: android_package_name,
     #   json_key: google_play_json_key,
     #   aab: android_aab_path(flavor),
-
+    #
     #   track: "internal",
     #   release_status: "completed",
-
+    #
     #   skip_upload_metadata: true,
     #   skip_upload_images: true,
     #   skip_upload_screenshots: true
@@ -260,7 +304,7 @@ platform :android do
   lane :release do
     build_android(
       flavor: "production",
-      expected_environment: "production"
+      environment_file: "production.env"
     )
   end
 
@@ -274,17 +318,17 @@ platform :android do
 
     build_android(
       flavor: flavor,
-      expected_environment: "production"
+      environment_file: "production.env"
     )
 
     # upload_to_play_store(
     #   package_name: android_package_name,
     #   json_key: google_play_json_key,
     #   aab: android_aab_path(flavor),
-
+    #
     #   track: "production",
     #   release_status: "draft",
-
+    #
     #   skip_upload_metadata: true,
     #   skip_upload_images: true,
     #   skip_upload_screenshots: true

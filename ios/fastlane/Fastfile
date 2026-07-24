@@ -47,34 +47,40 @@ platform :ios do
   # DOTENV
   ############################################################
 
-  def dotenv_path
-    File.join(PROJECT_ROOT, ".env")
+  def dotenv_path(environment_file)
+    File.join(
+      PROJECT_ROOT,
+      "conf",
+      environment_file
+    )
   end
 
-  def parse_dotenv
-    path = dotenv_path
+  def parse_dotenv(environment_file)
+    path = dotenv_path(environment_file)
 
     unless File.exist?(path)
       UI.user_error!(
-        ".env was not found at #{path}. " \
-        "Generate it before running Fastlane."
+        "Environment file was not found at #{path}. " \
+        "Generate conf/#{environment_file} before running Fastlane."
       )
     end
 
     if File.zero?(path)
-      UI.user_error!(".env is empty: #{path}")
+      UI.user_error!(
+        "Environment file is empty: #{path}"
+      )
     end
 
     values = {}
 
     File.readlines(path, chomp: true).each do |line|
-      line = line.strip
+      stripped_line = line.strip
 
-      next if line.empty?
-      next if line.start_with?("#")
-      next unless line.include?("=")
+      next if stripped_line.empty?
+      next if stripped_line.start_with?("#")
+      next unless stripped_line.include?("=")
 
-      key, value = line.split("=", 2)
+      key, value = stripped_line.split("=", 2)
 
       values[key.strip] = value.to_s.strip
     end
@@ -82,39 +88,44 @@ platform :ios do
     values
   end
 
-  def validate_dotenv(expected_environment)
-    values = parse_dotenv
+  def validate_dotenv(environment_file)
+    path = dotenv_path(environment_file)
+    values = parse_dotenv(environment_file)
 
     env_name = values["ENV_NAME"]
     base_url = values["BASE_URL"]
 
     if env_name.nil? || env_name.empty?
       UI.user_error!(
-        "ENV_NAME is missing or empty in .env"
+        "ENV_NAME is missing or empty in #{path}"
       )
     end
 
     if base_url.nil? || base_url.empty?
       UI.user_error!(
-        "BASE_URL is missing or empty in .env"
+        "BASE_URL is missing or empty in #{path}"
       )
     end
 
     unless base_url.match?(%r{\Ahttps?://.+})
       UI.user_error!(
-        "BASE_URL must start with http:// or https://"
+        "BASE_URL in #{path} must start with http:// or https://"
       )
     end
 
-    unless env_name.casecmp?(expected_environment)
+    unresolved_placeholder = values.any? do |_key, value|
+      value.match?(/\$\{.+\}/)
+    end
+
+    if unresolved_placeholder
       UI.user_error!(
-        "Invalid ENV_NAME. Expected '#{expected_environment}', " \
-        "but received '#{env_name}'."
+        "Environment file contains unresolved placeholders: #{path}"
       )
     end
 
-    UI.success(".env successfully validated")
-    UI.message("Environment: #{env_name}")
+    UI.success(
+      "Environment file successfully validated: #{path}"
+    )
   end
 
   ############################################################
@@ -129,6 +140,7 @@ platform :ios do
 
   def flutter_target(flavor)
     relative_target = "lib/main_#{flavor}.dart"
+
     absolute_target = File.join(
       PROJECT_ROOT,
       relative_target
@@ -173,10 +185,7 @@ platform :ios do
       "MATCH_GIT_URL"
     )
 
-    # Menghapus trailing slash.
     url = url.sub(%r{/+\z}, "")
-
-    # Memastikan URL berakhiran .git.
     url = "#{url}.git" unless url.end_with?(".git")
 
     url
@@ -187,7 +196,6 @@ platform :ios do
       "MATCH_GIT_BASIC_AUTHORIZATION"
     )
 
-    # Nilai harus berupa Base64 satu baris.
     unless authorization.match?(/\A[A-Za-z0-9+\/=]+\z/)
       UI.user_error!(
         "MATCH_GIT_BASIC_AUTHORIZATION must be a valid " \
@@ -227,11 +235,11 @@ platform :ios do
     UI.message(
       "Running Match in readonly mode: #{readonly}"
     )
+
     UI.message(
       "Match repository: #{match_git_url}"
     )
 
-    # Membuat temporary keychain pada GitHub Actions.
     setup_ci if is_ci
 
     match(
@@ -278,9 +286,9 @@ platform :ios do
   def build_signed_ios(
     api_key:,
     flavor:,
-    expected_environment:
+    environment_file:
   )
-    validate_dotenv(expected_environment)
+    validate_dotenv(environment_file)
 
     setup_signing(
       api_key: api_key,
@@ -295,6 +303,7 @@ platform :ios do
     UI.header("Building Signed iOS Application")
     UI.message("Flavor: #{flavor}")
     UI.message("Target: #{target}")
+    UI.message("Environment file: conf/#{environment_file}")
     UI.message("Bundle ID: #{ios_bundle_identifier}")
     UI.message("Build number: #{number}")
 
@@ -322,9 +331,9 @@ platform :ios do
 
   def build_unsigned_ios(
     flavor:,
-    expected_environment:
+    environment_file:
   )
-    validate_dotenv(expected_environment)
+    validate_dotenv(environment_file)
 
     target = flutter_target(flavor)
     number = build_number
@@ -332,6 +341,7 @@ platform :ios do
     UI.header("Building Unsigned iOS Application")
     UI.message("Flavor: #{flavor}")
     UI.message("Target: #{target}")
+    UI.message("Environment file: conf/#{environment_file}")
     UI.message("Bundle ID: #{ios_bundle_identifier}")
     UI.message("Build number: #{number}")
 
@@ -371,7 +381,6 @@ platform :ios do
       )
     end
 
-    # Memilih IPA terbaru jika ada lebih dari satu.
     selected_ipa = ipa_files.max_by do |path|
       File.mtime(path)
     end
@@ -389,7 +398,7 @@ platform :ios do
   end
 
   ############################################################
-  # INITIAL MATCH SETUP — RUN LOCALLY ONCE
+  # INITIAL MATCH SETUP
   ############################################################
 
   desc "Create and store App Store certificates and profiles"
@@ -419,7 +428,7 @@ platform :ios do
   lane :development do
     build_unsigned_ios(
       flavor: "development",
-      expected_environment: "development"
+      environment_file: "development.env"
     )
   end
 
@@ -434,7 +443,7 @@ platform :ios do
     build_signed_ios(
       api_key: api_key,
       flavor: "staging",
-      expected_environment: "staging"
+      environment_file: "staging.env"
     )
   end
 
@@ -445,7 +454,7 @@ platform :ios do
     build_signed_ios(
       api_key: api_key,
       flavor: "staging",
-      expected_environment: "staging"
+      environment_file: "staging.env"
     )
 
     UI.header("Uploading iOS Application to TestFlight")
@@ -474,7 +483,7 @@ platform :ios do
     build_signed_ios(
       api_key: api_key,
       flavor: "production",
-      expected_environment: "production"
+      environment_file: "production.env"
     )
   end
 
@@ -489,7 +498,7 @@ platform :ios do
     build_signed_ios(
       api_key: api_key,
       flavor: "production",
-      expected_environment: "production"
+      environment_file: "production.env"
     )
 
     UI.header("Uploading Production Application")
@@ -498,10 +507,7 @@ platform :ios do
       api_key: api_key,
       ipa: ipa_path,
 
-      # Binary hanya di-upload ke App Store Connect.
       submit_for_review: false,
-
-      # Tidak otomatis dipublikasikan setelah disetujui.
       automatic_release: false,
 
       skip_metadata: true,
