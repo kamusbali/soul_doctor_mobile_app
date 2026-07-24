@@ -385,22 +385,39 @@ jobs:
       ########################################################
       # DOTENV
       ########################################################
+      # - name: Generate .env
+      #   shell: bash
+      #   run: |
+      #     set -euo pipefail
+
+      #     if [[ -z "${DOTENV:-}" ]]; then
+      #       echo "DOTENV is not configured"
+      #       exit 1
+      #     fi
+
+      #     printf '%s\n' "$DOTENV" > .env
+
+      #     test -s .env || {
+      #       echo ".env was not generated or is empty"
+      #       exit 1
+      #     }
       - name: Generate .env
         shell: bash
         run: |
           set -euo pipefail
 
-          if [[ -z "${DOTENV:-}" ]]; then
-            echo "DOTENV is not configured"
-            exit 1
+          if [[ "${{ needs.prepare.outputs.environment_name }}" == "development" ]]; then
+            : "${ENV_NAME:?ENV_NAME is not configured in AWS Secrets Manager}"
+            : "${BASE_URL:?BASE_URL is not configured in AWS Secrets Manager}"
+
+            {
+              printf 'ENV_NAME=%s\n' "$ENV_NAME"
+              printf 'BASE_URL=%s\n' "$BASE_URL"
+            } > .env
+          else
+            : "${DOTENV:?DOTENV is not configured in GitHub Environment}"
+            printf '%s\n' "$DOTENV" > .env
           fi
-
-          printf '%s\n' "$DOTENV" > .env
-
-          test -s .env || {
-            echo ".env was not generated or is empty"
-            exit 1
-          }
 
       - name: Validate .env
         shell: bash
