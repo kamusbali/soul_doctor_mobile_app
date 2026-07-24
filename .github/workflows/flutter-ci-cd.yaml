@@ -15,6 +15,7 @@ on:
       - "release/**"
 
 permissions:
+  id-token: write
   contents: read
 
 concurrency:
@@ -202,6 +203,13 @@ jobs:
       APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
       APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}
 
+      DOTENV: ${{ secrets.DOTENV }}
+
+      ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+      ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+      ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+      ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+
     steps:
       ########################################################
       # CHECKOUT
@@ -213,6 +221,89 @@ jobs:
           # http.https://github.com/.extraheader yang bentrok dengan
           # MATCH_GIT_BASIC_AUTHORIZATION.
           persist-credentials: false
+
+      ########################################################
+      # DEVELOPMENT — AWS SECRETS MANAGER
+      # Staging, release, dan production tetap memakai
+      # GitHub Environment secrets/variables seperti sebelumnya.
+      ########################################################
+      - name: Configure AWS Credentials for Development
+        if: needs.prepare.outputs.environment_name == 'development'
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          role-to-assume: arn:aws:iam::046003572913:role/GitHubActionsSoulDoctorDevelopmentSecretRole
+          aws-region: ap-southeast-2
+
+      - name: Load Development Environment from AWS Secrets Manager
+        if: needs.prepare.outputs.environment_name == 'development'
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          SECRET_JSON="$(
+            aws secretsmanager get-secret-value \
+              --secret-id development \
+              --query SecretString \
+              --output text
+          )"
+
+          if [[ -z "$SECRET_JSON" || "$SECRET_JSON" == "None" ]]; then
+            echo "AWS secret 'development' is empty or was not found"
+            exit 1
+          fi
+
+          jq -e 'type == "object"' <<< "$SECRET_JSON" > /dev/null || {
+            echo "AWS secret 'development' must contain a JSON object"
+            exit 1
+          }
+
+          # Export seluruh pasangan key/value JSON ke environment job.
+          # Dengan ini, seluruh konfigurasi development berasal dari AWS.
+          while IFS= read -r key; do
+            value="$(jq -er --arg key "$key" '.[$key] | if type == "string" then . else tostring end' <<< "$SECRET_JSON")" || {
+              echo "Failed to read key '$key' from AWS secret"
+              exit 1
+            }
+
+            delimiter="AWS_SECRET_$(uuidgen | tr '-' '_')"
+            {
+              echo "${key}<<${delimiter}"
+              echo "$value"
+              echo "$delimiter"
+            } >> "$GITHUB_ENV"
+
+            # Mask nilai agar tidak terlihat pada log.
+            while IFS= read -r line; do
+              [[ -n "$line" ]] && echo "::add-mask::$line"
+            done <<< "$value"
+          done < <(jq -r 'keys[]' <<< "$SECRET_JSON")
+
+          unset SECRET_JSON
+          echo "Development environment loaded from AWS Secrets Manager"
+
+      - name: Validate Development AWS Environment
+        if: needs.prepare.outputs.environment_name == 'development'
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          required_keys=(
+            DOTENV
+            ANDROID_PACKAGE_NAME
+            ANDROID_KEYSTORE_BASE64
+            ANDROID_KEYSTORE_PASSWORD
+            ANDROID_KEY_ALIAS
+            ANDROID_KEY_PASSWORD
+          )
+
+          for key in "${required_keys[@]}"; do
+            if [[ -z "${!key:-}" ]]; then
+              echo "$key is missing or empty in AWS secret 'development'"
+              exit 1
+            fi
+          done
+
+          echo "Required development configuration is available"
 
       ########################################################
       # VALIDATE MATCH ACCESS
@@ -289,17 +380,15 @@ jobs:
       ########################################################
       - name: Generate .env
         shell: bash
-        env:
-          DOTENV_CONTENT: ${{ secrets.DOTENV }}
         run: |
           set -euo pipefail
 
-          if [[ -z "${DOTENV_CONTENT:-}" ]]; then
-            echo "DOTENV secret is not configured"
+          if [[ -z "${DOTENV:-}" ]]; then
+            echo "DOTENV is not configured"
             exit 1
           fi
 
-          printf '%s\n' "$DOTENV_CONTENT" > .env
+          printf '%s\n' "$DOTENV" > .env
 
           test -s .env || {
             echo ".env was not generated or is empty"
@@ -420,11 +509,6 @@ jobs:
       ########################################################
       - name: Setup Android Signing
         shell: bash
-        env:
-          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
-          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
-          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
           set -euo pipefail
 
