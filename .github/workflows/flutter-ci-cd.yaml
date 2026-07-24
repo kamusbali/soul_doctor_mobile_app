@@ -7,7 +7,6 @@ on:
       - staging
       - main
       - "release/**"
-
   pull_request:
     branches:
       - dev
@@ -34,17 +33,11 @@ jobs:
     timeout-minutes: 30
 
     steps:
-      ########################################################
-      # CHECKOUT
-      ########################################################
       - name: Checkout
         uses: actions/checkout@v4
         with:
           persist-credentials: false
 
-      ########################################################
-      # FLUTTER & FVM
-      ########################################################
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -55,7 +48,6 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-
           dart pub global activate fvm
           echo "$HOME/.pub-cache/bin" >> "$GITHUB_PATH"
 
@@ -63,63 +55,43 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-
           fvm install
           fvm flutter --version
           fvm dart --version
 
-      ########################################################
-      # TEST DOTENV
-      ########################################################
-      - name: Generate Test Development Environment
+      - name: Generate Test .env
         shell: bash
         run: |
           set -euo pipefail
-
-          mkdir -p conf
-
-          cat > conf/development.env <<'EOF'
+          cat > .env <<'EOF'
           ENV_NAME=test
           BASE_URL=https://example.invalid
           EOF
 
-      - name: Validate Test Development Environment
+      - name: Validate Test .env
         shell: bash
         run: |
           set -euo pipefail
 
-          ENV_FILE="conf/development.env"
-
-          test -s "$ENV_FILE" || {
-            echo "$ENV_FILE was not generated or is empty"
+          test -s .env || {
+            echo ".env was not generated or is empty"
             exit 1
           }
 
-          grep -q '^ENV_NAME=' "$ENV_FILE" || {
-            echo "ENV_NAME is missing from $ENV_FILE"
+          grep -q '^ENV_NAME=' .env || {
+            echo "ENV_NAME is missing from .env"
             exit 1
           }
 
-          grep -q '^BASE_URL=' "$ENV_FILE" || {
-            echo "BASE_URL is missing from $ENV_FILE"
+          grep -q '^BASE_URL=' .env || {
+            echo "BASE_URL is missing from .env"
             exit 1
           }
 
-          grep -Eq '^BASE_URL=https?://.+' "$ENV_FILE" || {
-            echo "BASE_URL in $ENV_FILE must start with http:// or https://"
-            exit 1
-          }
-
-          echo "$ENV_FILE validation succeeded"
-
-      ########################################################
-      # FLUTTER DEPENDENCIES
-      ########################################################
       - name: Install Flutter Dependencies
         shell: bash
         run: |
           set -euo pipefail
-
           fvm flutter pub get
 
       # Aktifkan kembali setelah source code sudah bersih.
@@ -139,7 +111,6 @@ jobs:
 
     outputs:
       environment_name: ${{ steps.config.outputs.environment_name }}
-      env_file: ${{ steps.config.outputs.env_file }}
       ios_lane: ${{ steps.config.outputs.ios_lane }}
       android_lane: ${{ steps.config.outputs.android_lane }}
       artifact_name: ${{ steps.config.outputs.artifact_name }}
@@ -155,7 +126,6 @@ jobs:
           case "$GITHUB_REF_NAME" in
             dev)
               echo "environment_name=development" >> "$GITHUB_OUTPUT"
-              echo "env_file=conf/development.env" >> "$GITHUB_OUTPUT"
               echo "ios_lane=development" >> "$GITHUB_OUTPUT"
               echo "android_lane=development" >> "$GITHUB_OUTPUT"
               echo "artifact_name=Development" >> "$GITHUB_OUTPUT"
@@ -164,12 +134,11 @@ jobs:
 
             staging)
               echo "environment_name=staging" >> "$GITHUB_OUTPUT"
-              echo "env_file=conf/staging.env" >> "$GITHUB_OUTPUT"
 
               # iOS dikirim ke TestFlight.
               echo "ios_lane=deploy_staging" >> "$GITHUB_OUTPUT"
 
-              # Android hanya build.
+              # Android hanya build karena Google Play credential belum disiapkan.
               echo "android_lane=staging" >> "$GITHUB_OUTPUT"
 
               echo "artifact_name=Staging" >> "$GITHUB_OUTPUT"
@@ -178,7 +147,6 @@ jobs:
 
             release/*)
               echo "environment_name=release" >> "$GITHUB_OUTPUT"
-              echo "env_file=conf/release.env" >> "$GITHUB_OUTPUT"
               echo "ios_lane=release" >> "$GITHUB_OUTPUT"
               echo "android_lane=release" >> "$GITHUB_OUTPUT"
               echo "artifact_name=Release-Candidate" >> "$GITHUB_OUTPUT"
@@ -187,12 +155,11 @@ jobs:
 
             main)
               echo "environment_name=production" >> "$GITHUB_OUTPUT"
-              echo "env_file=conf/production.env" >> "$GITHUB_OUTPUT"
 
               # iOS upload ke App Store Connect.
               echo "ios_lane=production" >> "$GITHUB_OUTPUT"
 
-              # Android sementara hanya build.
+              # Android sementara hanya build sampai Google Play credential tersedia.
               echo "android_lane=release" >> "$GITHUB_OUTPUT"
 
               echo "artifact_name=Production" >> "$GITHUB_OUTPUT"
@@ -223,8 +190,6 @@ jobs:
       LANG: en_US.UTF-8
       LC_ALL: en_US.UTF-8
 
-      ENV_FILE: ${{ needs.prepare.outputs.env_file }}
-
       ANDROID_PACKAGE_NAME: ${{ vars.ANDROID_PACKAGE_NAME }}
 
       IOS_BUNDLE_IDENTIFIER: ${{ vars.IOS_BUNDLE_IDENTIFIER }}
@@ -238,7 +203,6 @@ jobs:
       APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
       APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}
 
-      # Hanya digunakan oleh staging, release, dan production.
       DOTENV: ${{ secrets.DOTENV }}
 
       ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
@@ -253,12 +217,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          # Mencegah GITHUB_TOKEN menambahkan extraheader yang dapat
-          # bentrok dengan MATCH_GIT_BASIC_AUTHORIZATION.
+          # Penting: mencegah GITHUB_TOKEN milik checkout menambahkan
+          # http.https://github.com/.extraheader yang bentrok dengan
+          # MATCH_GIT_BASIC_AUTHORIZATION.
           persist-credentials: false
 
       ########################################################
       # DEVELOPMENT — AWS SECRETS MANAGER
+      # Staging, release, dan production tetap memakai
+      # GitHub Environment secrets/variables seperti sebelumnya.
       ########################################################
       - name: Configure AWS Credentials for Development
         if: needs.prepare.outputs.environment_name == 'development'
@@ -291,19 +258,14 @@ jobs:
           }
 
           # Export seluruh pasangan key/value JSON ke environment job.
+          # Dengan ini, seluruh konfigurasi development berasal dari AWS.
           while IFS= read -r key; do
-            value="$(
-              jq -er \
-                --arg key "$key" \
-                '.[$key] | if type == "string" then . else tostring end' \
-                <<< "$SECRET_JSON"
-            )" || {
+            value="$(jq -er --arg key "$key" '.[$key] | if type == "string" then . else tostring end' <<< "$SECRET_JSON")" || {
               echo "Failed to read key '$key' from AWS secret"
               exit 1
             }
 
             delimiter="AWS_SECRET_$(uuidgen | tr '-' '_')"
-
             {
               echo "${key}<<${delimiter}"
               echo "$value"
@@ -316,11 +278,6 @@ jobs:
             done <<< "$value"
           done < <(jq -r 'keys[]' <<< "$SECRET_JSON")
 
-          # Hanya menampilkan nama key dan panjang value.
-          jq -r \
-            'to_entries[] | "\(.key) => \(.value | tostring | length) chars"' \
-            <<< "$SECRET_JSON"
-
       - name: Validate Development AWS Environment
         if: needs.prepare.outputs.environment_name == 'development'
         shell: bash
@@ -328,8 +285,7 @@ jobs:
           set -euo pipefail
 
           required_keys=(
-            ENV_NAME
-            BASE_URL
+            DOTENV
             ANDROID_PACKAGE_NAME
             ANDROID_KEYSTORE_BASE64
             ANDROID_KEYSTORE_PASSWORD
@@ -343,16 +299,6 @@ jobs:
               exit 1
             fi
           done
-
-          if [[ "$ENV_NAME" != "development" ]]; then
-            echo "ENV_NAME must be 'development', received: $ENV_NAME"
-            exit 1
-          fi
-
-          if [[ ! "$BASE_URL" =~ ^https?://.+ ]]; then
-            echo "BASE_URL must start with http:// or https://"
-            exit 1
-          fi
 
           echo "Required development configuration is available"
 
@@ -398,7 +344,6 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-
           dart pub global activate fvm
           echo "$HOME/.pub-cache/bin" >> "$GITHUB_PATH"
 
@@ -406,7 +351,6 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-
           fvm install
           fvm flutter --version
           fvm dart --version
@@ -424,24 +368,45 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-
           ruby --version
           gem --version
           bundle --version
 
       ########################################################
-      # GENERATE FLAVOR ENVIRONMENT FILE
+      # DOTENV
       ########################################################
-      - name: Generate Flavor Environment File
+      # - name: Generate .env
+      #   shell: bash
+      #   run: |
+      #     set -euo pipefail
+
+      #     if [[ -z "${DOTENV:-}" ]]; then
+      #       echo "DOTENV is not configured"
+      #       exit 1
+      #     fi
+
+      #     printf '%s\n' "$DOTENV" > .env
+
+      #     test -s .env || {
+      #       echo ".env was not generated or is empty"
+      #       exit 1
+      #     }
+      - name: Generate Environment File
         shell: bash
         run: |
           set -euo pipefail
 
-          : "${ENV_FILE:?ENV_FILE output is not configured}"
+          ENVIRONMENT_NAME="${{ needs.prepare.outputs.environment_name }}"
+
+          if [[ "$ENVIRONMENT_NAME" == "release" ]]; then
+            ENV_FILE="conf/production.env"
+          else
+            ENV_FILE="conf/${ENVIRONMENT_NAME}.env"
+          fi
 
           mkdir -p "$(dirname "$ENV_FILE")"
 
-          if [[ "${{ needs.prepare.outputs.environment_name }}" == "development" ]]; then
+          if [[ "$ENVIRONMENT_NAME" == "development" ]]; then
             : "${ENV_NAME:?ENV_NAME is not configured in AWS Secrets Manager}"
             : "${BASE_URL:?BASE_URL is not configured in AWS Secrets Manager}"
 
@@ -451,20 +416,28 @@ jobs:
             } > "$ENV_FILE"
           else
             : "${DOTENV:?DOTENV is not configured in GitHub Environment}"
-
             printf '%s\n' "$DOTENV" > "$ENV_FILE"
           fi
 
           chmod 600 "$ENV_FILE"
 
           echo "Environment file generated at $ENV_FILE"
+  
 
-      - name: Validate Flavor Environment File
+      - name: Validate Environment File
         shell: bash
         run: |
           set -euo pipefail
 
-          : "${ENV_FILE:?ENV_FILE output is not configured}"
+          ENVIRONMENT_NAME="${{ needs.prepare.outputs.environment_name }}"
+
+          if [[ "$ENVIRONMENT_NAME" == "release" ]]; then
+            ENV_FILE="conf/production.env"
+            EXPECTED_ENV_NAME="production"
+          else
+            ENV_FILE="conf/${ENVIRONMENT_NAME}.env"
+            EXPECTED_ENV_NAME="$ENVIRONMENT_NAME"
+          fi
 
           test -s "$ENV_FILE" || {
             echo "$ENV_FILE was not generated or is empty"
@@ -486,13 +459,7 @@ jobs:
             exit 1
           }
 
-          ACTUAL_ENV_NAME="$(
-            sed -n 's/^ENV_NAME=//p' "$ENV_FILE" \
-              | head -n 1 \
-              | tr -d '\r'
-          )"
-
-          EXPECTED_ENV_NAME="${{ needs.prepare.outputs.environment_name }}"
+          ACTUAL_ENV_NAME="$(sed -n 's/^ENV_NAME=//p' "$ENV_FILE" | head -n1 | tr -d '\r')"
 
           if [[ "$ACTUAL_ENV_NAME" != "$EXPECTED_ENV_NAME" ]]; then
             echo "ENV_NAME mismatch"
@@ -511,7 +478,6 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-
           fvm flutter config --no-enable-swift-package-manager
 
       - name: Precache Flutter iOS Artifacts
@@ -520,14 +486,12 @@ jobs:
         timeout-minutes: 15
         run: |
           set -euo pipefail
-
           fvm flutter precache --ios
 
       - name: Install Flutter Dependencies
         shell: bash
         run: |
           set -euo pipefail
-
           fvm flutter pub get
 
       # - name: Analyze
@@ -567,7 +531,6 @@ jobs:
         timeout-minutes: 10
         run: |
           set -euo pipefail
-
           bundle install
           bundle exec fastlane --version
 
@@ -581,7 +544,6 @@ jobs:
         timeout-minutes: 15
         run: |
           set -euo pipefail
-
           bundle install
           bundle exec fastlane --version
           bundle exec pod --version
@@ -593,7 +555,6 @@ jobs:
         timeout-minutes: 15
         run: |
           set -euo pipefail
-
           bundle exec pod install --verbose
 
       ########################################################
@@ -629,6 +590,7 @@ jobs:
 
       ########################################################
       # GOOGLE PLAY CREDENTIALS
+      # Tetap dikomentari sampai service account siap.
       ########################################################
       # - name: Setup Google Play Credentials
       #   if: github.ref_name == 'staging' || github.ref_name == 'main'
@@ -666,7 +628,6 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-
           bundle exec fastlane "$FASTLANE_LANE"
 
       ########################################################
@@ -680,22 +641,13 @@ jobs:
           set -euo pipefail
 
           IPA_PATH="$(
-            find "$GITHUB_WORKSPACE/build/ios/ipa" \
-              -maxdepth 1 \
-              -type f \
-              -name '*.ipa' \
-              -print \
-              -quit 2>/dev/null || true
+            find "$GITHUB_WORKSPACE/build/ios/ipa"               -maxdepth 1               -type f               -name '*.ipa'               -print               -quit 2>/dev/null || true
           )"
 
           if [[ -z "$IPA_PATH" ]]; then
             echo "IPA was not found after iOS Fastlane."
             echo "Available iOS build output:"
-
-            find "$GITHUB_WORKSPACE/build/ios" \
-              -maxdepth 6 \
-              -print 2>/dev/null || true
-
+            find "$GITHUB_WORKSPACE/build/ios"               -maxdepth 6               -print 2>/dev/null || true
             exit 1
           fi
 
@@ -725,7 +677,6 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-
           bundle exec fastlane "$FASTLANE_LANE"
 
       ########################################################
