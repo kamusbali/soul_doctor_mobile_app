@@ -433,10 +433,8 @@ jobs:
 
           if [[ "$ENVIRONMENT_NAME" == "release" ]]; then
             ENV_FILE="conf/production.env"
-            EXPECTED_ENV_NAME="production"
           else
             ENV_FILE="conf/${ENVIRONMENT_NAME}.env"
-            EXPECTED_ENV_NAME="$ENVIRONMENT_NAME"
           fi
 
           test -s "$ENV_FILE" || {
@@ -455,16 +453,13 @@ jobs:
           }
 
           grep -Eq '^BASE_URL=https?://.+' "$ENV_FILE" || {
-            echo "BASE_URL in $ENV_FILE must start with http:// or https://"
+            echo "BASE_URL must start with http:// or https://"
             exit 1
           }
 
-          ACTUAL_ENV_NAME="$(sed -n 's/^ENV_NAME=//p' "$ENV_FILE" | head -n1 | tr -d '\r')"
-
-          if [[ "$ACTUAL_ENV_NAME" != "$EXPECTED_ENV_NAME" ]]; then
-            echo "ENV_NAME mismatch"
-            echo "Expected: $EXPECTED_ENV_NAME"
-            echo "Received: $ACTUAL_ENV_NAME"
+          # Pastikan tidak ada placeholder yang belum terganti
+          if grep -q '\${.*}' "$ENV_FILE"; then
+            echo "Environment file still contains unresolved placeholders"
             exit 1
           fi
 
