@@ -31,7 +31,7 @@ class ReportDailyView extends GetView<ReportDailyController> {
           return Scaffold(
             appBar: AppBar(
               title: Text(
-                'Visit',
+                'Catatan Harian',
                 style: TextStyleTheme.BODY_2.copyWith(
                   color: ColorTheme.TEXT_100,
                 ),
