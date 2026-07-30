@@ -202,6 +202,13 @@ jobs:
       APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
       APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}
 
+      DOTENV: ${{ secrets.DOTENV }}
+
+      ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+      ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+      ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+      ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+
     steps:
       ########################################################
       # CHECKOUT
@@ -287,46 +294,85 @@ jobs:
       ########################################################
       # DOTENV
       ########################################################
-      - name: Generate .env
+      # - name: Generate .env
+      #   shell: bash
+      #   run: |
+      #     set -euo pipefail
+
+      #     if [[ -z "${DOTENV:-}" ]]; then
+      #       echo "DOTENV is not configured"
+      #       exit 1
+      #     fi
+
+      #     printf '%s\n' "$DOTENV" > .env
+
+      #     test -s .env || {
+      #       echo ".env was not generated or is empty"
+      #       exit 1
+      #     }
+      - name: Generate Environment File
         shell: bash
-        env:
-          DOTENV_CONTENT: ${{ secrets.DOTENV }}
         run: |
           set -euo pipefail
 
-          if [[ -z "${DOTENV_CONTENT:-}" ]]; then
-            echo "DOTENV secret is not configured"
-            exit 1
+          ENVIRONMENT_NAME="${{ needs.prepare.outputs.environment_name }}"
+
+          if [[ "$ENVIRONMENT_NAME" == "release" ]]; then
+            ENV_FILE="conf/production.env"
+          else
+            ENV_FILE="conf/${ENVIRONMENT_NAME}.env"
           fi
 
-          printf '%s\n' "$DOTENV_CONTENT" > .env
+          mkdir -p "$(dirname "$ENV_FILE")"
 
-          test -s .env || {
-            echo ".env was not generated or is empty"
-            exit 1
-          }
+          : "${DOTENV:?DOTENV is not configured in GitHub Environment}"
+          printf '%s\n' "$DOTENV" > "$ENV_FILE"
 
-      - name: Validate .env
+          chmod 600 "$ENV_FILE"
+
+          echo "Environment file generated at $ENV_FILE"
+  
+
+      - name: Validate Environment File
         shell: bash
         run: |
           set -euo pipefail
 
-          grep -q '^ENV_NAME=' .env || {
-            echo "ENV_NAME is missing from .env"
+          ENVIRONMENT_NAME="${{ needs.prepare.outputs.environment_name }}"
+
+          if [[ "$ENVIRONMENT_NAME" == "release" ]]; then
+            ENV_FILE="conf/production.env"
+          else
+            ENV_FILE="conf/${ENVIRONMENT_NAME}.env"
+          fi
+
+          test -s "$ENV_FILE" || {
+            echo "$ENV_FILE was not generated or is empty"
             exit 1
           }
 
-          grep -q '^BASE_URL=' .env || {
-            echo "BASE_URL is missing from .env"
+          grep -q '^ENV_NAME=' "$ENV_FILE" || {
+            echo "ENV_NAME is missing from $ENV_FILE"
             exit 1
           }
 
-          grep -Eq '^BASE_URL=https?://.+' .env || {
+          grep -q '^BASE_URL=' "$ENV_FILE" || {
+            echo "BASE_URL is missing from $ENV_FILE"
+            exit 1
+          }
+
+          grep -Eq '^BASE_URL=https?://.+' "$ENV_FILE" || {
             echo "BASE_URL must start with http:// or https://"
             exit 1
           }
 
-          echo ".env validation succeeded"
+          # Pastikan tidak ada placeholder yang belum terganti
+          if grep -q '\${.*}' "$ENV_FILE"; then
+            echo "Environment file still contains unresolved placeholders"
+            exit 1
+          fi
+
+          echo "$ENV_FILE validation succeeded"
 
       ########################################################
       # FLUTTER DEPENDENCIES
@@ -420,11 +466,6 @@ jobs:
       ########################################################
       - name: Setup Android Signing
         shell: bash
-        env:
-          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
-          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
-          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
           set -euo pipefail
 

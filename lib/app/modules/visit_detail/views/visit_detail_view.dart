@@ -348,7 +348,7 @@ class VisitDetailView extends GetView<VisitDetailController> {
                 if (data.state == ConsultationStatus.completed &&
                     data.doctorDiagnosis != null)
                   CardFullInformation(
-                    title: "Response Dokter",
+                    title: "Respons Dokter",
                     icon: Amicons.remix_stethoscope,
                     items: [
                       ItemInformation(

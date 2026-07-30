@@ -40,8 +40,10 @@ abstract class Routes {
   static const REPORT_DAILY = _Paths.REPORT_DAILY;
   static const REPORT_DAILY_PATIENT = _Paths.REPORT_DAILY_PATIENT;
   static const REPORT_DAILY_PATIENT_DETAIL = _Paths.REPORT_DAILY_PATIENT_DETAIL;
-  static const REMINDER_CALENDAR = _Paths.REMINDER_CALENDAR;
-  static const ADD_EDIT_REMINDER_CALENDAR = _Paths.ADD_EDIT_REMINDER_CALENDAR;
+  static const REMINDER_CARE_TASK = _Paths.REMINDER_CARE_TASK;
+  static const ADD_EDIT_REMINDER_CARE_TASK = _Paths.ADD_EDIT_REMINDER_CARE_TASK;
+  static const REMINDER_CARE_TASK_LIST_PATIENT =
+      _Paths.REMINDER_CARE_TASK_LIST_PATIENT;
 }
 
 abstract class _Paths {
@@ -83,6 +85,8 @@ abstract class _Paths {
   static const REPORT_DAILY = '/report-daily';
   static const REPORT_DAILY_PATIENT = '/report-daily-patient';
   static const REPORT_DAILY_PATIENT_DETAIL = '/report-daily-patient-detail';
-  static const REMINDER_CALENDAR = '/reminder-calendar';
-  static const ADD_EDIT_REMINDER_CALENDAR = '/add-edit-reminder-calendar';
+  static const REMINDER_CARE_TASK = '/reminder-care-task';
+  static const ADD_EDIT_REMINDER_CARE_TASK = '/add-edit-reminder-care-task';
+  static const REMINDER_CARE_TASK_LIST_PATIENT =
+      '/reminder-care-task-list-patient';
 }
