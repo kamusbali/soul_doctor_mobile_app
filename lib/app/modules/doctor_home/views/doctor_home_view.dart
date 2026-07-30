@@ -66,6 +66,40 @@ class DoctorHomeView extends GetView<DoctorHomeController> {
                     });
                   },
                 ),
+                SizedBox(height: SpacingTheme.SPACING_4),
+                InkWell(
+                  onTap: () {
+                    Get.toNamed(Routes.REMINDER_CARE_TASK_LIST_PATIENT);
+                  },
+                  child: Container(
+                    width: Get.width,
+                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: ColorTheme.PERSIAN_BLUE_400,
+                      borderRadius: BorderRadius.circular(
+                        SpacingTheme.SPACING_10,
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Tugas Perawatan",
+                          style: TextStyleTheme.BODY_2.copyWith(
+                            color: ColorTheme.NEUTRAL_100,
+                          ),
+                        ),
+                        SizedBox(height: SpacingTheme.SPACING_4),
+                        Text(
+                          "Atur Tugas Perawatan harian untuk membantu tetap konsisten dalam menjalani proses pemulihan.",
+                          style: TextStyleTheme.PARAGRAPH_5.copyWith(
+                            color: ColorTheme.NEUTRAL_400,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
                 SizedBox(height: SpacingTheme.SPACING_11),
 
                 SizedBox(

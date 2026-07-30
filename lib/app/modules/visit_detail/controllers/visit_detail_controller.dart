@@ -60,7 +60,7 @@ class VisitDetailController extends GetxController {
       (failure) {
         if (failure.errorType == ErrorType.sessionExpired) {
           UiFeedbackUtils.showDialog(
-            title: "Sesi Login Kadaluarsa",
+            title: "Sesi Login Kedaluwarsa",
             body: "Silahkan login kembali untuk dapat mengakses fitur",
             primaryButtonText: "Okay",
             onPrimaryPressed: () async {

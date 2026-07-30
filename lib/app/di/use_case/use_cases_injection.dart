@@ -9,6 +9,7 @@ import 'package:soul_doctor/app/di/use_case/visit_use_cases_injection.dart';
 import 'package:soul_doctor/app/di/use_case/volunteer_use_cases_injection.dart';
 
 import 'reminder_calendar_use_cases_injection.dart';
+import 'reminder_care_task_use_cases_injection.dart';
 
 class UseCasesInjection {
   static void inject() {
@@ -22,5 +23,6 @@ class UseCasesInjection {
     ScreeningUseCasesInjection.inject();
     DailyReportUseCasesInjection.inject();
     ReminderCalendarUseCasesInjection.inject();
+    ReminderCareTaskUseCasesInjection.inject();
   }
 }

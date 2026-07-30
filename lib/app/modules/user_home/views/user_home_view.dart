@@ -237,7 +237,18 @@ class UserHomeView extends GetView<UserHomeController> {
                           controller.user.value.data?.role == Role.caregiver
                       ? InkWell(
                           onTap: () {
-                            Get.toNamed(Routes.REMINDER_CALENDAR);
+                            if (controller.user.value.data?.role ==
+                                Role.patient) {
+                              Get.toNamed(
+                                Routes.REMINDER_CARE_TASK,
+                                arguments: controller.user.value.data!.id,
+                              );
+                            } else if (controller.user.value.data?.role ==
+                                Role.caregiver) {
+                              Get.toNamed(
+                                Routes.REMINDER_CARE_TASK_LIST_PATIENT,
+                              );
+                            }
                           },
                           child: Container(
                             width: Get.width,
@@ -253,14 +264,14 @@ class UserHomeView extends GetView<UserHomeController> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  "Pengingat Harian",
+                                  "Tugas Perawatan",
                                   style: TextStyleTheme.BODY_2.copyWith(
                                     color: ColorTheme.NEUTRAL_100,
                                   ),
                                 ),
                                 SizedBox(height: SpacingTheme.SPACING_4),
                                 Text(
-                                  "Atur pengingat harian untuk membantu tetap konsisten dalam menjalani proses pemulihan.",
+                                  "Atur Tugas Perawatan harian untuk membantu tetap konsisten dalam menjalani proses pemulihan.",
                                   style: TextStyleTheme.PARAGRAPH_5.copyWith(
                                     color: ColorTheme.NEUTRAL_400,
                                   ),
