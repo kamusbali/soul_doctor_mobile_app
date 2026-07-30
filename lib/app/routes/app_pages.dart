@@ -6,8 +6,8 @@ import '../modules/account_setting/bindings/account_setting_binding.dart';
 import '../modules/account_setting/views/account_setting_view.dart';
 import '../modules/add_consultation/bindings/add_consultation_binding.dart';
 import '../modules/add_consultation/views/add_consultation_view.dart';
-import '../modules/add_edit_reminder_calendar/bindings/add_edit_reminder_calendar_binding.dart';
-import '../modules/add_edit_reminder_calendar/views/add_edit_reminder_calendar_view.dart';
+import '../modules/add_edit_reminder_care_task/bindings/add_edit_reminder_care_task_binding.dart';
+import '../modules/add_edit_reminder_care_task/views/add_edit_reminder_care_task_view.dart';
 import '../modules/add_visit_request/bindings/add_visit_request_binding.dart';
 import '../modules/add_visit_request/views/add_visit_request_view.dart';
 import '../modules/assessment_question/bindings/assessment_question_binding.dart';
@@ -50,8 +50,10 @@ import '../modules/patient_wrapper/bindings/patient_wrapper_binding.dart';
 import '../modules/patient_wrapper/views/patient_wrapper_view.dart';
 import '../modules/register/bindings/register_binding.dart';
 import '../modules/register/views/register_view.dart';
-import '../modules/reminder_calendar/bindings/reminder_calendar_binding.dart';
-import '../modules/reminder_calendar/views/reminder_calendar_view.dart';
+import '../modules/reminder_care_task/bindings/reminder_care_task_binding.dart';
+import '../modules/reminder_care_task/views/reminder_care_task_view.dart';
+import '../modules/reminder_care_task_list_patient/bindings/reminder_care_task_list_patient_binding.dart';
+import '../modules/reminder_care_task_list_patient/views/reminder_care_task_list_patient_view.dart';
 import '../modules/report_daily/bindings/report_daily_binding.dart';
 import '../modules/report_daily/views/report_daily_view.dart';
 import '../modules/report_daily_patient/bindings/report_daily_patient_binding.dart';
@@ -281,14 +283,19 @@ class AppPages {
       binding: ReportDailyPatientDetailBinding(),
     ),
     GetPage(
-      name: _Paths.REMINDER_CALENDAR,
-      page: () => const ReminderCalendarView(),
-      binding: ReminderCalendarBinding(),
+      name: _Paths.REMINDER_CARE_TASK,
+      page: () => const ReminderCareTaskView(),
+      binding: ReminderCareTaskBinding(),
     ),
     GetPage(
-      name: _Paths.ADD_EDIT_REMINDER_CALENDAR,
-      page: () => const AddEditReminderCalendarView(),
-      binding: AddEditReminderCalendarBinding(),
+      name: _Paths.ADD_EDIT_REMINDER_CARE_TASK,
+      page: () => const AddEditReminderCareTaskView(),
+      binding: AddEditReminderCareTaskBinding(),
+    ),
+    GetPage(
+      name: _Paths.REMINDER_CARE_TASK_LIST_PATIENT,
+      page: () => const ReminderCareTaskListPatientView(),
+      binding: ReminderCareTaskListPatientBinding(),
     ),
   ];
 }

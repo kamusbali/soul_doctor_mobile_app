@@ -12,6 +12,7 @@ import 'package:soul_doctor/app/data/source/static/provider.dart/screening_provi
 import '../data/source/local/provider/patient_local_provider.dart';
 import '../data/source/local/provider/reminder_calendar_local_provider.dart';
 import '../data/source/remote/provider/reminder_calendar_provider.dart';
+import '../data/source/remote/provider/reminder_care_task_provider.dart';
 
 class ProviderInjection {
   static void inject() {
@@ -27,5 +28,6 @@ class ProviderInjection {
     Get.put(ReminderCalendarLocalProvider.instance);
     Get.put(PatientLocalProvider());
     Get.put(ReminderCalendarProvider());
+    Get.put(ReminderCareTaskProvider());
   }
 }

@@ -193,7 +193,7 @@ class AddVisitRequestView extends GetView<AddVisitRequestController> {
               ),
               child: FilledButton(
                 onPressed: controller.onAddConsultation,
-                child: Text("Ajukan Konsultasi", style: TextStyleTheme.LABEL_1),
+                child: Text("Ajukan Visit", style: TextStyleTheme.LABEL_1),
               ),
             ),
           );

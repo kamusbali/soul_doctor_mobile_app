@@ -21,7 +21,7 @@ class ReportDailyPatientDetailView
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Detail Permintaan',
+          'Detail Catatan Harian',
           style: TextStyleTheme.BODY_2.copyWith(color: ColorTheme.TEXT_100),
         ),
         backgroundColor: Colors.white,
