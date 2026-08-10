@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 
 import '../../../common/resource.dart';
 import '../../../core/error/error_type.dart';
 import '../../../domain/model/patient.dart';
-import '../../../domain/model/role.dart';
 import '../../../domain/model/session_data.dart';
 import '../../../domain/use_case/auth_use_cases/auth_use_cases.dart';
 import '../../../domain/use_case/patient_use_cases/patient_use_cases.dart';
@@ -65,12 +63,6 @@ class ReminderCareTaskListPatientController extends GetxController {
   }
 
   void getPatient() async {
-    final bool isConnected = await InternetConnection().hasInternetAccess;
-
-    if (!isConnected && user.value.data?.role == Role.volunteer) {
-      print("here");
-      return;
-    }
     patient.value = Resource.loading();
 
     var data = await _patientUseCases.getPatientUseCase.execute(

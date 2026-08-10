@@ -15,7 +15,9 @@ class PatientLocalDto {
         name: json["name"],
         summary: json["summary"] == null
             ? null
-            : PatientSummaryLocalDto.fromJson(json["summary"]),
+            : PatientSummaryLocalDto.fromJson(
+                Map<String, dynamic>.from(json["summary"] as Map),
+              ),
       );
 
   Map<String, dynamic> toJson() => {
