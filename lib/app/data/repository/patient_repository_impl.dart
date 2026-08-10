@@ -86,16 +86,7 @@ class PatientRepositoryImpl implements PatientRepository {
     final bool isConnected = await InternetConnection().hasInternetAccess;
 
     if (!isConnected) {
-      var localData = _patientLocalProvider.getAllPatientData();
-      if (localData.isEmpty) {
-        return Left(
-          Failure("Tidak ada koneksi internet dan data lokal kosong"),
-        );
-      }
-      var patientResponseDto = PatientResponseDto(
-        patients: localData.map((e) => e.toPatientItemResponseDto()).toList(),
-      );
-      return Right(patientResponseDto);
+      return _getCachedPatients(q: q);
     }
 
     try {
@@ -111,27 +102,53 @@ class PatientRepositoryImpl implements PatientRepository {
       return Right(response.data!);
     } catch (e) {
       if (e is DioException) {
-        try {
-          var networkErrorMessage = ResponseWrapper.fromJson(
-            (e).response?.data,
-            (_) {},
-          );
-          if (networkErrorMessage.status == 401) {
+        if (e.response?.statusCode == 401) {
+          try {
+            var networkErrorMessage = ResponseWrapper.fromJson(
+              e.response?.data,
+              (_) {},
+            );
             return Left(
               Failure(
-                networkErrorMessage.message.toString(),
+                networkErrorMessage.message ?? "Sesi login kadaluarsa",
+                errorType: ErrorType.sessionExpired,
+              ),
+            );
+          } catch (_) {
+            return Left(
+              Failure(
+                "Sesi login kadaluarsa",
                 errorType: ErrorType.sessionExpired,
               ),
             );
           }
-          return Left(
-            Failure(networkErrorMessage.message ?? "Unexpected Error Occured"),
-          );
-        } catch (e) {
-          return Left(Failure("Error dalam melakukan konversi"));
         }
+
+        // Connectivity checks can briefly report online while the request is
+        // already failing. Keep the app usable with the last successful data.
+        return _getCachedPatients(q: q);
       }
       return Left(Failure(e.toString()));
+    }
+  }
+
+  Either<Failure, PatientResponseDto> _getCachedPatients({String? q}) {
+    try {
+      final localData = _patientLocalProvider.getAllPatientData(query: q);
+      if (localData.isEmpty) {
+        return Left(
+          Failure("Tidak ada koneksi internet dan data lokal kosong"),
+        );
+      }
+      return Right(
+        PatientResponseDto(
+          patients: localData
+              .map((patient) => patient.toPatientItemResponseDto())
+              .toList(),
+        ),
+      );
+    } catch (_) {
+      return Left(Failure("Data pasien lokal tidak dapat dibaca"));
     }
   }
 
