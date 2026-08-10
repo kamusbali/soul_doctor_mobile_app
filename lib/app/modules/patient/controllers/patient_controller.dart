@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:soul_doctor/app/domain/model/patient.dart';
-import 'package:soul_doctor/app/domain/model/role.dart';
 import 'package:soul_doctor/app/domain/use_case/auth_use_cases/auth_use_cases.dart';
 import 'package:soul_doctor/app/domain/use_case/patient_use_cases/patient_use_cases.dart';
 
@@ -62,17 +60,10 @@ class PatientController extends GetxController {
   }
 
   void getPatient() async {
-    final bool isConnected = await InternetConnection().hasInternetAccess;
-
-    if (!isConnected && user.value.data?.role == Role.volunteer) {
-      print("here");
-      return;
-    }
     patient.value = Resource.loading();
 
     var data = await _patientUseCases.getPatientUseCase.execute(
       q: searchController.text,
-      
     );
 
     data.fold(
