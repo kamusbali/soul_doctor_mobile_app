@@ -66,14 +66,14 @@ android {
     productFlavors {
         create("development") {
             dimension = "app"
-            versionNameSuffix "-dev"
+            versionNameSuffix = "-dev"
             manifestPlaceholders["app_name"] = "[DEV] Harmoni Jiwa"
             resValue("string", "app_name", "[DEV] Harmoni Jiwa")
         }
 
         create("staging") {
             dimension = "app"
-            versionNameSuffix "-stage"
+            versionNameSuffix = "-stage"
             manifestPlaceholders["app_name"] = "[STAGE] Harmoni Jiwa"
             resValue("string", "app_name", "[STAGE] Harmoni Jiwa")
         }
