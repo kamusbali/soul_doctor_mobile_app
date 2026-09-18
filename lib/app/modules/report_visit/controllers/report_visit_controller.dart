@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:soul_doctor/app/common/resource.dart';
+import 'package:soul_doctor/app/data/source/local/provider/sync_provider_data.dart';
 import 'package:soul_doctor/app/domain/model/after_sleep_condition.dart';
 import 'package:soul_doctor/app/domain/model/comunication.dart';
 import 'package:soul_doctor/app/domain/model/visit_result_status.dart';
@@ -223,7 +224,66 @@ class ReportVisitController extends GetxController {
     );
 
     response.fold(
-      (failure) {
+      (failure) async {
+        if (failure.errorType == ErrorType.noConnection) {
+          await SyncProviderData.instance.addVisitReportData(
+            visitId: reportVisitSettings.visitId,
+            observation: observation.text,
+            sideEffect: selectedSideEffect,
+            resultStatusId: selectedVisitResultStatus?.id,
+            cooperation: reportVisitSettings.isHasData
+                ? null
+                : cooperationController.text,
+            mainDisease: reportVisitSettings.isHasData
+                ? null
+                : mainDiseaseController.text,
+            autoanamnesis: reportVisitSettings.isHasData
+                ? null
+                : autoanamnesisController.text,
+            diseaseHistory: reportVisitSettings.isHasData
+                ? null
+                : diseaseHistoryController.text,
+            familyHistory: reportVisitSettings.isHasData
+                ? null
+                : familyHistoryController.text,
+            heteroanamnesis: reportVisitSettings.isHasData
+                ? null
+                : heteroanamnesisController.text,
+            medicationHistory: reportVisitSettings.isHasData
+                ? null
+                : medicationHistoryController.text,
+            psychiatricStatus: reportVisitSettings.isHasData
+                ? null
+                : psychiatricStatusController.text,
+            images: pictures.isEmpty ? null : pictures,
+            sleepHour: reportVisitSettings.isHasData
+                ? null
+                : int.tryParse(sleepHourController.text),
+            afterSleepConditionId: selectedAfterSleepCondition?.id,
+            medicineConditionId: selectedMedicineCondition?.id,
+            communicationId: selectedComunication?.id,
+            selfCareId: selectedSelfCare?.id,
+            doingCeremony: selectedDoingCeremony,
+            ceremonyName: ceremonyNameController.text.isEmpty
+                ? null
+                : ceremonyNameController.text,
+            pemuputUpacaraId: selectedPemuputUpacara?.id,
+          );
+
+          addReportStatus.value = Resource.success(true);
+          UiFeedbackUtils.showDialog(
+            title: "Data Tersimpan",
+            body:
+                "Tidak ada koneksi internet. Data akan terkirim otomatis saat koneksi tersedia.",
+            primaryButtonText: "Okay",
+            onPrimaryPressed: () {
+              Get.back();
+              Get.offAllNamed(Routes.VOLUNTEER_WRAPPER);
+            },
+          );
+          return;
+        }
+
         if (failure.errorType == ErrorType.sessionExpired) {
           UiFeedbackUtils.showDialog(
             title: "Sesi Login Kadaluarsa",
@@ -248,7 +308,7 @@ class ReportVisitController extends GetxController {
         );
         addReportStatus.value = Resource.error(failure.message);
       },
-      (success) {
+      (success) async {
         if (!success) {
           if (Get.isDialogOpen != true) {
             UiFeedbackUtils.showDialog(

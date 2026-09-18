@@ -47,6 +47,8 @@ class SyncProviderData {
   Future<void> addVisitReportData({
     required String visitId,
     required String observation,
+    bool? sideEffect,
+    int? resultStatusId,
     String? cooperation,
     String? mainDisease,
     String? autoanamnesis,
@@ -75,6 +77,8 @@ class SyncProviderData {
     final data = VisitReportLocalDto(
       visitId: visitId,
       observation: observation,
+      sideEffect: sideEffect,
+      resultStatusId: resultStatusId,
       cooperation: cooperation,
       mainDisease: mainDisease,
       autoanamnesis: autoanamnesis,
@@ -95,6 +99,10 @@ class SyncProviderData {
     );
 
     await _visitReportBox.put(visitId, data.toJson());
+  }
+
+  Future<void> deleteVisitReportData(String visitId) async {
+    await _visitReportBox.delete(visitId);
   }
 
   Either<Failure, List<VisitReportLocalDto>> getVisitReport() {

@@ -48,4 +48,4 @@ app.*.map.json
 .fvm/
 
 .env
-conf/*.env
+conf/*.envgraphify-out/
