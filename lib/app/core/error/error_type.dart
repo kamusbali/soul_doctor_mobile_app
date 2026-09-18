@@ -1,1 +1,1 @@
-enum ErrorType { sessionExpired }
+enum ErrorType { sessionExpired, noConnection }

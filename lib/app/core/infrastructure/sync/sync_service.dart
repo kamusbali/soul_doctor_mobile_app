@@ -19,14 +19,14 @@ void syncServiceStart() {
 
     var dataStatus = syncProviderData.getVisitReport();
 
-    dataStatus.fold(
+    await dataStatus.fold(
       (failure) {
         return Future.value(false);
       },
-      (success) {
-        if (success.isNotEmpty) {
-          for (var data in success) {
-            visitProvider.reportVisit(
+      (success) async {
+        for (var data in success) {
+          try {
+            await visitProvider.reportVisit(
               visitId: data.visitId ?? "",
               observation: data.observation ?? "",
               cooperation: data.cooperation,
@@ -38,11 +38,23 @@ void syncServiceStart() {
               medicationHistory: data.medicationHistory,
               psychiatricStatus: data.psychiatricStatus,
               images: data.images
-                  ?.map((data) => MultipartFile.fromBytes(data))
+                  ?.map((image) => MultipartFile.fromBytes(image))
                   .toList(),
               sideEffect: data.sideEffect ?? false,
               resultStatusId: data.resultStatusId ?? 1,
+              sleepHour: data.sleepHour,
+              afterSleepConditionId: data.afterSleepConditionId,
+              medicineConditionId: data.medicineConditionId,
+              communicationId: data.communicationId,
+              selfCareId: data.selfCareId,
+              doingCeremony: data.doingCeremony,
+              ceremonyName: data.ceremonyName,
+              pemuputUpacaraId: data.pemuputUpacaraId,
             );
+            // Sent - drop it from the queue so the next periodic run doesn't resend it.
+            await syncProviderData.deleteVisitReportData(data.visitId ?? "");
+          } catch (e) {
+            // Leave it queued; the next periodic run (network-connected constraint) retries it.
           }
         }
       },

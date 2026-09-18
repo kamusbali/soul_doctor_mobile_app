@@ -13,9 +13,7 @@ import 'package:soul_doctor/app/domain/model/pemuput_upacara.dart';
 import 'package:soul_doctor/app/domain/model/visit_result_status.dart';
 import 'package:soul_doctor/app/domain/repository/visit_repository.dart';
 
-import '../../core/error/error_type.dart';
 import '../../domain/model/self_care.dart';
-import '../source/remote/dto/common/response_wrapper.dart';
 
 class VisitRepositoryImpl implements VisitRepository {
   final VisitProvider _visitProvider;
@@ -38,23 +36,7 @@ class VisitRepositoryImpl implements VisitRepository {
       );
       return Right(true);
     } catch (e) {
-      if (e is DioException) {
-        var networkErrorMessage = ResponseWrapper.fromJson(
-          (e).response?.data,
-          (_) {},
-        );
-        if (networkErrorMessage.status == 401) {
-          return Left(
-            Failure(
-              networkErrorMessage.message.toString(),
-              errorType: ErrorType.sessionExpired,
-            ),
-          );
-        }
-        return Left(
-          Failure(networkErrorMessage.message ?? "Unexpected Error Occured"),
-        );
-      }
+      if (e is DioException) return Left(mapDioExceptionToFailure(e));
       return Left(Failure(e.toString()));
     }
   }
@@ -123,24 +105,7 @@ class VisitRepositoryImpl implements VisitRepository {
 
       return Right(true);
     } catch (e) {
-      if (e is DioException) {
-        print(e);
-        var networkErrorMessage = ResponseWrapper.fromJson(
-          (e).response?.data,
-          (_) {},
-        );
-        if (networkErrorMessage.status == 401) {
-          return Left(
-            Failure(
-              networkErrorMessage.message.toString(),
-              errorType: ErrorType.sessionExpired,
-            ),
-          );
-        }
-        return Left(
-          Failure(networkErrorMessage.message ?? "Unexpected Error Occured"),
-        );
-      }
+      if (e is DioException) return Left(mapDioExceptionToFailure(e));
       return Left(Failure(e.toString()));
     }
   }
@@ -155,23 +120,7 @@ class VisitRepositoryImpl implements VisitRepository {
       );
       return Right(true);
     } catch (e) {
-      if (e is DioException) {
-        var networkErrorMessage = ResponseWrapper.fromJson(
-          (e).response?.data,
-          (_) {},
-        );
-        if (networkErrorMessage.status == 401) {
-          return Left(
-            Failure(
-              networkErrorMessage.message.toString(),
-              errorType: ErrorType.sessionExpired,
-            ),
-          );
-        }
-        return Left(
-          Failure(networkErrorMessage.message ?? "Unexpected Error Occured"),
-        );
-      }
+      if (e is DioException) return Left(mapDioExceptionToFailure(e));
       return Left(Failure(e.toString()));
     }
   }
@@ -187,23 +136,7 @@ class VisitRepositoryImpl implements VisitRepository {
       );
       return Right(true);
     } catch (e) {
-      if (e is DioException) {
-        var networkErrorMessage = ResponseWrapper.fromJson(
-          (e).response?.data,
-          (_) {},
-        );
-        if (networkErrorMessage.status == 401) {
-          return Left(
-            Failure(
-              networkErrorMessage.message.toString(),
-              errorType: ErrorType.sessionExpired,
-            ),
-          );
-        }
-        return Left(
-          Failure(networkErrorMessage.message ?? "Unexpected Error Occured"),
-        );
-      }
+      if (e is DioException) return Left(mapDioExceptionToFailure(e));
       return Left(Failure(e.toString()));
     }
   }

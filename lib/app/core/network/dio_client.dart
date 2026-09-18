@@ -15,7 +15,14 @@ class DioClient {
   }
 
   static Dio _createDio() {
-    final dio = Dio(BaseOptions(baseUrl: ApiUrl.baseUrl ?? ""));
+    final dio = Dio(
+      BaseOptions(
+        baseUrl: ApiUrl.baseUrl ?? "",
+        connectTimeout: const Duration(seconds: 20),
+        sendTimeout: const Duration(seconds: 30),
+        receiveTimeout: const Duration(seconds: 30),
+      ),
+    );
 
     dio.interceptors.add(
       InterceptorsWrapper(
