@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 
 import '../../../common/resource.dart';
 import '../../../core/error/error_type.dart' show ErrorType;
+import '../../../domain/model/care_task_status.dart';
 import '../../../domain/model/reminder_care_task.dart';
 import '../../../domain/model/session_data.dart';
 import '../../../domain/use_case/auth_use_cases/auth_use_cases.dart';
@@ -25,6 +26,39 @@ class ReminderCareTaskController extends GetxController {
 
   var reminderCalendar = Resource<List<ReminderCareTask>>.none().obs;
   var markAsDoneReminderCareTaskState = Resource<bool>.none().obs;
+
+  var selectedCareTaskStatus = CareTaskStatus.pending.obs;
+
+  void changeCareTaskStatusTab(CareTaskStatus status) {
+    selectedCareTaskStatus.value = status;
+  }
+
+  /// Tasks matching the selected tab, grouped the same way as
+  /// [reminderCalendar]. Derived on read - switching tabs never mutates or
+  /// drops the fetched data.
+  List<ReminderCareTask> get filteredReminderCareTask {
+    final tasks = reminderCalendar.value.data ?? [];
+
+    return tasks
+        .map(
+          (task) => ReminderCareTask(
+            id: task.id,
+            doctorId: task.doctorId,
+            patientId: task.patientId,
+            title: task.title,
+            description: task.description,
+            frequencyPerDay: task.frequencyPerDay,
+            details: task.details
+                .where(
+                  (detail) =>
+                      detail.careTaskStatus == selectedCareTaskStatus.value,
+                )
+                .toList(),
+          ),
+        )
+        .where((task) => task.details.isNotEmpty)
+        .toList();
+  }
 
   @override
   void onInit() {
