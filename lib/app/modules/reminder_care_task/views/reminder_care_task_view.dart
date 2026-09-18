@@ -3,6 +3,7 @@ import 'package:amicons/amicons.dart';
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:soul_doctor/app/widgets/placeholder/placeholder_no_consultation.dart';
 
 import '../../../common/resource.dart';
@@ -67,6 +68,12 @@ class ReminderCareTaskView extends GetView<ReminderCareTaskController> {
                       return ListTile(
                         title: Text(
                           "Tugas Ke-${e.order.toString()} ${task.title}",
+                        ),
+                        subtitle: Text(
+                          DateFormat("dd-MM-yyyy").format(e.date),
+                          style: TextStyleTheme.LABEL_2.copyWith(
+                            color: ColorTheme.TEXT_PLACEHOLDER,
+                          ),
                         ),
                         trailing: FilledButton(
                           onPressed: () {
